@@ -9,25 +9,28 @@ import org.bbz.stock.quanttrader.stock.StockTraderRecord;
  */
 @Data
 public class GridTraderCfg{
+
+    private final GridTraderRuntimeParam    param;
+
     /**
      * 基准价格
      */
-    private float           basePrice;
+    private float                           basePrice;
 
     /**
      * 最高价
      */
-    private float           highPrice;
+    private float                           highPrice;
 
     /**
      * 最低价
      */
-    private float           lowPrice;
+    private float                           lowPrice;
 
     /**
      * 网格个数
      */
-    private int             gridNum;
+    private int                             gridNum;
 
 
 
