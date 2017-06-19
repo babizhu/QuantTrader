@@ -41,7 +41,6 @@ public class GridTraderCfg{
      * @return                  StockTraderEntity
      */
     public StockTraderRecord getStockTraderRecord( String stockId, float currentPrice ){
-        boolean isBuy = true;
-        return new StockTraderRecord( stockId, 100, currentPrice, isBuy );
+        return new StockTraderRecord( stockId, 100, currentPrice );
     }
 }

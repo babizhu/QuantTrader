@@ -14,7 +14,7 @@ public class StockTraderRecord{
     enum StockTraderStatus{
         PENDING,
         FALSE,
-        TRUE;
+        TRUE
     }
     /**
      * 交易日期
@@ -23,19 +23,20 @@ public class StockTraderRecord{
 
     private String                  stockId;
 
+    /**
+     * 正数买进，负数卖出
+     */
     private int                     count;
 
     private float                   price;
 
-    private boolean                 buy;
 
     private StockTraderStatus       isSuccess;
 
-    public StockTraderRecord( String stockId, int count, float price, boolean isBuy ){
+    public StockTraderRecord( String stockId, int count, float price){
         this.stockId = stockId;
         this.count = count;
         this.price = price;
-        this.buy = isBuy;
         this.isSuccess = StockTraderStatus.PENDING;
     }
 

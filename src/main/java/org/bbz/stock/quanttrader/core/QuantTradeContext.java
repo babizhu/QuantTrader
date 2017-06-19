@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.context;
+package org.bbz.stock.quanttrader.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.stock.StockTraderRecord;
@@ -10,11 +10,15 @@ import java.util.Map;
 
 /**
  * Created by liulaoye on 17-6-19.
- * 量化文件的上下文环境
+ * 量化平台的上下文环境，核心关键数据都在里边
  */
 
 @Slf4j
 public class QuantTradeContext{
+
+    public float getTradeFee(){
+        return tradeFee;
+    }
 
     /**
      * 交易手续费
@@ -29,12 +33,12 @@ public class QuantTradeContext{
     /**
      * 为整个模型准备的初始资金，永远不会被改变
      */
-    private float initBalance;
+    private final double initBalance;
 
     /**
      * 当前的可用资金
      */
-    private float currentBalance;
+    private double currentBalance;
 
     /**
      * 成功的交易记录
@@ -71,16 +75,11 @@ public class QuantTradeContext{
         amount += currentBalance;
 
         //计算手续费
-        amount -= calcFee( tradeFee );
+//        amount -= calcFee();
 
         amount -= initBalance;
         return amount;
     }
-
-    private double calcFee( float tradeFee ){
-        return traderRecords.stream().mapToDouble( v -> v.getPrice() * v.getCount() * tradeFee ).sum();
-    }
-
 
     /**
      * 交易成功之后，修改持仓以及现金情况
@@ -92,57 +91,46 @@ public class QuantTradeContext{
             log.error( "交易记录不能为空" );
             return;
         }
-        if( traderRecord.getCount() <= 0 || traderRecord.getPrice() <= 0f ) {
+        if( traderRecord.getPrice() <= 0f ) {
             log.error( "交易数量为0,或者价格小于等于0" );
             return;
         }
 
-        float amount = traderRecord.getCount() * traderRecord.getPrice();
-        if( !stocks.containsKey( traderRecord.getStockId() ) ) {
-            stocks.put( traderRecord.getStockId(), traderRecord.getCount() );
-        } else {
+        double amount = traderRecord.getCount() * traderRecord.getPrice();
 
-            if( traderRecord.isBuy() ) {
-                incrementStockCount( traderRecord );
-                currentBalance -= amount;
-            } else {
-                decrementCountStockCount( traderRecord );
-                currentBalance += amount;
-            }
+        changeStockCount( traderRecord );
+        currentBalance -= amount;
 
-        }
-        currentBalance -= amount * tradeFee;//减去手续费
+        currentBalance -= Math.abs( amount ) * tradeFee;//减去手续费
         traderRecords.add( traderRecord );
     }
 
-    /**
-     * 增加持仓股票数量
-     *
-     * @param traderRecord 交易记录
-     */
-    private void incrementStockCount( StockTraderRecord traderRecord ){
-        final String stockId = traderRecord.getStockId();
-        final Integer oldCount = stocks.get( stockId );
-        stocks.put( stockId, oldCount + traderRecord.getCount() );
-    }
 
     /**
-     * 减少持仓股票数量
+     * 修改持仓股票数量
      *
      * @param traderRecord 交易记录
      */
-    private void decrementCountStockCount( StockTraderRecord traderRecord ){
+    private void changeStockCount( StockTraderRecord traderRecord ){
         String stockId = traderRecord.getStockId();
-        int decrementCount = traderRecord.getCount();
-        final Integer oldCount = stocks.get( stockId );
-        if( oldCount - decrementCount < 0 ) {
+        int changeCount = traderRecord.getCount();
+        Integer oldCount = stocks.get( stockId );
+        if( oldCount == null ) {
+            oldCount = 0;
+        }
+        int newCount = oldCount + changeCount;
+        if( newCount < 0 ) {
             throw new RuntimeException( "股票数量不能为负数" );
         }
-        stocks.put( stockId, oldCount - decrementCount );
+        stocks.put( stockId, newCount );
     }
 
 
-    public int getStockCount( String stockId ){
+    public List<StockTraderRecord> getTraderRecords(){
+        return traderRecords;
+    }
+
+    public int getStockCountById( String stockId ){
         return stocks.get( stockId );
     }
 }

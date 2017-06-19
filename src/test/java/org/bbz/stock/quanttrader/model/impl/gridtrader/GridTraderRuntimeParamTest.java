@@ -44,20 +44,20 @@ public class GridTraderRuntimeParamTest{
     @SuppressWarnings("SameParameterValue")
     private void calcProfit( GridTraderRuntimeParam traderRuntimeParam, float currentStockPrice ){
         final List<StockTraderRecord> traderRecords = traderRuntimeParam.getTraderRecords();
-        int stockCount = traderRecords.stream().mapToInt( v -> v.isBuy() ? v.getCount() : -v.getCount() ).sum();
+//        int stockCount = traderRecords.stream().mapToInt( v -> v.isBuy() ? v.getCount() : -v.getCount() ).sum();
 
         //计算盈利
         double profit = 0;
-        for( StockTraderRecord traderRecord : traderRecords ) {
-            double amount = traderRecord.getCount() * traderRecord.getPrice();
-            double fee = amount * FEE;
-            if( traderRecord.isBuy() ) {
-                amount = -amount;
-            }
-            amount -= fee;
-            profit += amount;
-        }
-        profit += currentStockPrice * stockCount;
+//        for( StockTraderRecord traderRecord : traderRecords ) {
+//            double amount = traderRecord.getCount() * traderRecord.getPrice();
+//            double fee = amount * FEE;
+//            if( traderRecord.isBuy() ) {
+//                amount = -amount;
+//            }
+//            amount -= fee;
+//            profit += amount;
+//        }
+//        profit += currentStockPrice * stockCount;
         assertEquals( profit, traderRuntimeParam.calcProfit( currentStockPrice, FEE ), 0.001f );
         log.info( "当前价格：" + currentStockPrice + "，资金：" + traderRuntimeParam.getCurrentBalance() + "，股票数量：" +
                 traderRuntimeParam.getStockInfo().getCount() +"，盈利：" + profit );
@@ -78,14 +78,14 @@ public class GridTraderRuntimeParamTest{
         boolean sell = false;
         boolean buy = true;
         List<StockTraderRecord> traderRecords = new ArrayList<>();
-        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.21f, buy ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.31f, sell ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID, 1000, 5.51f, buy ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.01f, sell ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.01f, sell ) );
+//        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.21f, buy ) );
+//        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.31f, sell ) );
+//        traderRecords.add( new StockTraderRecord( STOCK_ID, 1000, 5.51f, buy ) );
+//        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.01f, sell ) );
+//        traderRecords.add( new StockTraderRecord( STOCK_ID, 100, 5.01f, sell ) );
 
         //交易完毕之后剩余股票数量
-        int stockCount = traderRecords.stream().mapToInt( v -> v.isBuy() ? v.getCount() : -v.getCount() ).sum();
+//        int stockCount = traderRecords.stream().mapToInt( v -> v.isBuy() ? v.getCount() : -v.getCount() ).sum();
 
         for( StockTraderRecord traderRecord : traderRecords ) {
             traderRuntimeParam.trade( traderRecord );
@@ -93,16 +93,16 @@ public class GridTraderRuntimeParamTest{
 
 //        log.info( traderRuntimeParam.toString() );
 
-        assertEquals( stockCount, traderRuntimeParam.getStockInfo().getCount() );
+//        assertEquals( stockCount, traderRuntimeParam.getStockInfo().getCount() );
         assertEquals( traderRecords.size(), traderRuntimeParam.getTraderRecords().size() );
         calcProfit( traderRuntimeParam, 5.0f );
 
-        try {
-            traderRuntimeParam.trade( new StockTraderRecord( STOCK_ID, 100000, 5.21f, sell ) );
-        } catch( Exception ex ) {
-            assertTrue( ex instanceof RuntimeException );
-            assertTrue( ex.getMessage().contains( "股票数量不能为负数" ) );
-        }
+//        try {
+////            traderRuntimeParam.trade( new StockTraderRecord( STOCK_ID, 100000, 5.21f, sell ) );
+//        } catch( Exception ex ) {
+//            assertTrue( ex instanceof RuntimeException );
+//            assertTrue( ex.getMessage().contains( "股票数量不能为负数" ) );
+//        }
     }
 
 

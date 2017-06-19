@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.context;
+package org.bbz.stock.quanttrader.core;
 
 import lombok.Data;
 

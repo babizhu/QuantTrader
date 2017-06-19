@@ -50,13 +50,13 @@ public class GridTraderRuntimeParam{
         }
 
         float amount = traderRecord.getCount() * traderRecord.getPrice();
-        if( traderRecord.isBuy() ) {
-            stockInfo.incrementCount( traderRecord.getCount() );
-            currentBalance -= amount;
-        } else {
-            stockInfo.decrementCount( traderRecord.getCount() );
-            currentBalance += amount;
-        }
+//        if( traderRecord.isBuy() ) {
+//            stockInfo.incrementCount( traderRecord.getCount() );
+//            currentBalance -= amount;
+//        } else {
+//            stockInfo.decrementCount( traderRecord.getCount() );
+//            currentBalance += amount;
+//        }
         traderRecords.add( traderRecord );
     }
 
