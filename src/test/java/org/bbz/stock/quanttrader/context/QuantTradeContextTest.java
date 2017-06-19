@@ -21,6 +21,7 @@ public class QuantTradeContextTest{
         return new QuantTradeContext( FEE, INIT_BALANCE );
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void calcProfit() throws Exception{
         final QuantTradeContext tradeContext = createQuantTradeContext();
