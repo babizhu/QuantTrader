@@ -50,14 +50,14 @@ public class QuantTradeContextTest{
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTraderRecord::getCount ).sum();
         amount += stockCount * currentPrice.get( STOCK_ID3 );
 
-        assertEquals( amount,tradeContext.calcProfit( currentPrice ),0f );
+        assertEquals( amount, tradeContext.calcProfit( currentPrice ), 0f );
     }
 
     private Map<String, Float> buildCurrentPriceMap(){
         Map<String, Float> currentPrice = new HashMap<>();
-        currentPrice.put( STOCK_ID1,2f );
-        currentPrice.put( STOCK_ID2,3f );
-        currentPrice.put( STOCK_ID3,4f );
+        currentPrice.put( STOCK_ID1, 2.13f );
+        currentPrice.put( STOCK_ID2, 3.27f );
+        currentPrice.put( STOCK_ID3, 4.56f );
         return currentPrice;
     }
 
