@@ -37,7 +37,6 @@ public class QuantTradeContextTest{
      */
     private void calcProfit( QuantTradeContext tradeContext, List<StockTraderRecord> traderRecords ){
         Map<String, BigDecimal> currentPrice = buildCurrentStockPriceMap();
-//        double fee = traderRecords.stream().mapToDouble( v->Math.abs( v.getCount() * v.getPrice() ) * tradeContext.getTradeFee() ).sum();
         BigDecimal amount = new BigDecimal( 0 );
         for( StockTraderRecord traderRecord : traderRecords ) {
             BigDecimal v = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
@@ -53,11 +52,10 @@ public class QuantTradeContextTest{
 
 
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-//        amount += stockCount * currentPrice.get( STOCK_ID3 );
         amount = amount.add( currentPrice.get( STOCK_ID3 ).multiply( new BigDecimal( stockCount ) ) );
 
 
-        assertEquals( amount, tradeContext.calcProfit( currentPrice ) );
+        assertEquals( amount, tradeContext.getPortfolio().calcProfit( currentPrice ) );
         log.info( "盈利：" + amount );
     }
 
@@ -82,15 +80,16 @@ public class QuantTradeContextTest{
 
         traderRecords.forEach( tradeContext::trade );
 
+        final Portfolio portfolio = tradeContext.getPortfolio();
         //交易完毕之后剩余股票数量
         int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        assertEquals( stockCount, tradeContext.getStockCountById( STOCK_ID1 ) );
+        assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID1 ) );
 
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        assertEquals( stockCount, tradeContext.getStockCountById( STOCK_ID2 ) );
+        assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID2 ) );
 
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        assertEquals( stockCount, tradeContext.getStockCountById( STOCK_ID3 ) );
+        assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID3 ) );
 
         assertEquals( traderRecords.size(), tradeContext.getTraderRecords().size() );
 
