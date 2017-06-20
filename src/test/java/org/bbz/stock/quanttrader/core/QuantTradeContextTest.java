@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by liulaoye on 17-6-19.
@@ -94,6 +95,27 @@ public class QuantTradeContextTest{
         assertEquals( traderRecords.size(), tradeContext.getTraderRecords().size() );
 
         calcProfit( tradeContext, traderRecords );
+        tradeException( tradeContext );
     }
+
+    /**
+     * 测试一些非法的交易
+     *
+     * @param tradeContext
+     */
+    private void tradeException( QuantTradeContext tradeContext ){
+        try {
+            tradeContext.order( "6000432", 0 );
+        } catch( Exception ex ) {
+            assertTrue( ex.getMessage().contains( "交易数量不能为0" ) );
+        }
+
+        try {
+            tradeContext.trade( StockTraderRecord.create( "300003", 100, BigDecimal.valueOf( -9 ) ) );
+        } catch( Exception ex ) {
+            assertTrue( ex.getMessage().contains( "交易价格不能小于等于0" ) );
+        }
+    }
+
 
 }

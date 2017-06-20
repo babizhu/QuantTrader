@@ -1,7 +1,7 @@
 package org.bbz.stock.quanttrader.model.impl.gridtrader;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.model.ITraderModel;
+import org.bbz.stock.quanttrader.model.ITradeModel;
 
 /**
  * Created by liukun on 2017/6/17.
@@ -12,10 +12,17 @@ import org.bbz.stock.quanttrader.model.ITraderModel;
  * https://www.joinquant.com/post/539
  */
 @Slf4j
-public class GridTraderModel implements ITraderModel{
+public class GridTraderModel implements ITradeModel{
+
+
     @Override
-    public void run(){
+    public void initialize(){
 
     }
-//
+
+    @Override
+    public void run( Long aLong ){
+
+    }
+
 }

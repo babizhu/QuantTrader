@@ -34,11 +34,19 @@ public class StockTraderRecord{
 
     private StockTraderStatus       isSuccess;
 
+    /**
+     *
+     */
     public StockTraderRecord( String stockId, int count, BigDecimal price){
         this.stockId = stockId;
         this.count = count;
         this.price = price;
         this.isSuccess = StockTraderStatus.PENDING;
+    }
+
+
+    public static StockTraderRecord create(String stockId, int count, BigDecimal price ){
+        return new StockTraderRecord( stockId, count, price );
     }
 
 }

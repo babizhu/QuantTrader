@@ -41,20 +41,33 @@ public class QuantTradeContext{
         traderRecords = new ArrayList<>();
     }
 
+    /**
+     * 用当前价格购买或者卖出股票
+     * count>0      买入股票
+     * count<0      卖出股票
+     */
+    public void order( String stockId, int count ){
+        BigDecimal price = BigDecimal.valueOf( 3.45 );
+        trade( StockTraderRecord.create( stockId, count, price ) );
+    }
 
     /**
      * 交易成功之后，修改持仓以及现金情况
      *
      * @param traderRecord 交易信息
      */
-    public void trade( StockTraderRecord traderRecord ){
+    void trade( StockTraderRecord traderRecord ){
         if( traderRecord == null ) {
             log.error( "交易记录不能为空" );
-            return;
+            throw new RuntimeException( "交易记录不能为空" );
+
         }
-        if( traderRecord.getPrice().compareTo( new BigDecimal( 0 ) ) == -1 ) {
-            log.error( "交易数量为0,或者价格小于等于0" );
-            return;
+        if( traderRecord.getCount() == 0 ){
+            throw new RuntimeException( "交易数量不能为0" );
+
+        }
+        if( traderRecord.getPrice().compareTo( BigDecimal.valueOf( 0 ) ) <= 0 ) {
+            throw new RuntimeException( "交易价格不能小于等于0" );
         }
 
         portfolio.trade( traderRecord, tradeFee );

@@ -10,18 +10,17 @@ import java.util.Map;
 
 /**
  * Created by liulaoye on 17-6-20.
- *
+ * <p>
  * 投资组合<br/>
- *
+ * <p>
  * 包括股票以及现金
- *
  */
 
 @Data
 @Slf4j
 public class Portfolio{
+
     /**
-     *
      * 持有的股票
      * String       stock ID
      * Integer      stock count
@@ -49,16 +48,12 @@ public class Portfolio{
         this.currentBalance = currentBalance;
     }
 
-    public int getStockCountById(String stockId ){
-        return stocks.get( stockId );
+    /**
+     * 通过股票id返回数量，如果不存在范围0
+     */
+    public int getStockCountById( String stockId ){
+        return stocks.getOrDefault( stockId, 0 );
     }
-//
-//
-//
-//    public BigDecimal changecurrentBalance(BigDecimal change){
-//        currentBalance = currentBalance.add( change );
-//        return currentBalance;
-//    }
 
     /**
      * 计算盈利，要减去手续费
@@ -79,16 +74,8 @@ public class Portfolio{
                 return null;
             }
         }
-
-
         amount = amount.add( currentBalance );
-//        amount += currentBalance;
-
-        //计算手续费
-//        amount -= calcFee();
-
-        amount = amount.subtract( initBalance  );
-//        amount -= initBalance;
+        amount = amount.subtract( initBalance );
         return amount;
     }
 
@@ -113,17 +100,22 @@ public class Portfolio{
 
     /**
      * 交易成功之后，修改持仓以及现金情况，请在调用处确定输入参数的合法性
-     * @param traderRecord          交易记录
-     * @param tradeFee              用于计算手续费的参数
+     *
+     * @param traderRecord 交易记录
+     * @param tradeFee     用于计算手续费的参数
      */
-    void trade( StockTraderRecord traderRecord,BigDecimal tradeFee ){
+    void trade( StockTraderRecord traderRecord, BigDecimal tradeFee ){
 
         BigDecimal amount = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
 
         changeStockCount( traderRecord );
         currentBalance = currentBalance.subtract( amount );//减去交易金额
-        currentBalance = currentBalance.subtract( amount.abs().multiply( tradeFee ));//减去手续费
+        currentBalance = currentBalance.subtract( amount.abs().multiply( tradeFee ) );//减去手续费
 
+    }
+
+    public String getStauts( Map<String, BigDecimal> priceMap ){
+        return "盈利" + calcProfit( priceMap ) + "，持仓 " + getStocks();
     }
 
 }
