@@ -101,7 +101,7 @@ public class QuantTradeContextTest{
     /**
      * 测试一些非法的交易
      *
-     * @param tradeContext
+     * @param tradeContext          ctx
      */
     private void tradeException( QuantTradeContext tradeContext ){
         try {
