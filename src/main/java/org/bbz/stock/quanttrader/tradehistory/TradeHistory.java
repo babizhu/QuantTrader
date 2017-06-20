@@ -38,6 +38,7 @@ public enum TradeHistory{
         String stockId = "600109";
         TradeHistory.INSTANCE.init();
         int lastIndex = TradeHistory.INSTANCE.dayKLineMap.get( stockId ).size() - 1;
-        System.out.println( TradeHistory.INSTANCE.dayKLineMap.get( stockId ).get( lastIndex ) );
+        TradeHistory.INSTANCE.dayKLineMap.get( stockId ).forEach( System.out::println);
+//        System.out.println( TradeHistory.INSTANCE.dayKLineMap.get( stockId ).get( lastIndex ) );
     }
 }
