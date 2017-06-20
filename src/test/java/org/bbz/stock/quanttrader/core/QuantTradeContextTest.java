@@ -1,8 +1,10 @@
 package org.bbz.stock.quanttrader.core;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +16,11 @@ import static org.junit.Assert.assertEquals;
  * Created by liulaoye on 17-6-19.
  * QuantTradeContextTest
  */
+
+@Slf4j
 public class QuantTradeContextTest{
-    private static final float FEE = 0.0003f;
-    private static final float INIT_BALANCE = 100000f;
+    private static final String FEE = "0.0003";
+    private static final String INIT_BALANCE = "100000";
     private static final String STOCK_ID1 = "6000345";
     private static final String STOCK_ID2 = "6000346";
     private static final String STOCK_ID3 = "6000347";
@@ -32,32 +36,36 @@ public class QuantTradeContextTest{
      * @param traderRecords 交易情况
      */
     private void calcProfit( QuantTradeContext tradeContext, List<StockTraderRecord> traderRecords ){
-        Map<String, Float> currentPrice = buildCurrentPriceMap();
+        Map<String, BigDecimal> currentPrice = buildCurrentStockPriceMap();
 //        double fee = traderRecords.stream().mapToDouble( v->Math.abs( v.getCount() * v.getPrice() ) * tradeContext.getTradeFee() ).sum();
-        double amount = 0;
+        BigDecimal amount = new BigDecimal( 0 );
         for( StockTraderRecord traderRecord : traderRecords ) {
-            double v = traderRecord.getCount() * traderRecord.getPrice();
-            amount -= v;
-            amount -= Math.abs( v ) * tradeContext.getTradeFee();
+            BigDecimal v = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
+            amount = amount.subtract( v );
+            amount = amount.subtract( v.abs().multiply( tradeContext.getTradeFee() ) );
         }
 
         int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        amount += stockCount * currentPrice.get( STOCK_ID1 );
+        amount = amount.add( currentPrice.get( STOCK_ID1 ).multiply( new BigDecimal( stockCount ) ) );
 
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        amount += stockCount * currentPrice.get( STOCK_ID2 );
+        amount = amount.add( currentPrice.get( STOCK_ID2 ).multiply( new BigDecimal( stockCount ) ) );
+
 
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTraderRecord::getCount ).sum();
-        amount += stockCount * currentPrice.get( STOCK_ID3 );
+//        amount += stockCount * currentPrice.get( STOCK_ID3 );
+        amount = amount.add( currentPrice.get( STOCK_ID3 ).multiply( new BigDecimal( stockCount ) ) );
 
-        assertEquals( amount, tradeContext.calcProfit( currentPrice ), 0f );
+
+        assertEquals( amount, tradeContext.calcProfit( currentPrice ) );
+        log.info( "盈利：" + amount );
     }
 
-    private Map<String, Float> buildCurrentPriceMap(){
-        Map<String, Float> currentPrice = new HashMap<>();
-        currentPrice.put( STOCK_ID1, 2.13f );
-        currentPrice.put( STOCK_ID2, 3.27f );
-        currentPrice.put( STOCK_ID3, 4.56f );
+    private Map<String, BigDecimal> buildCurrentStockPriceMap(){
+        Map<String, BigDecimal> currentPrice = new HashMap<>();
+        currentPrice.put( STOCK_ID1, new BigDecimal( "3" ) );
+        currentPrice.put( STOCK_ID2, new BigDecimal( "2" ) );
+        currentPrice.put( STOCK_ID3, new BigDecimal( "4.56" ) );
         return currentPrice;
     }
 
@@ -65,12 +73,12 @@ public class QuantTradeContextTest{
     public void trade() throws Exception{
         final QuantTradeContext tradeContext = createQuantTradeContext();
         List<StockTraderRecord> traderRecords = new ArrayList<>();
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, 200, 2f ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID2, 100, 2f ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, 1f ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID3, 1000, 3f ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, 1.8f ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, 100, 5f ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 200, new BigDecimal( "2" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID2, 100, new BigDecimal( "2" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID3, 1000, new BigDecimal( "3" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1.8" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 100, new BigDecimal( "5" ) ) );
 
         traderRecords.forEach( tradeContext::trade );
 

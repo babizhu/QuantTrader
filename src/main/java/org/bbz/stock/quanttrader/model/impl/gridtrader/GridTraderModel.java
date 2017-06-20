@@ -1,9 +1,7 @@
 package org.bbz.stock.quanttrader.model.impl.gridtrader;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.account.StockAccount;
 import org.bbz.stock.quanttrader.model.ITraderModel;
-import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 
 /**
  * Created by liukun on 2017/6/17.
@@ -15,53 +13,9 @@ import org.bbz.stock.quanttrader.stock.StockTraderRecord;
  */
 @Slf4j
 public class GridTraderModel implements ITraderModel{
-    private final StockAccount account;
-    private final GridTraderRuntimeParam para;
-    private final GridTraderCfg cfg;
-
-
-    public GridTraderModel( StockAccount account, GridTraderRuntimeParam para, GridTraderCfg cfg ){
-        this.account = account;
-        this.para = para;
-        this.cfg = cfg;
-    }
-
-
-    /**
-     * 判断是否需要交易
-     *
-     * @param currentPrice 当前股票的价格
-     * @return true：需要交易
-     */
-    boolean needTrader( float currentPrice ){
-        if( cfg.getBasePrice() < currentPrice ) {
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * 开始交易，由于目前没有交易api，修改为发微信或者邮件的方式提示
-     */
-    void trader( float currentPrice ){
-        StockTraderRecord stockTraderRecord = cfg.getStockTraderRecord( para.getStockInfo().getId(), currentPrice );
-        //TODO 调用交易api
-        // 假设购买成功，修改运行时参数
-        para.trade( stockTraderRecord );
-        log.info( para.toString() );
-
-    }
-
     @Override
     public void run(){
-        float stockPrice = getStockPrice();
-        if( needTrader( stockPrice ) ) {
-            trader( stockPrice );
-        }
-    }
 
-    private float getStockPrice(){
-        return 34.3f;
     }
+//
 }

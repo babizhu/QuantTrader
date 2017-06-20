@@ -3,6 +3,8 @@ package org.bbz.stock.quanttrader.model.impl.gridtrader;
 import lombok.Data;
 import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 
+import java.math.BigDecimal;
+
 /**
  * Created by liukun on 2017/6/17.
  * 网格交易法的配置文件
@@ -10,7 +12,6 @@ import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 @Data
 public class GridTraderCfg{
 
-    private final GridTraderRuntimeParam    param;
 
     /**
      * 基准价格
@@ -40,7 +41,7 @@ public class GridTraderCfg{
      * @param currentPrice      当前价格
      * @return                  StockTraderEntity
      */
-    public StockTraderRecord getStockTraderRecord( String stockId, float currentPrice ){
+    public StockTraderRecord getStockTraderRecord( String stockId, BigDecimal currentPrice ){
         return new StockTraderRecord( stockId, 100, currentPrice );
     }
 }

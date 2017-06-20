@@ -2,6 +2,7 @@ package org.bbz.stock.quanttrader.stock;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
@@ -28,12 +29,12 @@ public class StockTraderRecord{
      */
     private int                     count;
 
-    private float                   price;
+    private BigDecimal              price;
 
 
     private StockTraderStatus       isSuccess;
 
-    public StockTraderRecord( String stockId, int count, float price){
+    public StockTraderRecord( String stockId, int count, BigDecimal price){
         this.stockId = stockId;
         this.count = count;
         this.price = price;
