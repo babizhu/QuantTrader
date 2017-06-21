@@ -37,7 +37,7 @@ public enum TradeHistory{
     public static void main( String[] args ) throws IOException{
         String stockId = "600109";
         TradeHistory.INSTANCE.init();
-        int lastIndex = TradeHistory.INSTANCE.dayKLineMap.get( stockId ).size() - 1;
+//        int lastIndex = TradeHistory.INSTANCE.dayKLineMap.get( stockId ).size() - 1;
         TradeHistory.INSTANCE.dayKLineMap.get( stockId ).forEach( System.out::println);
 //        System.out.println( TradeHistory.INSTANCE.dayKLineMap.get( stockId ).get( lastIndex ) );
     }

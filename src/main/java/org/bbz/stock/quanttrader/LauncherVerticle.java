@@ -5,7 +5,7 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.model.simpletrade.SimpleTradeModel;
+import org.bbz.stock.quanttrader.model.impl.simpletrade.SimpleTradeModel;
 
 /**
  * Created by liu_k on 2017/6/20.

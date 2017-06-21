@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.model.simpletrade;
+package org.bbz.stock.quanttrader.model.impl.simpletrade;
 
 import org.bbz.stock.quanttrader.core.Portfolio;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
@@ -33,7 +33,4 @@ public class SimpleTradeModel implements ITradeModel{
 
 //        System.out.println( portfolio.getStocks() );
     }
-
-
-
 }

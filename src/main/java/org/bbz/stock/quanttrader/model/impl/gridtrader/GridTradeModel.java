@@ -12,7 +12,7 @@ import org.bbz.stock.quanttrader.model.ITradeModel;
  * https://www.joinquant.com/post/539
  */
 @Slf4j
-public class GridTraderModel implements ITradeModel{
+public class GridTradeModel implements ITradeModel{
 
 
     @Override
