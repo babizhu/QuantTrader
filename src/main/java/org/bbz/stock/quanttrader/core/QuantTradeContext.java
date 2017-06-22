@@ -51,6 +51,22 @@ public class QuantTradeContext{
         trade( StockTraderRecord.create( stockId, count, price ) );
     }
 
+
+    /**
+     * 尝试购买股票到指定仓位，如果仓位已到，则不做任何操作
+     * 对于买入来说，当前仓位大于要购买的仓位，则不做任何操作
+     * 对于卖出来说，当前仓位小于要购买的仓位，则不做任何操作
+     * count>0      买入股票
+     * count<0      卖出股票
+     * @param stockId               stockId
+     * @param count                 count
+     * @param postion               要达到的仓位如0.1,0.5
+     */
+    public void tryOrder( String stockId, int count, float postion ){
+        BigDecimal price = BigDecimal.valueOf( 3.45 );
+        trade( StockTraderRecord.create( stockId, count, price ) );
+    }
+
     /**
      * 交易成功之后，修改持仓以及现金情况
      *

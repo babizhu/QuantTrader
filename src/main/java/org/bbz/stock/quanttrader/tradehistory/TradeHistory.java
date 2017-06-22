@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +39,26 @@ public enum TradeHistory{
         String stockId = "600109";
         TradeHistory.INSTANCE.init();
 //        int lastIndex = TradeHistory.INSTANCE.dayKLineMap.get( stockId ).size() - 1;
-        TradeHistory.INSTANCE.dayKLineMap.get( stockId ).forEach( System.out::println);
+        TradeHistory.INSTANCE.dayKLineMap.get( stockId ).forEach( System.out::println );
 //        System.out.println( TradeHistory.INSTANCE.dayKLineMap.get( stockId ).get( lastIndex ) );
+    }
+
+    public BigDecimal[] attributeHistory( String stockId,LocalDate beginDate, int count, TimeUnit unit, StockUnitData field ){
+        if( count <= 0 ){
+            throw new RuntimeException( "数量小于0" );
+        }
+        List<DayKLine> dayKLines = dayKLineMap.get( stockId );
+        BigDecimal[] res = new BigDecimal[count];
+        List<DayKLine> collect = dayKLines.stream().filter( v -> v.getDate().compareTo( beginDate ) >= 0 ).limit( count ).collect( Collectors.toList() );
+//        System.out.println(collect);
+        switch( field ) {
+            case CLOSE:
+                for( int i = 0; i < count; i++ ) {
+                    res[i] = collect.get( i ).getClose();
+                }
+                break;
+        }
+        return res;
+
     }
 }
