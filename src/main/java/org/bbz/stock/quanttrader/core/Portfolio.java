@@ -26,6 +26,13 @@ public class Portfolio{
      * Integer      stock count
      */
     private Map<String, Integer> stocks;
+
+    /**
+     * 今日购买的股票，当日不能买卖
+     */
+    private Map<String, Integer> todayStocks;
+
+
     /**
      * 为整个模型准备的初始资金，永远不会被改变
      */

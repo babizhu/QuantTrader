@@ -11,7 +11,7 @@ import java.util.List;
  * 策略格子
  */
 @Data
-public class StrategyGrid{
+class StrategyGrid{
     /**
      * 价格
      */
@@ -22,7 +22,7 @@ public class StrategyGrid{
     private final float position;
 
 
-    public static List<StrategyGrid> create( BigDecimal basePrice ){
+    static List<StrategyGrid> create( BigDecimal basePrice ){
 
         List<StrategyGrid> ret = new ArrayList<>();
         ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.valueOf( 0.88 ) ), 1f ) );
@@ -40,23 +40,24 @@ public class StrategyGrid{
      * @param basePrice 基础价格
      * @param buyStep   步进（买）：如果股票跌多少，则买入,例如0.035,表示股价相对基准价格跌3.5%则买入
      * @param sellStep  步进（卖）：如果股票涨多少，则卖出,例如0.035,表示股价相对基准价格涨3.5%则卖出
-     * @return
      */
-    public static List<StrategyGrid> create( BigDecimal basePrice, String buyStep, String sellStep ){
-        BigDecimal buyUnit =  new BigDecimal( buyStep );
+    static List<StrategyGrid> create( BigDecimal basePrice, String buyStep, String sellStep ){
+        BigDecimal buyUnit = new BigDecimal( buyStep );
         BigDecimal sellUnit = new BigDecimal( sellStep );
-
+        final BigDecimal TWO = BigDecimal.valueOf( 2 );
+        final BigDecimal THREE = BigDecimal.valueOf( 3 );
+        final BigDecimal FOUR = BigDecimal.valueOf( 4 );
 //
         List<StrategyGrid> ret = new ArrayList<>();
 
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( BigDecimal.valueOf( 4 ) ) ) ), 1f ) );
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( BigDecimal.valueOf( 3 ) ) ) ), 0.9f ) );
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( BigDecimal.valueOf( 2 ) ) ) ), 0.7f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( FOUR ) ) ), 1f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( THREE ) ) ), 0.9f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit.multiply( TWO ) ) ), 0.7f ) );
         ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.subtract( buyUnit ) ), 0.4f ) );
         ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit ) ), 0.6f ) );
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( BigDecimal.valueOf( 2 ) ) ) ), 0.3f ) );
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( BigDecimal.valueOf( 3 ) ) ) ), 0.1f ) );
-        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( BigDecimal.valueOf( 4 ) ) ) ), 0f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( TWO ) ) ), 0.3f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( THREE ) ) ), 0.1f ) );
+        ret.add( new StrategyGrid( basePrice.multiply( BigDecimal.ONE.add( sellUnit.multiply( FOUR ) ) ), 0f ) );
         return ret;
     }
 }
