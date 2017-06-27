@@ -1,6 +1,7 @@
 package org.bbz.stock.quanttrader.model.impl.gridtrader;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bbz.stock.quanttrader.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.model.ITradeModel;
 
 /**
@@ -14,6 +15,14 @@ import org.bbz.stock.quanttrader.model.ITradeModel;
 @Slf4j
 public class GridTradeModel implements ITradeModel{
 
+    private final QuantTradeContext ctx;
+    private final String stockId;
+//    private final GridTradeCfg cfg = new GridTradeCfg(  );
+
+    public GridTradeModel( QuantTradeContext ctx, String stockId ){
+        this.ctx = ctx;
+        this.stockId = stockId;
+    }
 
     @Override
     public void initialize(){
@@ -22,6 +31,11 @@ public class GridTradeModel implements ITradeModel{
 
     @Override
     public void run( Long aLong ){
+
+    }
+
+    @Override
+    public void run( Object param ){
 
     }
 

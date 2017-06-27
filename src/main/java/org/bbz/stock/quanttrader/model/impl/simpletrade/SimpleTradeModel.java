@@ -10,10 +10,11 @@ import org.bbz.stock.quanttrader.model.ITradeModel;
  */
 public class SimpleTradeModel implements ITradeModel{
     private final QuantTradeContext ctx;
-    private static final String stockId = "6000456";
+    private final String stockId;
 
-    public SimpleTradeModel( QuantTradeContext ctx ){
+    public SimpleTradeModel( QuantTradeContext ctx, String stockId ){
         this.ctx = ctx;
+        this.stockId = stockId;
     }
 
 
@@ -30,7 +31,11 @@ public class SimpleTradeModel implements ITradeModel{
         } else {
             ctx.order( stockId, -500 );
         }
+        System.out.println( portfolio );
+    }
 
-//        System.out.println( portfolio.getStocks() );
+    @Override
+    public void run( Object param ){
+
     }
 }

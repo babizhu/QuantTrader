@@ -15,11 +15,11 @@ import java.util.List;
 @Slf4j
 public class QuantTradeContext{
 
-
+//    set_order_cost(OrderCost(close_tax=0.001, open_commission=0.0003, close_commission=0.0003, min_commission=5), type='stock')
     /**
      * 交易手续费
      */
-    private BigDecimal tradeFee;
+    private OrderCost orderCost;
 
     public Portfolio getPortfolio(){
         return portfolio;
@@ -35,9 +35,9 @@ public class QuantTradeContext{
      */
     private List<StockTraderRecord> traderRecords;
 
-    public QuantTradeContext( String tradeFee, String initBalance ){
-        this.tradeFee = new BigDecimal( tradeFee );
-        portfolio = new Portfolio( initBalance );
+    public QuantTradeContext( OrderCost orderCost, String initBalance ){
+        this.orderCost = orderCost;
+        portfolio = new Portfolio( initBalance, orderCost );
         traderRecords = new ArrayList<>();
     }
 
@@ -86,7 +86,7 @@ public class QuantTradeContext{
             throw new RuntimeException( "交易价格不能小于等于0" );
         }
 
-        portfolio.trade( traderRecord, tradeFee );
+        portfolio.trade( traderRecord );
         traderRecords.add( traderRecord );
     }
 
@@ -96,8 +96,5 @@ public class QuantTradeContext{
     }
 
 
-    BigDecimal getTradeFee(){
-        return tradeFee;
-    }
 
 }

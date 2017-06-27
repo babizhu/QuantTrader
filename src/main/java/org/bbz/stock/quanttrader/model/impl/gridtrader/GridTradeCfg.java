@@ -43,18 +43,8 @@ public class GridTradeCfg{
         if( needBuy ) {
             return grids.get( index );
         } else {
-//            index = Math.min( grids.size() - 1, index-1 );
             return grids.get( index - 1 );
         }
     }
-//    /**
-//     * 根据当前价格决定应该如何交易
-//     *
-//     * @param stockId      股票id
-//     * @param currentPrice 当前价格
-//     * @return StockTraderEntity
-//     */
-//    public StockTraderRecord getStockTraderRecord( String stockId, BigDecimal currentPrice ){
-//        return new StockTraderRecord( stockId, 100, currentPrice );
-//    }
+
 }

@@ -20,29 +20,30 @@ import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class QuantTradeContextTest{
-    private static final String FEE = "0.0003";
+    private static final OrderCost ORDER_COST = new OrderCost();
     private static final String INIT_BALANCE = "100000";
     private static final String STOCK_ID1 = "6000345";
     private static final String STOCK_ID2 = "6000346";
     private static final String STOCK_ID3 = "6000347";
 
+
     private QuantTradeContext createQuantTradeContext(){
-        return new QuantTradeContext( FEE, INIT_BALANCE );
+        return new QuantTradeContext( ORDER_COST, INIT_BALANCE );
     }
 
     /**
      * 验证盈利状况
      *
      * @param tradeContext  context
-     * @param traderRecords 交易情况
+     * @param traderRecords 历次股票买卖交易记录
      */
     private void calcProfit( QuantTradeContext tradeContext, List<StockTraderRecord> traderRecords ){
         Map<String, BigDecimal> currentPrice = buildCurrentStockPriceMap();
         BigDecimal amount = new BigDecimal( 0 );
         for( StockTraderRecord traderRecord : traderRecords ) {
-            BigDecimal v = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
+            BigDecimal v = traderRecord.getPrice().multiply( BigDecimal.valueOf( traderRecord.getCount() ) );
             amount = amount.subtract( v );
-            amount = amount.subtract( v.abs().multiply( tradeContext.getTradeFee() ) );
+            amount = amount.subtract( tradeContext.getPortfolio().calcOrderCost( v ) );
         }
 
         int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTraderRecord::getCount ).sum();

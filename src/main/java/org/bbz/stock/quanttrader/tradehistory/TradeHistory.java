@@ -48,6 +48,7 @@ public enum TradeHistory{
             throw new RuntimeException( "数量小于0" );
         }
         List<DayKLine> dayKLines = dayKLineMap.get( stockId );
+
         BigDecimal[] res = new BigDecimal[count];
         List<DayKLine> collect = dayKLines.stream().filter( v -> v.getDate().compareTo( beginDate ) >= 0 ).limit( count ).collect( Collectors.toList() );
 //        System.out.println(collect);

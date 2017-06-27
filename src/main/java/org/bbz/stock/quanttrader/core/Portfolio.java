@@ -36,16 +36,19 @@ public class Portfolio{
      */
     private BigDecimal currentBalance;
 
-    Portfolio( String initBalance ){
+    private final OrderCost orderCost;
 
-        this( new HashMap<>(), new BigDecimal( initBalance ), new BigDecimal( initBalance ) );
+    Portfolio( String initBalance, OrderCost orderCost ){
+
+        this( new HashMap<>(), new BigDecimal( initBalance ), new BigDecimal( initBalance ), orderCost );
     }
 
     @SuppressWarnings("WeakerAccess")
-    Portfolio( Map<String, Integer> stocks, BigDecimal initBalance, BigDecimal currentBalance ){
+    Portfolio( Map<String, Integer> stocks, BigDecimal initBalance, BigDecimal currentBalance, OrderCost orderCost ){
         this.stocks = stocks;
         this.initBalance = initBalance;
         this.currentBalance = currentBalance;
+        this.orderCost = orderCost;
     }
 
     /**
@@ -67,8 +70,8 @@ public class Portfolio{
         for( Map.Entry<String, Integer> entry : stocks.entrySet() ) {//计算拥有股票的市值
             if( stockCurrentPrice.containsKey( entry.getKey() ) ) {
                 BigDecimal price = stockCurrentPrice.get( entry.getKey() );
-                amount = amount.add( price.multiply( new BigDecimal( entry.getValue() ) ) );
-//                amount += entry.getValue() * price;
+                amount = amount.add( price.multiply( BigDecimal.valueOf( entry.getValue() ) ) );
+
             } else {
                 log.error( "没有输入股票:" + entry.getKey() + "的当前价格" );
                 return null;
@@ -87,10 +90,9 @@ public class Portfolio{
     private void changeStockCount( StockTraderRecord traderRecord ){
         String stockId = traderRecord.getStockId();
         int changeCount = traderRecord.getCount();
-        Integer oldCount = stocks.get( stockId );
-        if( oldCount == null ) {
-            oldCount = 0;
-        }
+
+        Integer oldCount = stocks.getOrDefault( stockId, 0 );
+
         int newCount = oldCount + changeCount;
         if( newCount < 0 ) {
             throw new RuntimeException( "股票数量不能为负数" );
@@ -102,20 +104,29 @@ public class Portfolio{
      * 交易成功之后，修改持仓以及现金情况，请在调用处确定输入参数的合法性
      *
      * @param traderRecord 交易记录
-     * @param tradeFee     用于计算手续费的参数
      */
-    void trade( StockTraderRecord traderRecord, BigDecimal tradeFee ){
+    void trade( StockTraderRecord traderRecord ){
 
         BigDecimal amount = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
 
         changeStockCount( traderRecord );
         currentBalance = currentBalance.subtract( amount );//减去交易金额
-        currentBalance = currentBalance.subtract( amount.abs().multiply( tradeFee ) );//减去手续费
-
+        currentBalance = currentBalance.subtract( calcOrderCost( amount ) );//减去手续费
     }
 
     public String getStauts( Map<String, BigDecimal> priceMap ){
         return "盈利" + calcProfit( priceMap ) + "，持仓 " + getStocks();
+    }
+
+    /**
+     * 计算手续费，先做个简单版，再慢慢补充
+     *
+     * @param amount 交易金额，正为买入，负为卖出
+     */
+    public BigDecimal calcOrderCost( BigDecimal amount ){
+//        System.out.println( amount.abs().multiply( orderCost.getCloseCommission() ));
+        return amount.abs().multiply( orderCost.getCloseCommission() );
+
     }
 
 }
