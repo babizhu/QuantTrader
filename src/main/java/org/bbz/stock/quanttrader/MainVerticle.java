@@ -7,9 +7,12 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonArray;
+import io.vertx.redis.RedisClient;
+import io.vertx.redis.RedisOptions;
 import org.bbz.stock.quanttrader.core.OrderCost;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.model.impl.simpletrade.SimpleTradeModel;
+import org.bbz.stock.quanttrader.stockdata.RedisDataProvider;
 
 /**
  * Created by liu_k on 2017/6/20.
@@ -20,6 +23,8 @@ public class MainVerticle extends AbstractVerticle{
     private static final int PORT = 8000;
 
     private HttpClient httpClient;
+    private RedisDataProvider redisDataProvider;
+
 
     @Override
     public void start(){
@@ -28,9 +33,9 @@ public class MainVerticle extends AbstractVerticle{
         String stockId = "600109";
         SimpleTradeModel simpleTradeModel = new SimpleTradeModel( quantTradeContext, stockId );
 //        vertx.setPeriodic( 1000, simpleTradeModel::run );
-        httpClient = vertx.createHttpClient(new HttpClientOptions(  ).setMaxPoolSize( 1 ) );
+        httpClient = vertx.createHttpClient( new HttpClientOptions().setMaxPoolSize( 1 ) );
 
-        httpClient.getNow( 8888, "localhost", "/", resp -> resp.bodyHandler( body->{
+        httpClient.getNow( 8888, "localhost", "/", resp -> resp.bodyHandler( body -> {
 //            BigDecimal prices =
             JsonArray objects = body.toJsonArray();
             for( Object object : objects ) {
@@ -38,7 +43,11 @@ public class MainVerticle extends AbstractVerticle{
             }
         } ) );
 
+        RedisOptions config = new RedisOptions()
+                .setHost( "127.0.0.1" );
 
+        RedisClient redis = RedisClient.create( vertx, config );
+        redisDataProvider = new RedisDataProvider( redis );
     }
 
     public static void main( String[] args ){
