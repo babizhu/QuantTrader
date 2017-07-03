@@ -1,6 +1,7 @@
 package org.bbz.stock.quanttrader.stockdata;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
@@ -30,30 +31,54 @@ public class RedisDataProviderTest{
 
     @Test
     public void getRedisServerInfo() throws InterruptedException{
-        redis.info( res->{
+        redis.info( res -> {
             if( res.succeeded() ) {
-                System.out.println(res.result());
-            }else {
+                System.out.println( res.result() );
+            } else {
                 res.cause().printStackTrace();
             }
         } );
         final JsonObject put = new JsonObject().put( "6000109", "23.45" );
-        System.out.println(put.toString());
-        redis.set( "stock", put.toString(),res->{
+        System.out.println( put.toString() );
+        redis.set( "stock", put.toString(), res -> {
             if( res.succeeded() ) {
-                redis.get( "stock",res1->{
+                redis.get( "stock", res1 -> {
                     if( res1.succeeded() ) {
                         System.out.println( res1.result() );
-                        System.out.println(res1.result().getClass());
+                        System.out.println( res1.result().getClass() );
                     }
                 } );
-            }else {
+            } else {
                 res.cause().printStackTrace();
             }
         } );
         Thread.sleep( 10000 );
 
     }
+
+    /**
+     * 测试读写二进制文件
+     */
+    @Test
+    public void rwBin() throws InterruptedException{
+        int count = 1000000;
+
+        CountDownLatch latch = new CountDownLatch( count );
+        long begin = System.nanoTime();
+        final Buffer buffer = Buffer.buffer();
+        for( int i = 0; i < count; i++ ) {
+            redis.setBinary( "name", buffer.setInt(0, 10000000 ), res -> {
+
+                if(res.succeeded()){
+                    latch.countDown();
+                }
+            } );
+        }
+        latch.await();
+        System.out.println( "操作耗时：" + (System.nanoTime() - begin) / 1000000000f + "秒" );
+
+    }
+
     @Test
     public void benchmark() throws InterruptedException{
 
@@ -62,7 +87,7 @@ public class RedisDataProviderTest{
         CountDownLatch latch = new CountDownLatch( count );
         long begin = System.nanoTime();
         for( int i = 0; i < count; i++ ) {
-            redis.set( "name", "liulaoye" + i, res -> {
+            redis.set( "name", "10000000", res -> {
                 if( res.succeeded() ) {
                     latch.countDown();
                 }
