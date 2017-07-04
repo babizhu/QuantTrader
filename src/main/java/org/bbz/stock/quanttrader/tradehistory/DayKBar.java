@@ -11,7 +11,7 @@ import java.time.LocalDate;
  *
  */
 @Data
-public class DayKLine{
+public class DayKBar{
     private final LocalDate     date;
     private final BigDecimal    open;
     private final BigDecimal    high;

@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
  */
 public enum TradeHistory{
     INSTANCE;
-    private Map<String, List<DayKLine>> dayKLineMap = new HashMap<>();
+    private Map<String, List<DayKBar>> dayKLineMap = new HashMap<>();
 
     public void init() throws IOException{
         List<String> strings = Files.readAllLines( Paths.get( "./resources/600109.txt" ) );
-        List<DayKLine> dayKLines = strings.stream().map( v -> {
+        List<DayKBar> dayKLines = strings.stream().map( v -> {
             String[] split = v.split( "," );
             LocalDate date = LocalDate.parse( split[0] );
-            return new DayKLine( date,
+            return new DayKBar( date,
                     new BigDecimal( split[1] ),
                     new BigDecimal( split[2] ),
                     new BigDecimal( split[3] ),
@@ -47,10 +47,10 @@ public enum TradeHistory{
         if( count <= 0 ){
             throw new RuntimeException( "数量小于0" );
         }
-        List<DayKLine> dayKLines = dayKLineMap.get( stockId );
+        List<DayKBar> dayKLines = dayKLineMap.get( stockId );
 
         BigDecimal[] res = new BigDecimal[count];
-        List<DayKLine> collect = dayKLines.stream().filter( v -> v.getDate().compareTo( beginDate ) >= 0 ).limit( count ).collect( Collectors.toList() );
+        List<DayKBar> collect = dayKLines.stream().filter( v -> v.getDate().compareTo( beginDate ) >= 0 ).limit( count ).collect( Collectors.toList() );
 //        System.out.println(collect);
         switch( field ) {
             case CLOSE:
