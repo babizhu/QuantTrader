@@ -9,6 +9,7 @@ import lombok.Data;
  */
 @Data
 public class SimpleKBar{
+//    private final LocalDateTime time;
     private final double    open;
     private final double    high;
     private final double    low;

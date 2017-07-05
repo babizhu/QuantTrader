@@ -1,11 +1,15 @@
 package org.bbz.stock.quanttrader.financeindicators;
 
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.bbz.stock.quanttrader.tradehistory.SimpleKBar;
 import org.junit.Before;
 import org.junit.Test;
-import sun.security.provider.certpath.Vertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,17 +37,57 @@ public class FinanceIndicatorsTest{
      * ktype：数据类型，D=日k线 W=周 M=月 5=5分钟 15=15分钟 30=30分钟 60=60分钟，默认为D
      * retry_count：当网络异常后重试次数，默认为3
      * pause:重试时停顿秒数，默认为0
-     *
      */
-    private List<SimpleKBar> getSimpleKBar(String code,String kType,int count){
-        httpClient.getNow( 8888 )
+    private void getSimpleKBar( String code, String kType, int count, Handler<JsonArray> resultHandler ){
+        String uri = "/?code=" + code + "&&ktype=" + kType + "&&count=" + count;
+        final HttpClientRequest request = httpClient.get( uri, resp -> resp.bodyHandler( body -> {
+            final JsonArray result = body.toJsonArray();
+
+//            System.out.println( result );
+            resultHandler.handle( result );
+        } ) );
+        request.exceptionHandler( System.out::println )
+                .end();
     }
+
+    /**
+     * 卢根炒股大法
+     * 1、周线上摆
+     * 2、60分钟K值<35
+     * 3、60分钟k线形成上摆
+     * @throws InterruptedException
+     */
+    @Test
+    public void calcKDJwithHour() throws InterruptedException{
+        int count = 200;
+        getSimpleKBar( "002769", "60", count, result -> {
+
+                    List<SimpleKBar> data = new ArrayList<>();
+                    for( Object o : result ) {
+                        final JsonObject jo = (JsonObject) o;
+                        data.add( new SimpleKBar( jo.getDouble( "open" ), jo.getDouble( "high" )
+                                , jo.getDouble( "low" ), jo.getDouble( "close" )
+                                , 100 ) );
+                    }
+//                    Collections.reverse( data );
+//                    System.out.println(data);
+                    double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data );
+                    int len = data.size()-1;
+                    System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
+//                    System.out.println( Arrays.toString( doubles[2] ) );
+
+                }
+        );
+
+        Thread.sleep( 100000 );
+    }
+
+
     @Test
     public void calcKDJ() throws Exception{
 
 
 //        dayK002770.add( new SimpleKBar( 5.34, 5.47, 5.34, 5.39, 100 ) );
-
         List<SimpleKBar> simpleDayKBars = dayK600848.subList( 0, dayK002770.size() );
 //        System.out.println( simpleDayKBars.size() );
 //        System.out.println( simpleDayKBars );
@@ -51,13 +95,18 @@ public class FinanceIndicatorsTest{
         int len = simpleDayKBars.size() - 1;
         System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
         System.out.println( Arrays.toString( doubles[2] ) );
+
+//        getSimpleKBar( "600848", );
     }
 
 
     @Before
     public void prepareData(){
-        Vertx vertx = Vertx.vertx(  );
-        httpClient = vertx.createHttpClient();
+        Vertx vertx = Vertx.vertx();
+        final HttpClientOptions httpClientOptions = new HttpClientOptions();
+        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 )
+                .setKeepAlive( true );
+        httpClient = vertx.createHttpClient( httpClientOptions );
         dayK600848.add( new SimpleKBar( 19.97, 21.2, 19.68, 20.89, 100 ) );
         dayK600848.add( new SimpleKBar( 20.55, 21.1, 20.3, 20.65, 100 ) );
         dayK600848.add( new SimpleKBar( 20.52, 20.82, 20.42, 20.67, 100 ) );
