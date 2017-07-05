@@ -1,6 +1,6 @@
 package org.bbz.stock.quanttrader.financeindicators;
 
-import org.bbz.stock.quanttrader.tradehistory.SimpleDayKBar;
+import org.bbz.stock.quanttrader.tradehistory.SimpleKBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,14 +63,14 @@ public enum FinanceIndicators{
      *
      * @param list 股票收盘价
      */
-//    public final double calcKDJ( final List<SimpleDayKBar> list ){
+//    public final double calcKDJ( final List<SimpleKBar> list ){
 //        return 0.0;
 //    }
 
-    public final double[][] calcKDJ( final List<SimpleDayKBar> list ){
-        double[] high = list.stream().mapToDouble( SimpleDayKBar::getHigh ).toArray();
-        double[] low = list.stream().mapToDouble( SimpleDayKBar::getLow ).toArray();
-        double[] close = list.stream().mapToDouble( SimpleDayKBar::getClose ).toArray();
+    public final double[][] calcKDJ( final List<SimpleKBar> list ){
+        double[] high = list.stream().mapToDouble( SimpleKBar::getHigh ).toArray();
+        double[] low = list.stream().mapToDouble( SimpleKBar::getLow ).toArray();
+        double[] close = list.stream().mapToDouble( SimpleKBar::getClose ).toArray();
         double outSlowK[] = new double[high.length];
         double outSlowD[] = new double[high.length];
         double outSlowJ[] = new double[high.length];
@@ -118,7 +118,7 @@ public enum FinanceIndicators{
         return new double[][]{outSlowK, outSlowD, outSlowJ};
     }
 
-//    private final double calcRSVPerDay( final List<SimpleDayKBar> list ){
+//    private final double calcRSVPerDay( final List<SimpleKBar> list ){
 ////        n日RSV=（Cn－Ln）/（Hn－Ln）×100
 //        Double max = list.stream().map( v -> v.getHigh() ).max( ( o1, o2 ) -> o1 > o2 ? 1 : -1 ).get();
 //        System.out.println( max );

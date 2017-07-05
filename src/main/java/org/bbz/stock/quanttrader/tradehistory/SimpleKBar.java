@@ -8,7 +8,7 @@ import lombok.Data;
  *
  */
 @Data
-public class SimpleDayKBar{
+public class SimpleKBar{
     private final double    open;
     private final double    high;
     private final double    low;
