@@ -26,7 +26,7 @@ public class WaveTrideModelTest{
         httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
         RedisDataProvider.create( redisClient, vertx.createHttpClient( httpClientOptions ) );
         QuantTradeContext ctx = new QuantTradeContext( new OrderCost(), "10" );
-        Map<String, Integer> stockMap=new HashMap<>();
+        Map<String, Integer> stockMap = new HashMap<>();
 
         stockMap.put( "600848", 0 );
 
@@ -39,12 +39,12 @@ public class WaveTrideModelTest{
 
     @Test
     public void xx(){
-        List<Integer> l = new ArrayList<>(  );
+        List<Integer> l = new ArrayList<>();
         for( int i = 0; i < 4; i++ ) {
             l.add( i );
         }
 
-        System.out.println( l.subList( l.size() -2, l.size() ));
+        System.out.println( l.subList( l.size() - 2, l.size() ) );
     }
 
 }
