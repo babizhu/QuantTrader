@@ -41,9 +41,15 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
             resp.exceptionHandler( exception -> {
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
                 resultHandler.handle( failResult );
+
             } );
             resp.bodyHandler( body -> {
                 final JsonArray result = body.toJsonArray();
+                if(result.size() == 0){
+                    Future<List<SimpleKBar>> failResult = Future.failedFuture( "股票信息不存在" );
+                    resultHandler.handle( failResult );
+                    return;
+                }
                 List<SimpleKBar> data = new ArrayList<>();
                 for( Object o : result ) {
                     final JsonObject jo = (JsonObject) o;

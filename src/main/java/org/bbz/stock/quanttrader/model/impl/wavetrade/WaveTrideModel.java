@@ -39,9 +39,19 @@ public class WaveTrideModel implements ITradeModel{
 //                checkFirstBuy( stock.getKey() );
 //            }
 //        }
-        checkFirstBuy( "600097" );
+//        for( int i = 600000; i < 601000; i++ ) {
+//        }
+            
 
-    }
+
+            checkFirstBuy( "600116" );
+            try {
+                Thread.sleep( 10 );
+            }catch( Exception e ){
+
+            }
+        }
+//    }
 
     /**
      * 判断首次买入的条件
@@ -53,49 +63,52 @@ public class WaveTrideModel implements ITradeModel{
 
         Future.<List<SimpleKBar>>future( f ->{
                 dataProvider.getSimpleKBarExt( stock, "W", 2, f );
-                    System.out.print( "获取周k线数据" );
+//                    System.out.print( "获取周k线数据" );
         }
         ).compose( kBars -> {
-            System.out.println( "\t\t成功" );
+//            System.out.println( "\t\t成功" );
 
             if( checkUp( kBars ) ) {//####
-                System.out.println( "周k线数据上摆成功" );
-                System.out.print( "获取周60分钟k线数据" );
+//                System.out.println( "周k线数据上摆成功" );
+//                System.out.print( "获取周60分钟k线数据" );
 
                 return Future.future( f -> dataProvider.getSimpleKBarExt( stock, "60", 100, f ) );
             } else {
-                System.out.println( "周k线数据未形成上摆" );
+//                System.out.println( "周k线数据未形成上摆" );
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( "周线未形成上摆" );
                 return failResult;
             }
         } ).compose( kBars -> {
-            System.out.println("\t\t 成功");
+//            System.out.println("\t\t 成功");
             if( KValueLessThan( kBars, 35 ) ) {
-                System.out.println("60分钟K值小于35，进入下一个检测");
+//                System.out.println("60分钟K值小于35，进入下一个检测");
 
                 if( checkUp( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {//检测60分钟是否形成上摆
-                    System.out.println("60分钟条件成立，返回成功future，可以买入");
+//                    System.out.println("60分钟条件成立，返回成功future，可以买入");
                     Future<List<SimpleKBar>> successResult = Future.succeededFuture();
                     return successResult;
                 } else {//60分钟未形成上摆
-                    System.out.println("60分钟k线未形成上摆，进入30分钟检测");
+//                    System.out.println("60分钟k线未形成上摆，进入30分钟检测");
 
                     return check30( stock );
                 }
             } else {
-                System.out.println("60分钟k线的D值未小于35，返回失败future");
+//                System.out.println("60分钟k线的K值未小于35，返回失败future");
 
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( "60分钟K值 未小于 35" );
                 return failResult;
             }
         } ).setHandler( res -> {
-            System.out.println("进入最后集中处理");
+            String result = stock + " : ";
             if( res.failed() ) {
-                res.cause().printStackTrace();
+//                res.cause().printStackTrace();
+                result += res.cause().getMessage();
             } else {
-                System.out.println( "买入" );
-                System.out.println( "setHandler: " + res.result() );
+                result += "买入" ;
+//                System.out.println( "setHandler: " + res.result() );
             }
+            System.out.println(result );
+
         } );
 
     }
@@ -109,22 +122,22 @@ public class WaveTrideModel implements ITradeModel{
                     System.out.print( "获取30分钟k线数据" );
                 }
         ).compose( data -> {
-            System.out.println("\t\t 成功");
+//            System.out.println("\t\t 成功");
             if( KValueLessThan( data, 35 ) ) {
-                System.out.println("30分钟K值小于35，进入下一个检测");
+//                System.out.println("30分钟K值小于35，进入下一个检测");
 
                 if( checkUp( data.subList( data.size() - 2, data.size() ) ) ) {//检测30分钟是否形成上摆
-                    System.out.println("30分钟条件成立，返回成功future，可以买入");
+//                    System.out.println("30分钟条件成立，返回成功future，可以买入");
                     Future<List<SimpleKBar>> successResult = Future.succeededFuture();
                     return successResult;
                 } else {
-                    System.out.println("30分钟k线未形成上摆，返回失败future");
+//                    System.out.println("30分钟k线未形成上摆，返回失败future");
 
                     Future<List<SimpleKBar>> failResult = Future.failedFuture( "30分钟K线 未形成上摆" );
                     return failResult;
                 }
             } else {
-                System.out.println("30分钟k线的D值未小于35，返回失败future");
+//                System.out.println("30分钟k线的D值未小于35，返回失败future");
 
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( "30分钟K值 未小于 35" );
                 return failResult;

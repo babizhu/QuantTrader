@@ -26,7 +26,7 @@ public class WaveTrideModelTest{
         final WaveTrideModel model = new WaveTrideModel( new QuantTradeContext( new OrderCost(), "10" ), RedisDataProvider.INSTANCE() );
         model.run( 232323l );
 
-        Thread.sleep( 100000 );
+        Thread.sleep( 100000000 );
     }
 
     @Test
