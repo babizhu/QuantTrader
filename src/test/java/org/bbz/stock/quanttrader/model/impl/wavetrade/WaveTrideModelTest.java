@@ -32,7 +32,7 @@ public class WaveTrideModelTest{
 
         ctx.getPortfolio().setStocks( stockMap );
         final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
-        model.run( 232323l );
+        model.run( 232323L );
 
         Thread.sleep( 100000000 );
     }
