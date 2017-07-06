@@ -9,10 +9,13 @@ import org.bbz.stock.quanttrader.stockdata.RedisDataProvider;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liulaoye on 17-7-6.
+ * WaveTrideModelTest
  */
 public class WaveTrideModelTest{
     @Test
@@ -20,10 +23,15 @@ public class WaveTrideModelTest{
         final Vertx vertx = Vertx.vertx();
         final RedisClient redisClient = RedisClient.create( vertx );
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
-        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 )
-                .setKeepAlive( true );
+        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
         RedisDataProvider.create( redisClient, vertx.createHttpClient( httpClientOptions ) );
-        final WaveTrideModel model = new WaveTrideModel( new QuantTradeContext( new OrderCost(), "10" ), RedisDataProvider.INSTANCE() );
+        QuantTradeContext ctx = new QuantTradeContext( new OrderCost(), "10" );
+        Map<String, Integer> stockMap=new HashMap<>();
+
+        stockMap.put( "600848", 0 );
+
+        ctx.getPortfolio().setStocks( stockMap );
+        final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
         model.run( 232323l );
 
         Thread.sleep( 100000000 );

@@ -2,6 +2,7 @@ package org.bbz.stock.quanttrader.model.impl.wavetrade;
 
 import io.vertx.core.Future;
 import lombok.extern.slf4j.Slf4j;
+import org.bbz.stock.quanttrader.core.Portfolio;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.financeindicators.FinanceIndicators;
 import org.bbz.stock.quanttrader.model.ITradeModel;
@@ -9,6 +10,7 @@ import org.bbz.stock.quanttrader.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.tradehistory.SimpleKBar;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liulaoye on 17-7-6.
@@ -33,38 +35,33 @@ public class WaveTrideModel implements ITradeModel{
 
     @Override
     public void run( Long aLong ){
-//        final Portfolio portfolio = ctx.getPortfolio();
-//        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
-//            if( stock.getValue() == 0 ) {
-//                checkFirstBuy( stock.getKey() );
-//            }
-//        }
-//        for( int i = 600000; i < 601000; i++ ) {
-//        }
-            
-
-
-            checkFirstBuy( "600116" );
-            try {
-                Thread.sleep( 10 );
-            }catch( Exception e ){
-
+        final Portfolio portfolio = ctx.getPortfolio();
+        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
+            if( stock.getValue() == 0 ) {
+                checkFirstBuy( stock.getKey() );
             }
         }
+//        for( int i = 600000; i < 601000; i++ ) {
+//        }
+
+
+//        checkFirstBuy( "600116" );
+
+    }
 //    }
 
     /**
      * 判断首次买入的条件
      * 外层确保此股票的当前数量为0
      *
-     * @param stock
+     * @param stock         股票id
      */
     private void checkFirstBuy( String stock ){
 
-        Future.<List<SimpleKBar>>future( f ->{
-                dataProvider.getSimpleKBarExt( stock, "W", 2, f );
+        Future.<List<SimpleKBar>>future( f -> {
+                    dataProvider.getSimpleKBarExt( stock, "W", 2, f );
 //                    System.out.print( "获取周k线数据" );
-        }
+                }
         ).compose( kBars -> {
 //            System.out.println( "\t\t成功" );
 
@@ -75,8 +72,7 @@ public class WaveTrideModel implements ITradeModel{
                 return Future.future( f -> dataProvider.getSimpleKBarExt( stock, "60", 100, f ) );
             } else {
 //                System.out.println( "周k线数据未形成上摆" );
-                Future<List<SimpleKBar>> failResult = Future.failedFuture( "周线未形成上摆" );
-                return failResult;
+                return Future.<List<SimpleKBar>>failedFuture( "周线未形成上摆" );
             }
         } ).compose( kBars -> {
 //            System.out.println("\t\t 成功");
@@ -85,8 +81,7 @@ public class WaveTrideModel implements ITradeModel{
 
                 if( checkUp( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {//检测60分钟是否形成上摆
 //                    System.out.println("60分钟条件成立，返回成功future，可以买入");
-                    Future<List<SimpleKBar>> successResult = Future.succeededFuture();
-                    return successResult;
+                    return Future.succeededFuture();
                 } else {//60分钟未形成上摆
 //                    System.out.println("60分钟k线未形成上摆，进入30分钟检测");
 
@@ -95,8 +90,7 @@ public class WaveTrideModel implements ITradeModel{
             } else {
 //                System.out.println("60分钟k线的K值未小于35，返回失败future");
 
-                Future<List<SimpleKBar>> failResult = Future.failedFuture( "60分钟K值 未小于 35" );
-                return failResult;
+                return Future.failedFuture( "60分钟K值 未小于 35" );
             }
         } ).setHandler( res -> {
             String result = stock + " : ";
@@ -104,10 +98,10 @@ public class WaveTrideModel implements ITradeModel{
 //                res.cause().printStackTrace();
                 result += res.cause().getMessage();
             } else {
-                result += "买入" ;
+                result += "买入";
 //                System.out.println( "setHandler: " + res.result() );
             }
-            System.out.println(result );
+            System.out.println( result );
 
         } );
 
@@ -119,7 +113,7 @@ public class WaveTrideModel implements ITradeModel{
     private Future<List<SimpleKBar>> check30( String stock ){
         return Future.<List<SimpleKBar>>future( f -> {
                     dataProvider.getSimpleKBarExt( stock, "30", 100, f );
-                    System.out.print( "获取30分钟k线数据" );
+//                    System.out.print( "获取30分钟k线数据" );
                 }
         ).compose( data -> {
 //            System.out.println("\t\t 成功");
@@ -128,19 +122,16 @@ public class WaveTrideModel implements ITradeModel{
 
                 if( checkUp( data.subList( data.size() - 2, data.size() ) ) ) {//检测30分钟是否形成上摆
 //                    System.out.println("30分钟条件成立，返回成功future，可以买入");
-                    Future<List<SimpleKBar>> successResult = Future.succeededFuture();
-                    return successResult;
+                    return Future.succeededFuture();
                 } else {
 //                    System.out.println("30分钟k线未形成上摆，返回失败future");
 
-                    Future<List<SimpleKBar>> failResult = Future.failedFuture( "30分钟K线 未形成上摆" );
-                    return failResult;
+                    return Future.failedFuture( "30分钟K线 未形成上摆" );
                 }
             } else {
 //                System.out.println("30分钟k线的D值未小于35，返回失败future");
 
-                Future<List<SimpleKBar>> failResult = Future.failedFuture( "30分钟K值 未小于 35" );
-                return failResult;
+                return Future.failedFuture( "30分钟K值 未小于 35" );
             }
         } );
     }
