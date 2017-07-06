@@ -1,5 +1,7 @@
 package org.bbz.stock.quanttrader.financeindicators;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -26,8 +28,83 @@ public class FinanceIndicatorsTest{
     private List<Double> closes002770 = new ArrayList<>();
     private List<SimpleKBar> dayK002770 = new ArrayList<>();
     private List<SimpleKBar> dayK600848 = new ArrayList<>();
-    private List<SimpleKBar> hourK002388 = new ArrayList<>();
     private HttpClient httpClient;
+
+    @Test
+    public void getSimpleKBarExtTest() throws InterruptedException{
+
+        int count = 2;
+        Future.<List<SimpleKBar>>future( f ->
+                getSimpleKBarExt( "002769", "W", count, f )
+        ).compose( res -> {
+
+            if( weekUp( res ) ) {
+                return Future.future( f -> getSimpleKBarExt( "002769", "D", 1, f ) );
+            } else {
+                Future<List<SimpleKBar>> failResult = Future.failedFuture( "周线未上摆" );
+                return failResult;
+            }
+        } ).compose( res -> {
+            if( dValueGreaterThan( res, 35 ) ) {
+                Future<List<SimpleKBar>> failResult = Future.failedFuture( "60分钟K值 大于 35" );
+                return failResult;
+            } else {
+                return Future.future( f -> getSimpleKBarExt( "002769", "D", 1, f ) );
+            }
+        } ).setHandler( res -> {
+            if( res.failed() ) {
+                res.cause().printStackTrace();
+            } else {
+                System.out.println( "setHandler: " + res.result() );
+            }
+        } );
+
+        Thread.sleep( 100000 );
+    }
+
+    /**
+     * 检测D值是否大于某个数值
+     *
+     * @param data k线序列
+     * @param v    要比较的值
+     * @return true:   大于参数v
+     * false:  小于参数v
+     */
+    private boolean dValueGreaterThan( List<SimpleKBar> data, double v ){
+        System.out.println( "FinanceIndicatorsTest.dValueGreaterThan:" + data );
+        return true;
+    }
+
+    private boolean weekUp( List<SimpleKBar> data ){
+        System.out.println( "FinanceIndicatorsTest.weekUp:" + data );
+        return true;
+    }
+
+    private void getSimpleKBarExt( String code, String kType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler ){
+//        Future.<Message<String>>future( f ->
+//                vertx.eventBus().send("address1", "message", f)
+//        )
+        String uri = "/?code=" + code + "&&ktype=" + kType + "&&count=" + count;
+        final HttpClientRequest request = httpClient.get( uri, resp -> {
+            resp.exceptionHandler( exception -> {
+                Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
+                resultHandler.handle( failResult );
+            } );
+            resp.bodyHandler( body -> {
+                final JsonArray result = body.toJsonArray();
+                List<SimpleKBar> data = new ArrayList<>();
+                for( Object o : result ) {
+                    final JsonObject jo = (JsonObject) o;
+                    data.add( new SimpleKBar( jo.getDouble( "open" ), jo.getDouble( "high" )
+                            , jo.getDouble( "low" ), jo.getDouble( "close" )
+                            , 100 ) );
+                }
+                Future<List<SimpleKBar>> successResult = Future.succeededFuture( data );
+                resultHandler.handle( successResult );
+            } );
+        } );
+        request.exceptionHandler( System.out::println ).end();
+    }
 
     /**
      * 通过web接口从tushare返回需要的数据
@@ -55,7 +132,8 @@ public class FinanceIndicatorsTest{
      * 1、周线上摆
      * 2、60分钟K值<35
      * 3、60分钟k线形成上摆
-     * @throws InterruptedException
+     *
+     * @throws InterruptedException InterruptedException
      */
     @Test
     public void calcKDJwithHour() throws InterruptedException{
@@ -72,7 +150,7 @@ public class FinanceIndicatorsTest{
 //                    Collections.reverse( data );
 //                    System.out.println(data);
                     double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data );
-                    int len = data.size()-1;
+                    int len = data.size() - 1;
                     System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
 //                    System.out.println( Arrays.toString( doubles[2] ) );
 

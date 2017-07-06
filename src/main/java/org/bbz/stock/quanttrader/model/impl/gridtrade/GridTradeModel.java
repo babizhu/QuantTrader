@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.model.impl.gridtrader;
+package org.bbz.stock.quanttrader.model.impl.gridtrade;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
@@ -34,9 +34,5 @@ public class GridTradeModel implements ITradeModel{
 
     }
 
-    @Override
-    public void run( Object param ){
-
-    }
 
 }

@@ -47,7 +47,7 @@ public class MainVerticle extends AbstractVerticle{
                 .setHost( "127.0.0.1" );
 
         RedisClient redis = RedisClient.create( vertx, config );
-        redisDataProvider = new RedisDataProvider( redis );
+//        redisDataProvider = new RedisDataProvider( redis,httpClient );
     }
 
     public static void main( String[] args ){

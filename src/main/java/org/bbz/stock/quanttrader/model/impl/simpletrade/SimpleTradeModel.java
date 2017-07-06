@@ -34,8 +34,5 @@ public class SimpleTradeModel implements ITradeModel{
         System.out.println( portfolio );
     }
 
-    @Override
-    public void run( Object param ){
 
-    }
 }

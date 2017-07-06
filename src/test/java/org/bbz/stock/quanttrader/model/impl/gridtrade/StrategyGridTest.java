@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.model.impl.gridtrader;
+package org.bbz.stock.quanttrader.model.impl.gridtrade;
 
 import org.junit.Test;
 
