@@ -37,14 +37,4 @@ public class WaveTrideModelTest{
         Thread.sleep( 100000000 );
     }
 
-    @Test
-    public void xx(){
-        List<Integer> l = new ArrayList<>();
-        for( int i = 0; i < 4; i++ ) {
-            l.add( i );
-        }
-
-        System.out.println( l.subList( l.size() - 2, l.size() ) );
-    }
-
 }
