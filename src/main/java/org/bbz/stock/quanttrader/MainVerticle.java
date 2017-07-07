@@ -6,13 +6,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.json.JsonArray;
 import io.vertx.redis.RedisClient;
-import io.vertx.redis.RedisOptions;
 import org.bbz.stock.quanttrader.core.OrderCost;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.model.impl.simpletrade.SimpleTradeModel;
+import org.bbz.stock.quanttrader.model.impl.wavetrade.WaveTrideModel;
 import org.bbz.stock.quanttrader.stockdata.RedisDataProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by liu_k on 2017/6/20.
@@ -28,26 +29,28 @@ public class MainVerticle extends AbstractVerticle{
 
     @Override
     public void start(){
-        QuantTradeContext quantTradeContext = new QuantTradeContext( new OrderCost(), "100000" );
 
-        String stockId = "600109";
-        SimpleTradeModel simpleTradeModel = new SimpleTradeModel( quantTradeContext, stockId );
-//        vertx.setPeriodic( 1000, simpleTradeModel::run );
-        httpClient = vertx.createHttpClient( new HttpClientOptions().setMaxPoolSize( 1 ) );
+        final RedisClient redisClient = RedisClient.create( vertx );
 
-        httpClient.getNow( 8888, "localhost", "/", resp -> resp.bodyHandler( body -> {
-//            BigDecimal prices =
-            JsonArray objects = body.toJsonArray();
-            for( Object object : objects ) {
-                System.out.println( object );
-            }
-        } ) );
+        final HttpClientOptions httpClientOptions = new HttpClientOptions();
+        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
+        RedisDataProvider.create( redisClient, vertx.createHttpClient( httpClientOptions ) );
+        QuantTradeContext ctx = new QuantTradeContext( new OrderCost(), "10" );
 
-        RedisOptions config = new RedisOptions()
-                .setHost( "127.0.0.1" );
+        Map<String, Integer> stockMap = new HashMap<>();
+//        000902，新文化300336，龙溪股份600592，万年青000789，红阳能源600758
+        stockMap.put( "000902", 0 );
+        stockMap.put( "300336", 0 );
+        stockMap.put( "600592", 0 );
+        stockMap.put( "000789", 0 );
+        stockMap.put( "600758", 0 );
 
-        RedisClient redis = RedisClient.create( vertx, config );
-//        redisDataProvider = new RedisDataProvider( redis,httpClient );
+        ctx.getPortfolio().setStocks( stockMap );
+
+        final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
+
+        vertx.setPeriodic( 30000, model::run );
+
     }
 
     public static void main( String[] args ){

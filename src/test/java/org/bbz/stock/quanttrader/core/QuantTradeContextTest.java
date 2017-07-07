@@ -20,6 +20,23 @@ import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class QuantTradeContextTest{
+    @Test
+    public void getCanSellStockCount() throws Exception{
+        final QuantTradeContext tradeContext = createQuantTradeContext();
+        List<StockTraderRecord> traderRecords = new ArrayList<>();
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 200, new BigDecimal( "2" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID2, 100, new BigDecimal( "2" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID3, 1000, new BigDecimal( "3" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1.8" ), null) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 100, new BigDecimal( "5" ), null ) );
+        traderRecords.forEach( tradeContext::trade );
+
+        final int canSellStockCount = tradeContext.getCanSellStockCount( STOCK_ID1 );
+        System.out.println(canSellStockCount);
+
+    }
+
     private static final OrderCost ORDER_COST = new OrderCost();
     private static final String INIT_BALANCE = "100000";
     private static final String STOCK_ID1 = "6000345";
@@ -73,12 +90,12 @@ public class QuantTradeContextTest{
     public void trade() throws Exception{
         final QuantTradeContext tradeContext = createQuantTradeContext();
         List<StockTraderRecord> traderRecords = new ArrayList<>();
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, 200, new BigDecimal( "2" ) ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID2, 100, new BigDecimal( "2" ) ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1" ) ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID3, 1000, new BigDecimal( "3" ) ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1.8" ) ) );
-        traderRecords.add( new StockTraderRecord( STOCK_ID1, 100, new BigDecimal( "5" ) ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 200, new BigDecimal( "2" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID2, 100, new BigDecimal( "2" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID3, 1000, new BigDecimal( "3" ), null ) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, -100, new BigDecimal( "1.8" ), null) );
+        traderRecords.add( new StockTraderRecord( STOCK_ID1, 100, new BigDecimal( "5" ), null ) );
 
         traderRecords.forEach( tradeContext::trade );
 
@@ -106,13 +123,13 @@ public class QuantTradeContextTest{
      */
     private void tradeException( QuantTradeContext tradeContext ){
         try {
-            tradeContext.order( "6000432", 0 );
+            tradeContext.order( "6000432", 0,null );
         } catch( Exception ex ) {
             assertTrue( ex.getMessage().contains( "交易数量不能为0" ) );
         }
 
         try {
-            tradeContext.trade( StockTraderRecord.create( "300003", 100, BigDecimal.valueOf( -9 ) ) );
+            tradeContext.trade( StockTraderRecord.create( "300003", 100, BigDecimal.valueOf( -9 ),null ) );
         } catch( Exception ex ) {
             assertTrue( ex.getMessage().contains( "交易价格不能小于等于0" ) );
         }

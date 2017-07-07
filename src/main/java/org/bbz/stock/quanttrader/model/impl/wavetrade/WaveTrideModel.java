@@ -6,9 +6,11 @@ import org.bbz.stock.quanttrader.core.Portfolio;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.financeindicators.FinanceIndicators;
 import org.bbz.stock.quanttrader.model.ITradeModel;
+import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 import org.bbz.stock.quanttrader.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.tradehistory.SimpleKBar;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +37,13 @@ public class WaveTrideModel implements ITradeModel{
 
     @Override
     public void run( Long aLong ){
+        System.out.println( "开始执行策略" + LocalDateTime.now());
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             if( stock.getValue() == 0 ) {
                 checkFirstBuy( stock.getKey() );
+            } else {
+                checkSell( stock.getKey() );
             }
         }
 //        for( int i = 600000; i < 601000; i++ ) {
@@ -48,13 +53,41 @@ public class WaveTrideModel implements ITradeModel{
 //        checkFirstBuy( "600116" );
 
     }
-//    }
+
+    /**
+     * 检测卖出条件
+     *
+     * @param stockId stockId
+     */
+    private void checkSell( String stockId ){
+        final List<StockTraderRecord> traderRecords = ctx.getTraderRecordsByStockId( stockId );
+        final StockTraderRecord lastRecord = traderRecords.get( traderRecords.size() - 1 );
+        String buyPointKType = lastRecord.getAttachement().getString( StockTraderRecord.BUY_POINT_KTYPE );//上次买入的k线单位
+
+        dataProvider.getSimpleKBarExt( stockId, buyPointKType, 100, res -> {
+            if( res.succeeded() ) {
+                final List<SimpleKBar> kBars = res.result();
+                if( KValueGreaterThan( kBars, 80 ) ) {//K值 > 80
+                    if( checkDown( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {
+                        System.out.println( "卖出!!!!!!!!!!!!!!!!!!!!!" );
+                    } else {
+                        System.out.println( "未形成下摆,不能卖出" );
+                    }
+                } else {
+                    System.out.println( "k值 < 80 ,不能卖出" );
+                }
+            } else {
+                res.cause().printStackTrace();
+            }
+        } );
+    }
+
 
     /**
      * 判断首次买入的条件
      * 外层确保此股票的当前数量为0
      *
-     * @param stock         股票id
+     * @param stock 股票id
      */
     private void checkFirstBuy( String stock ){
 
@@ -65,7 +98,7 @@ public class WaveTrideModel implements ITradeModel{
         ).compose( kBars -> {
 //            System.out.println( "\t\t成功" );
 
-            if( checkUp( kBars ) ) {//####
+            if( checkUp( kBars ) ) {
 //                System.out.println( "周k线数据上摆成功" );
 //                System.out.print( "获取周60分钟k线数据" );
 
@@ -84,12 +117,10 @@ public class WaveTrideModel implements ITradeModel{
                     return Future.succeededFuture();
                 } else {//60分钟未形成上摆
 //                    System.out.println("60分钟k线未形成上摆，进入30分钟检测");
-
                     return check30( stock );
                 }
             } else {
-//                System.out.println("60分钟k线的K值未小于35，返回失败future");
-
+//                System.out.println( "60分钟k线的K值未小于35，返回失败future" );
                 return Future.failedFuture( "60分钟K值 未小于 35" );
             }
         } ).setHandler( res -> {
@@ -115,12 +146,12 @@ public class WaveTrideModel implements ITradeModel{
                     dataProvider.getSimpleKBarExt( stock, "30", 100, f );
 //                    System.out.print( "获取30分钟k线数据" );
                 }
-        ).compose( data -> {
+        ).compose( kBars -> {
 //            System.out.println("\t\t 成功");
-            if( KValueLessThan( data, 35 ) ) {
+            if( KValueLessThan( kBars, 35 ) ) {
 //                System.out.println("30分钟K值小于35，进入下一个检测");
 
-                if( checkUp( data.subList( data.size() - 2, data.size() ) ) ) {//检测30分钟是否形成上摆
+                if( checkUp( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {//检测30分钟是否形成上摆
 //                    System.out.println("30分钟条件成立，返回成功future，可以买入");
                     return Future.succeededFuture();
                 } else {
@@ -155,13 +186,24 @@ public class WaveTrideModel implements ITradeModel{
      */
 
     private boolean KValueLessThan( List<SimpleKBar> data, double v ){
-//        System.out.println( "FinanceIndicatorsTest.KValueLessThan:" + data );
-        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data );
+        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data,8,3,2 );
         int len = data.size() - 1;
-//        System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
-
         return doubles[0][len] < v;
-//        return false;
+    }
+
+    /**
+     * 检测D值是否大于某个数值
+     *
+     * @param data k线序列
+     * @param v    要比较的值
+     * @return true:   大于参数v          false:  小于参数v
+     */
+
+    private boolean KValueGreaterThan( List<SimpleKBar> data, double v ){
+        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data,8,3,2 );
+        int len = data.size() - 1;
+        System.out.println( "k:" + doubles[0][len] );
+        return doubles[0][len] > v;
     }
 
 
@@ -173,13 +215,26 @@ public class WaveTrideModel implements ITradeModel{
      */
     private boolean checkUp( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
-            log.warn( "判断上摆的数据多余2个" );
+            log.warn( "判断上摆的数据不等于2个" );
         }
         final SimpleKBar oldSimpleKBar = data.get( 0 );
         final SimpleKBar newSimpleKBar = data.get( 1 );
-
         return oldSimpleKBar.getLow() < newSimpleKBar.getLow() && oldSimpleKBar.getHigh() < newSimpleKBar.getHigh();
-//        return false;//####
     }
 
+
+    /**
+     * 判断两个k bar 是否形成下摆
+     *
+     * @return true:   形成下摆
+     * false:  未形成上摆
+     */
+    private boolean checkDown( List<SimpleKBar> data ){
+        if( data.size() != 2 ) {
+            log.warn( "判断下摆的数据不等于2个,数量为：" + data.size() );
+        }
+        final SimpleKBar oldSimpleKBar = data.get( 0 );
+        final SimpleKBar newSimpleKBar = data.get( 1 );
+        return oldSimpleKBar.getLow() > newSimpleKBar.getLow() && oldSimpleKBar.getHigh() > newSimpleKBar.getHigh();
+    }
 }

@@ -1,11 +1,14 @@
 package org.bbz.stock.quanttrader.core;
 
+import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by liulaoye on 17-6-19.
@@ -46,9 +49,9 @@ public class QuantTradeContext{
      * count>0      买入股票
      * count<0      卖出股票
      */
-    public void order( String stockId, int count ){
+    public void order( String stockId, int count, JsonObject attachement ){
         BigDecimal price = BigDecimal.valueOf( 3.45 );
-        trade( StockTraderRecord.create( stockId, count, price ) );
+        trade( StockTraderRecord.create( stockId, count, price, attachement ) );
     }
 
 
@@ -63,9 +66,9 @@ public class QuantTradeContext{
      * @param count   count
      * @param postion 要达到的仓位如0.1,0.5
      */
-    public void tryOrder( String stockId, int count, float postion ){
+    public void tryOrder( String stockId, int count, float postion, JsonObject attachement ){
         BigDecimal price = BigDecimal.valueOf( 3.45 );
-        trade( StockTraderRecord.create( stockId, count, price ) );
+        trade( StockTraderRecord.create( stockId, count, price, attachement ) );
     }
 
     /**
@@ -96,5 +99,19 @@ public class QuantTradeContext{
         return traderRecords;
     }
 
+
+    /**
+     * 计算今日可卖的股票数量
+     * @param stockId
+     * @return
+     */
+    public int getCanSellStockCount( String stockId){
+        final List<StockTraderRecord> stocks = getTraderRecordsByStockId( stockId );
+        return stocks.stream().filter( v -> !v.getDate().toLocalDate().equals( LocalDate.now() ) ).mapToInt( v -> v.getCount() ).sum();
+
+    }
+    public List<StockTraderRecord> getTraderRecordsByStockId( String stockId ){
+        return traderRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
+    }
 
 }

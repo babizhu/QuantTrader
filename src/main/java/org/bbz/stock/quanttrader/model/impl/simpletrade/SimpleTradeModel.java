@@ -27,9 +27,9 @@ public class SimpleTradeModel implements ITradeModel{
     public void run( Long aLong ){
         Portfolio portfolio = ctx.getPortfolio();
         if( portfolio.getStockCountById( stockId ) == 0 ) {
-            ctx.order( stockId, 1000 );
+            ctx.order( stockId, 1000,null );
         } else {
-            ctx.order( stockId, -500 );
+            ctx.order( stockId, -500,null );
         }
         System.out.println( portfolio );
     }

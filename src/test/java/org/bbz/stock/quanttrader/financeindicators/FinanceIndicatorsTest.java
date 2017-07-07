@@ -23,6 +23,7 @@ import java.util.List;
  * FinanceIndicatorsTest
  */
 public class FinanceIndicatorsTest{
+
     private List<Double> closes600848 = new ArrayList<>();
     private List<Double> closes002769 = new ArrayList<>();
     private List<Double> closes002770 = new ArrayList<>();
@@ -137,8 +138,8 @@ public class FinanceIndicatorsTest{
      */
     @Test
     public void calcKDJwithHour() throws InterruptedException{
-        int count = 200;
-        getSimpleKBar( "002769", "60", count, result -> {
+        int count = 100;
+        getSimpleKBar( "600077", "60", count, result -> {
 
                     List<SimpleKBar> data = new ArrayList<>();
                     for( Object o : result ) {
@@ -149,9 +150,14 @@ public class FinanceIndicatorsTest{
                     }
 //                    Collections.reverse( data );
 //                    System.out.println(data);
-                    double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data );
-                    int len = data.size() - 1;
-                    System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
+                    try {
+                        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( data, 8, 3, 2 );
+                        int len = data.size() - 1;
+                        System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
+                    } catch( Exception e ) {
+                        e.printStackTrace();
+                    }
+
 //                    System.out.println( Arrays.toString( doubles[2] ) );
 
                 }
@@ -169,7 +175,7 @@ public class FinanceIndicatorsTest{
         List<SimpleKBar> simpleDayKBars = dayK600848.subList( 0, dayK002770.size() );
 //        System.out.println( simpleDayKBars.size() );
 //        System.out.println( simpleDayKBars );
-        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( simpleDayKBars );
+        double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ( simpleDayKBars, 8, 3, 2 );
         int len = simpleDayKBars.size() - 1;
         System.out.println( "K:" + doubles[0][len] + ", D:" + doubles[1][len] + ", J:" + doubles[2][len] );
         System.out.println( Arrays.toString( doubles[2] ) );

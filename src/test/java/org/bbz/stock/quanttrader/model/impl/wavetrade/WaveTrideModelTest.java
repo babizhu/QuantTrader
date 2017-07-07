@@ -2,15 +2,15 @@ package org.bbz.stock.quanttrader.model.impl.wavetrade;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import org.bbz.stock.quanttrader.core.OrderCost;
 import org.bbz.stock.quanttrader.core.QuantTradeContext;
+import org.bbz.stock.quanttrader.stock.StockTraderRecord;
 import org.bbz.stock.quanttrader.stockdata.RedisDataProvider;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +28,9 @@ public class WaveTrideModelTest{
         QuantTradeContext ctx = new QuantTradeContext( new OrderCost(), "10" );
         Map<String, Integer> stockMap = new HashMap<>();
 
-        stockMap.put( "600848", 0 );
+        String STOCK_ID ="002491";
+        ctx.order( STOCK_ID, 1000, new JsonObject().put( StockTraderRecord.BUY_POINT_KTYPE, "60" ) );
+        stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );
         final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
