@@ -54,6 +54,7 @@ public class WaveTrideModel implements ITradeModel{
 
     }
 
+
     /**
      * 检测卖出条件
      *
