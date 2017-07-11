@@ -7,17 +7,17 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.redis.RedisClient;
-import org.bbz.stock.quanttrader.core.OrderCost;
-import org.bbz.stock.quanttrader.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.model.impl.wavetrade.WaveTrideModel;
-import org.bbz.stock.quanttrader.stockdata.RedisDataProvider;
+import org.bbz.stock.quanttrader.trade.core.OrderCost;
+import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
+import org.bbz.stock.quanttrader.trade.model.impl.wavetrade.WaveTrideModel;
+import org.bbz.stock.quanttrader.trade.stockdata.RedisDataProvider;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by liu_k on 2017/6/20.
- * 启动
+ * 启动类，细节有待斟酌
  */
 public class MainVerticle extends AbstractVerticle{
 
@@ -39,11 +39,33 @@ public class MainVerticle extends AbstractVerticle{
 
         Map<String, Integer> stockMap = new HashMap<>();
 //        000902，新文化300336，龙溪股份600592，万年青000789，红阳能源600758
-        stockMap.put( "000902", 0 );
-        stockMap.put( "300336", 0 );
-        stockMap.put( "600592", 0 );
-        stockMap.put( "000789", 0 );
-        stockMap.put( "600758", 0 );
+        stockMap.put( "002030", 0 );
+        stockMap.put( "002065", 0 );
+        stockMap.put( "002097", 0 );
+        stockMap.put( "002104", 0 );
+        stockMap.put( "002121", 0 );
+        stockMap.put( "002135", 0 );
+        stockMap.put( "002152", 0 );
+        stockMap.put( "002158", 0 );
+        stockMap.put( "002166", 0 );
+        stockMap.put( "002178", 0 );
+        stockMap.put( "002191", 0 );
+        stockMap.put( "002242", 0 );
+        stockMap.put( "002251", 0 );
+        stockMap.put( "002351", 0 );
+        stockMap.put( "002377", 0 );
+        stockMap.put( "002385", 0 );
+        stockMap.put( "002408", 0 );
+        stockMap.put( "002412", 0 );
+        stockMap.put( "002435", 0 );
+        stockMap.put( "002446", 0 );
+        stockMap.put( "002532", 0 );
+        stockMap.put( "002541", 0 );
+        stockMap.put( "002551", 0 );
+        stockMap.put( "002608", 0 );
+        stockMap.put( "002626", 0 );
+        stockMap.put( "002643", 0 );
+        stockMap.put( "002792", 0 );
 
         ctx.getPortfolio().setStocks( stockMap );
 
