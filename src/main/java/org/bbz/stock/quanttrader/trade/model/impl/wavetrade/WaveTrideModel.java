@@ -2,6 +2,7 @@ package org.bbz.stock.quanttrader.trade.model.impl.wavetrade;
 
 import io.vertx.core.Future;
 import lombok.extern.slf4j.Slf4j;
+import org.bbz.stock.quanttrader.consts.KLineType;
 import org.bbz.stock.quanttrader.trade.core.Portfolio;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.financeindicators.FinanceIndicators;
@@ -26,7 +27,6 @@ public class WaveTrideModel implements ITradeModel{
     private final QuantTradeContext ctx;
     private final IStockDataProvider dataProvider;
 
-
     public WaveTrideModel( QuantTradeContext ctx, IStockDataProvider dataProvider ){
         this.ctx = ctx;
         this.dataProvider = dataProvider;
@@ -34,67 +34,98 @@ public class WaveTrideModel implements ITradeModel{
 
     @Override
     public void initialize(){
-
     }
 
     @Override
     public void run( Long aLong ){
-        System.out.println( "开始执行策略: " + LocalDateTime.now().format( DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss") ) );
+        log.info( "开始执行策略: " + LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) ) );
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             if( stock.getValue() == 0 ) {
-                checkBuyInLittleWave( stock.getKey(), true );
+                checkFirstBuy( stock.getKey() );
             } else {
-                checkSellOrBuyInLittleWave( stock.getKey() );//考虑加减仓
+                checkSellOrBuyInLittleWave( stock.getKey() );//在小波浪中考虑加减仓
             }
         }
-//        final Future<Boolean> booleanFuture = checkWeekUp( "002792" );
-//        booleanFuture.setHandler( res -> System.out.println( res.result() ) );
     }
 
 
     /**
      * 获取某只股票同一个unit上的上一次交易记录
      *
-     * @param stockId       股票id
-     * @param kUnit         k线周期
-     * @return 交易记录
+     * @param stockId      股票id
+     * @param isLittleWave k线周期
+     * @return 交易记录, 如果不存在，则返回null
      */
-    private StockTraderRecord getLastTraderRecord( String stockId, String kUnit ){
+    private StockTraderRecord getLastTraderRecord( String stockId, boolean isLittleWave ){
+
         final List<StockTraderRecord> traderRecords = ctx.getTraderRecordsByStockId( stockId );
-        final List<StockTraderRecord> stockTraderRecordList = traderRecords.stream().
-                filter( v -> v.getAttachement().getString( StockTraderRecord.BUY_POINT_KUNIT ).equals( kUnit ) ).
-                collect( Collectors.toList() );
-        return stockTraderRecordList.get( stockTraderRecordList.size() - 1 );
+        List<StockTraderRecord> ret = traderRecords.stream()
+                .filter( v -> {
+                    if( v.getAttachement() != null ) {
+                        String kLineType = v.getAttachement().getString( StockTraderRecord.BUY_POINT_KUNIT );
+                        if( kLineType != null ) {
+                            if( isLittleWave ) {
+                                return kLineType.equals( KLineType.MIN30.toStr() ) || kLineType.equals( KLineType.MIN60.toStr() );
+                            } else {
+                                return kLineType.equals( KLineType.DAY.toStr() );
+                            }
+                        }
+                    }
+
+                    return false;
+                } ).collect( Collectors.toList() );
+        if( ret.size() == 0 ) {
+            return null;
+        }
+        return ret.get( ret.size() - 1 );
     }
 
     /**
-     * 小波段中检测加减仓条件
-     * 上一次交易记录是买，这次才能卖，反过来也一样
-     *
-     * 第一次在哪个k线周期买入，也应该在哪个k线周期卖出
+     * 小波段中检测加减仓条件<br/>
+     * 上一次交易记录是买，这次才能卖，反过来也一样<br/>
+     * <p>
+     * 首次在哪个k线周期买入，也应该在哪个k线周期卖出<br/>
      *
      * @param stockId stockId
      */
     private void checkSellOrBuyInLittleWave( String stockId ){
-        final List<StockTraderRecord> traderRecords = ctx.getTraderRecordsByStockId( stockId );
-        if( traderRecords.size() == 0 ) {
-            log.error( "未找到购买记录" );
+
+        final StockTraderRecord lastRecord = getLastTraderRecord( stockId, true );
+        if( lastRecord == null ) {
+            log.error( "找不到上一条交易记录，无法进行买卖" );
             return;
         }
-        final StockTraderRecord lastRecord = traderRecords.get( traderRecords.size() - 1 );
         String buyPointKType = lastRecord.getAttachement().getString( StockTraderRecord.BUY_POINT_KUNIT );//上次买入的k线单位
-
-
+        KLineType kLineType = KLineType.fromString( buyPointKType );
         if( lastRecord.isBuy() ) {//小波段减仓
-            checkSellInLittleWave( stockId, buyPointKType );
+
+            checkSellInLittleWave( stockId, kLineType );
         } else {//小波段加仓
-            checkBuyInLittleWave( stockId, false );
+            checkBuyInLittleWave( stockId, kLineType );
         }
     }
 
-    private void checkSellInLittleWave( String stockId, String buyPointKType ){
-        dataProvider.getSimpleKBarExt( stockId, buyPointKType, 100, res -> {
+    private void checkFirstBuy( String stockId ){
+        checkWeekUp( stockId )
+                .compose( res -> check60( stockId ) )
+                .setHandler( res -> {
+                    String result = stockId + " : ";
+                    if( res.failed() ) {
+//                      res.cause().printStackTrace();
+                        result += res.cause().getMessage();
+                    } else {
+                        result += "买入";
+//                      System.out.println( "setHandler: " + res.result() );
+                    }
+                    System.out.println( result );
+                } );
+
+
+    }
+
+    private void checkSellInLittleWave( String stockId, KLineType kLineType ){
+        dataProvider.getSimpleKBarExt( stockId, kLineType, 100, res -> {
             if( res.succeeded() ) {
                 final List<SimpleKBar> kBars = res.result();
                 if( KValueGreaterThan( kBars, 80 ) ) {//K值 > 80
@@ -120,7 +151,7 @@ public class WaveTrideModel implements ITradeModel{
      * @return Future<Boolean>
      */
     private Future<Void> checkWeekUp( String stockId ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, "W", 2, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.WEEK, 2, f )
         ).compose( kBars -> {
             System.out.println( "获取周k成功" );
             if( checkUp( kBars ) ) {
@@ -133,28 +164,26 @@ public class WaveTrideModel implements ITradeModel{
 
     /**
      * 判断小波段的股票买入的条件
-     * 首次购买需考虑周线上摆的条件
      * 外层确保此股票的当前数量为0
      *
-     * @param stockId stock id
+     * @param stockId   stock id
+     * @param kLineType 操作的K线周期
      */
-    private void checkBuyInLittleWave( String stockId, boolean isFirstBuy ){
-        Future<Void> future = Future.succeededFuture();
-        if( isFirstBuy ) {
-            future = checkWeekUp( stockId );
-        }
-        future.compose( res -> check60( stockId ) )
-                .setHandler( res -> {
-                    String result = stockId + " : ";
-                    if( res.failed() ) {
+    private void checkBuyInLittleWave( String stockId, KLineType kLineType ){
+        if( kLineType == KLineType.MIN60 ) {
+            check60( stockId ) )
+                    .setHandler( res -> {
+                        String result = stockId + " : ";
+                        if( res.failed() ) {
 //                      res.cause().printStackTrace();
-                        result += res.cause().getMessage();
-                    } else {
-                        result += "买入";
+                            result += res.cause().getMessage();
+                        } else {
+                            result += "买入";
 //                      System.out.println( "setHandler: " + res.result() );
-                    }
-                    System.out.println( result );
-                } );
+                        }
+                        System.out.println( result );
+                    } );
+        }
     }
 
     /**
@@ -165,7 +194,7 @@ public class WaveTrideModel implements ITradeModel{
      * 失败：Future.failedFuture( "失败原因" )
      */
     private Future<Void> check60( String stockId ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, "60", 100, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN60, 100, f )
         ).compose( kBars -> {
             if( KValueLessThan( kBars, 35 ) ) {
 //              System.out.println("60分钟K值小于35，进入下一个检测");
@@ -173,13 +202,11 @@ public class WaveTrideModel implements ITradeModel{
                     return Future.succeededFuture();
                 } else {
                     return check30( stockId );
-
                 }
             } else {
                 return Future.failedFuture( "60分钟K值 未小于 35" );
             }
         } );
-
     }
 
     /**
@@ -190,7 +217,7 @@ public class WaveTrideModel implements ITradeModel{
      * 失败：Future.failedFuture( "失败原因" )
      */
     private Future<Void> check30( String stockId ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, "30", 100, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN30, 100, f )
         ).compose( kBars -> {
             if( KValueLessThan( kBars, 35 ) ) {
 //              System.out.println("30分钟K值小于35，进入下一个检测");
