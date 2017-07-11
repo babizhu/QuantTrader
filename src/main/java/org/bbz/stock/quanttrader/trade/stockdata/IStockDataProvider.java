@@ -21,6 +21,7 @@ public interface IStockDataProvider{
      * end：结束日期，格式YYYY-MM-DD                暂时未使用
      * retry_count：当网络异常后重试次数，默认为3     暂时未使用
      * pause:重试时停顿秒数，默认为0
-     */getSimpleKBarExt( String code, String kType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
+     */
+    getSimpleKBarExt( String code, String kType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
 
 }

@@ -12,7 +12,15 @@ import java.time.LocalDateTime;
  */
 @Data
 public class StockTraderRecord{
-    public static final String BUY_POINT_KTYPE = "BUY_POINT_KTYPE";//买入的k线是哪个单位，60分钟？30分钟？或者日k，卢哥的波浪大法需要记录
+    public static final String BUY_POINT_KUNIT = "BUY_POINT_KUNIT";//买入的k线是哪个单位，60分钟？30分钟？或者日k，卢哥的波浪大法需要记录
+
+    /**
+     * 当次交易是否买入
+     * @return      true:买入
+     */
+    public boolean isBuy(){
+        return count > 0 ;
+    }
 
     enum StockTraderStatus{
         PENDING,

@@ -29,7 +29,7 @@ public class WaveTrideModelTest{
         Map<String, Integer> stockMap = new HashMap<>();
 
         String STOCK_ID ="002491";
-        ctx.order( STOCK_ID, 1000, new JsonObject().put( StockTraderRecord.BUY_POINT_KTYPE, "60" ) );
+        ctx.order( STOCK_ID, 1000, new JsonObject().put( StockTraderRecord.BUY_POINT_KUNIT, "60" ) );
         stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );
@@ -37,6 +37,13 @@ public class WaveTrideModelTest{
         model.run( 232323L );
 
         Thread.sleep( 100000000 );
+    }
+
+    /**
+     * 检测周线上摆的情况
+     */
+    private void checkWeekUp(){
+
     }
 
 }
