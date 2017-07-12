@@ -107,6 +107,10 @@ public class WaveTrideModel implements ITradeModel{
         }
     }
 
+    /**
+     * 检测首次买入
+     * @param stockId
+     */
     private void checkFirstBuy( String stockId ){
         checkWeekUp( stockId )
                 .compose( res -> check60( stockId, true ) )

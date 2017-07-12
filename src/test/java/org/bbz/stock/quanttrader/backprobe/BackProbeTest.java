@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.trade.backprobe;
+package org.bbz.stock.quanttrader.backprobe;
 
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
