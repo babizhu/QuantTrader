@@ -39,45 +39,43 @@ public class MainVerticle extends AbstractVerticle{
 
         Map<String, Integer> stockMap = new HashMap<>();
 //        000902，新文化300336，龙溪股份600592，万年青000789，红阳能源600758
-//        stockMap.put( "002030", 0 );
-//        stockMap.put( "002065", 0 );
-//        stockMap.put( "002097", 0 );
-//        stockMap.put( "002104", 0 );
-//        stockMap.put( "002121", 0 );
-//        stockMap.put( "002135", 0 );
-//        stockMap.put( "002152", 0 );
-//        stockMap.put( "002158", 0 );
-//        stockMap.put( "002166", 0 );
-//        stockMap.put( "002178", 0 );
-//        stockMap.put( "002191", 0 );
-//        stockMap.put( "002242", 0 );
-//        stockMap.put( "002251", 0 );
-//        stockMap.put( "002351", 0 );
-//        stockMap.put( "002377", 0 );
-//        stockMap.put( "002385", 0 );
-//        stockMap.put( "002408", 0 );
-//        stockMap.put( "002412", 0 );
-//        stockMap.put( "002435", 0 );
-//        stockMap.put( "002446", 0 );
-//        stockMap.put( "002532", 0 );
-//        stockMap.put( "002541", 0 );
-//        stockMap.put( "002551", 0 );
-//        stockMap.put( "002608", 0 );
-//        stockMap.put( "002626", 0 );
-//        stockMap.put( "002643", 0 );
-        stockMap.put( "002792", 0 );
+        stockMap.put( "002030", 0 );
+        stockMap.put( "002065", 0 );
+        stockMap.put( "002097", 0 );
+        stockMap.put( "002104", 0 );
+        stockMap.put( "002121", 0 );
+        stockMap.put( "002135", 0 );
+        stockMap.put( "002152", 0 );
+        stockMap.put( "002158", 0 );
+        stockMap.put( "002166", 0 );
+        stockMap.put( "002178", 0 );
+        stockMap.put( "002191", 0 );
+        stockMap.put( "002242", 0 );
+        stockMap.put( "002251", 0 );
+        stockMap.put( "002351", 0 );
+        stockMap.put( "002377", 0 );
+        stockMap.put( "002385", 0 );
+        stockMap.put( "002408", 0 );
+        stockMap.put( "002412", 0 );
+        stockMap.put( "002435", 0 );
+        stockMap.put( "002446", 0 );
+        stockMap.put( "002532", 0 );
+        stockMap.put( "002541", 0 );
+        stockMap.put( "002551", 0 );
+        stockMap.put( "002608", 0 );
+        stockMap.put( "002626", 0 );
+        stockMap.put( "002643", 0 );
 
         ctx.getPortfolio().setStocks( stockMap );
 
         final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
 
-//        vertx.setPeriodic( 1000, model::run );
-        model.run( 3434343L );
+        vertx.setPeriodic( 30000, model::run );
+//        model.run( 3434343L );
 
     }
 
     public static void main( String[] args ){
-        System.out.println( "MainVerticle.main" );
         final VertxOptions vertxOptions = new VertxOptions();
         vertxOptions.setBlockedThreadCheckInterval( 1000000 );
         Vertx vertx = Vertx.vertx( vertxOptions );

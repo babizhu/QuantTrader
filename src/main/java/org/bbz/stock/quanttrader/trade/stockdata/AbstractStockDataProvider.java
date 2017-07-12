@@ -42,7 +42,6 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
             resp.exceptionHandler( exception -> {
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
                 resultHandler.handle( failResult );
-
             } );
             resp.bodyHandler( body -> {
                 final JsonArray result = body.toJsonArray();

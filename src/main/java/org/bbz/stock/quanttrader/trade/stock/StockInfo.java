@@ -32,7 +32,7 @@ public class StockInfo{
     }
 
 
-//    public void trade( StockTraderRecord traderRecord ){
+//    public void trade( StockTradeRecord traderRecord ){
 //        if( traderRecord.isBuy() ){
 //            count += traderRecord.getCount();
 //

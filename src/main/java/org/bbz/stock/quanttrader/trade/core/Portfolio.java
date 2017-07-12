@@ -2,7 +2,7 @@ package org.bbz.stock.quanttrader.trade.core;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.trade.stock.StockTraderRecord;
+import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class Portfolio{
      *
      * @param traderRecord 交易记录
      */
-    private void changeStockCount( StockTraderRecord traderRecord ){
+    private void changeStockCount( StockTradeRecord traderRecord ){
         String stockId = traderRecord.getStockId();
         int changeCount = traderRecord.getCount();
 
@@ -112,7 +112,7 @@ public class Portfolio{
      *
      * @param traderRecord 交易记录
      */
-    void trade( StockTraderRecord traderRecord ){
+    void trade( StockTradeRecord traderRecord ){
 
         BigDecimal amount = traderRecord.getPrice().multiply( new BigDecimal( traderRecord.getCount() ) );
 

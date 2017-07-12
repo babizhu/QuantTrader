@@ -11,15 +11,16 @@ import java.time.LocalDateTime;
  * 交易信息记录实体类
  */
 @Data
-public class StockTraderRecord{
+public class StockTradeRecord{
     public static final String BUY_POINT_KUNIT = "BUY_POINT_KUNIT";//买入的k线是哪个单位，60分钟？30分钟？或者日k，卢哥的波浪大法需要记录
 
     /**
      * 当次交易是否买入
-     * @return      true:买入
+     *
+     * @return true:买入
      */
     public boolean isBuy(){
-        return count > 0 ;
+        return count > 0;
     }
 
     enum StockTraderStatus{
@@ -45,25 +46,25 @@ public class StockTraderRecord{
 
     private StockTraderStatus isSuccess;
     /**
-     * 记录每个策略特殊的买卖点信息
+     * 记录每个策略特殊的买卖点信息,不可能为null
      */
     private JsonObject attachement;
 
     /**
      *
      */
-    public StockTraderRecord( String stockId, int count, BigDecimal price, JsonObject attachement ){
+    public StockTradeRecord( String stockId, int count, BigDecimal price, JsonObject attachement ){
         this.stockId = stockId;
         this.count = count;
         this.price = price;
-        this.attachement = attachement;
+        this.attachement = attachement == null ? new JsonObject() : attachement;
         this.date = LocalDateTime.now();
         this.isSuccess = StockTraderStatus.PENDING;
     }
 
 
-    public static StockTraderRecord create( String stockId, int count, BigDecimal price, JsonObject attachement ){
-        return new StockTraderRecord( stockId, count, price, attachement );
+    public static StockTradeRecord create( String stockId, int count, BigDecimal price, JsonObject attachement ){
+        return new StockTradeRecord( stockId, count, price, attachement );
     }
 
 }

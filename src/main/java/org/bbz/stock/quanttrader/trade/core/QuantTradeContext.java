@@ -2,7 +2,7 @@ package org.bbz.stock.quanttrader.trade.core;
 
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.trade.stock.StockTraderRecord;
+import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class QuantTradeContext{
     /**
      * 成功的交易记录
      */
-    private List<StockTraderRecord> traderRecords;
+    private List<StockTradeRecord> traderRecords;
 
     public QuantTradeContext( OrderCost orderCost, String initBalance ){
         this.orderCost = orderCost;
@@ -49,9 +49,20 @@ public class QuantTradeContext{
      * count>0      买入股票
      * count<0      卖出股票
      */
-    public void order( String stockId, int count, JsonObject attachement ){
+    public void order( String stockId, int count ){
         BigDecimal price = BigDecimal.valueOf( 3.45 );
-        trade( StockTraderRecord.create( stockId, count, price, attachement ) );
+        trade( StockTradeRecord.create( stockId, count, price, new JsonObject(  ) ) );
+    }
+
+    /**
+     * 用当前价格购买或者卖出股票
+     * count>0      买入股票
+     * count<0      卖出股票
+     */
+    public void order( String stockId, int count, JsonObject attachement ){
+
+        BigDecimal price = BigDecimal.valueOf( 3.45 );
+        trade( StockTradeRecord.create( stockId, count, price, attachement ) );
     }
 
 
@@ -68,7 +79,7 @@ public class QuantTradeContext{
      */
     public void tryOrder( String stockId, int count, float postion, JsonObject attachement ){
         BigDecimal price = BigDecimal.valueOf( 3.45 );
-        trade( StockTraderRecord.create( stockId, count, price, attachement ) );
+        trade( StockTradeRecord.create( stockId, count, price, attachement ) );
     }
 
     /**
@@ -76,7 +87,7 @@ public class QuantTradeContext{
      *
      * @param traderRecord 交易信息
      */
-    void trade( StockTraderRecord traderRecord ){
+    void trade( StockTradeRecord traderRecord ){
         if( traderRecord == null ) {
             log.error( "交易记录不能为空" );
             throw new RuntimeException( "交易记录不能为空" );
@@ -95,7 +106,7 @@ public class QuantTradeContext{
     }
 
 
-    public List<StockTraderRecord> getTraderRecords(){
+    public List<StockTradeRecord> getTraderRecords(){
         return traderRecords;
     }
 
@@ -106,11 +117,11 @@ public class QuantTradeContext{
      * @return
      */
     public int getCanSellStockCount( String stockId){
-        final List<StockTraderRecord> stocks = getTraderRecordsByStockId( stockId );
+        final List<StockTradeRecord> stocks = getTraderRecordsByStockId( stockId );
         return stocks.stream().filter( v -> !v.getDate().toLocalDate().equals( LocalDate.now() ) ).mapToInt( v -> v.getCount() ).sum();
 
     }
-    public List<StockTraderRecord> getTraderRecordsByStockId( String stockId ){
+    public List<StockTradeRecord> getTraderRecordsByStockId( String stockId ){
         return traderRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
     }
 
