@@ -35,6 +35,7 @@ public class WaveTrideModel extends AbstractTradeModel{
         log.info( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
+            cleanUp( stock.getKey() );
             if( stock.getValue() == 0 ) {
                 checkFirstBuy( stock.getKey() );
             } else {
@@ -290,7 +291,7 @@ public class WaveTrideModel extends AbstractTradeModel{
      * 当前股价低于清仓价
      * 执行清仓
      *
-     * @param stockId
+     * @param stockId stockId
      */
     private void cleanUp( String stockId ){
         dataProvider.getCurrentPrice( stockId, res -> {
