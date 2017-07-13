@@ -4,7 +4,7 @@ import org.bbz.stock.quanttrader.consts.KLineType;
 
 /**
  * Created by liulaoye on 17-7-12.
- * 存放各种回调的中间结果
+ * 保存各种回调的中间结果
  */
 
 public class CheckResult{

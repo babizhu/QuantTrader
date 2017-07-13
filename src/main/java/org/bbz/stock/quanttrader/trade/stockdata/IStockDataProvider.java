@@ -29,12 +29,12 @@ public interface IStockDataProvider{
 
     /**
      * 获取指定日期的K线周期指标
-     * @param stockId
-     * @param kLineType
-     * @param count
-     * @param start
-     * @param end
-     * @param resultHandler
+     * @param stockId           stockId
+     * @param kLineType         K线类型
+     * @param count             数量
+     * @param start             开始日期
+     * @param end               结束日期
+     * @param resultHandler     回调
      */
     void getSimpleKBarExt( String stockId, KLineType kLineType, int count,
                            LocalDate start,
@@ -42,4 +42,10 @@ public interface IStockDataProvider{
                            Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
 
 
+    /**
+     * 获取当前股价
+     * @param stockId           stockId
+     * @param resultHandler     回调
+     */
+    void getCurrentPrice( String stockId, Handler<AsyncResult<Double>> resultHandler  );
 }

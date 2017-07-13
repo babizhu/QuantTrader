@@ -7,16 +7,12 @@ import org.bbz.stock.quanttrader.consts.KLineType;
 import org.bbz.stock.quanttrader.trade.core.Portfolio;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.financeindicators.FinanceIndicators;
-import org.bbz.stock.quanttrader.trade.model.ITradeModel;
-import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
+import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
+import org.bbz.stock.quanttrader.util.DateUtil;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,19 +21,9 @@ import java.util.Map;
  * 卢根 提供的策略
  */
 @Slf4j
-public class WaveTrideModel implements ITradeModel{
-
-    private static final String CLEAN_UP_PRICE_KEY = "CLEAN_UP_PRICE_KEY";//清仓价格
-    private static final String KLINE_TYPE_KEY = "KLINE_TYPE";//小波浪进行操作的K线单位
-    private static final String LAST_OP_IN_LITTLE_WAVE_KEY = "LAST_OP_IN_LITTLE_WAVE";//最后一次在小波浪上的操作参数
-    private static final String LAST_OP_IN_BIG_WAVE_KEY = "LAST_OP_IN_BIG_WAVE";//最后一次在小波浪上的操作参数
-
-    private static final int BUY = 1;
-    private static final int SELL = 2;
-
+public class WaveTrideModel extends AbstractTradeModel{
     private final QuantTradeContext ctx;
     private final IStockDataProvider dataProvider;
-    private final Map<String, JsonObject> attachements = new HashMap<>();
 
     public WaveTrideModel( QuantTradeContext ctx, IStockDataProvider dataProvider ){
         this.ctx = ctx;
@@ -45,27 +31,8 @@ public class WaveTrideModel implements ITradeModel{
     }
 
     @Override
-    public void initialize(){
-    }
-
-    /**
-     * 设置一些额外的参数，方便操作
-     *
-     * @param stockId stockId
-     */
-    private WaveTrideModel setAttachement( String stockId, String key, Object value ){
-        if( !attachements.containsKey( stockId ) ) {
-            attachements.put( stockId, new JsonObject().put( key, value ) );
-        } else {
-            final JsonObject entries = attachements.get( stockId );
-            entries.put( key, value );
-        }
-        return this;
-    }
-
-    @Override
     public void run( Long aLong ){
-        log.info( "开始执行策略: " + LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) ) );
+        log.info( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             if( stock.getValue() == 0 ) {
@@ -76,61 +43,17 @@ public class WaveTrideModel implements ITradeModel{
         }
     }
 
-
-//    /**
-//     * 获取某只股票同一个K线周期上的最后一次交易记录
-//     *
-//     * @param stockId      股票id
-//     * @param isLittleWave k线周期
-//     * @return 交易记录, 如果不存在，则返回null
-//     */
-//    @SuppressWarnings("SameParameterValue")
-//    private StockTradeRecord getLastTraderRecord( String stockId, boolean isLittleWave ){
-//        final List<StockTradeRecord> tradeRecords = ctx.getTraderRecordsByStockId( stockId );
-//        if( tradeRecords.size() == 0 ) {
-//            throw new RuntimeException( "没有交易记录" );
-//        }
-//        Collections.reverse( tradeRecords );
-//        for( StockTradeRecord tradeRecord : tradeRecords ) {
-//            String kLineType = tradeRecord.getAttachement().getString( StockTradeRecord.BUY_POINT_KUNIT );
-//            if( kLineType != null ) {
-//                if( isLittleWave ) {
-//                    if( kLineType.equals( KLineType.MIN30.toStr() ) || kLineType.equals( KLineType.MIN60.toStr() ) ) {
-//                        return tradeRecord;
-//                    }
-//                } else {
-//                    if( kLineType.equals( KLineType.DAY.toStr() ) ) {
-//                        return tradeRecord;
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
     /**
      * 小波段中检测加减仓条件<br/>
      * 上一次交易记录是买，这次才能卖，反过来也一样<br/>
      * <p>
      * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成<br/>
-     *
-     * @param stockId stockId
      */
     private void checkSellOrBuyInLittleWave( String stockId ){
-
-
         final JsonObject attachement = attachements.get( stockId );
-        final int lastOp = attachement.getInteger( LAST_OP_IN_LITTLE_WAVE_KEY );
-//
-//        final StockTradeRecord lastRecord = getLastTraderRecord( stockId, true );
-//        if( lastRecord == null ) {
-//            log.error( "找不到上一条交易记录，无法进行买卖" );
-//            return;
-//        }
-        String buyPointKType = attachement.getString( KLINE_TYPE_KEY );//上次买入的k线单位
-        KLineType kLineType = KLineType.fromString( buyPointKType );
-        if( lastOp == BUY  ) {//小波段减仓,b=buy s = sell
-
+        final int lastOp = attachement.getInteger( Consts.LAST_OP_IN_LITTLE_WAVE_KEY );
+        KLineType kLineType = KLineType.fromString( attachement.getString( Consts.KLINE_TYPE_KEY ) );
+        if( lastOp == Consts.BUY ) {//小波段减仓
             checkSellInLittleWave( stockId, kLineType );
         } else {//小波段加仓
             checkBuyInLittleWave( stockId, kLineType );
@@ -140,7 +63,7 @@ public class WaveTrideModel implements ITradeModel{
     /**
      * 检测首次买入
      *
-     * @param stockId
+     * @param stockId stockId
      */
     private void checkFirstBuy( String stockId ){
         checkWeekUp( stockId )
@@ -148,15 +71,13 @@ public class WaveTrideModel implements ITradeModel{
                 .setHandler( res -> {
                     String result = stockId + " : ";
                     if( res.failed() ) {
-//                      res.cause().printStackTrace();
                         result += res.cause().getMessage();
                     } else {
                         result += "买入";
-                        KLineType kLineType = res.result().getkLineType();
                         ctx.order( stockId, 200 );
-
-                        setAttachement( stockId, KLINE_TYPE_KEY, kLineType.toStr() );
-//                                .setAttachement( stockId,CLEAN_UP_PRICE_KEY, )
+                        KLineType kLineType = res.result().getkLineType();
+                        setAttachement( stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr() );
+                        setAttachement( stockId, Consts.FIRST_BUY_DATE_KEY, DateUtil.formatDate( ctx.getCurrentDate() ) );
                     }
                     System.out.println( result );
                 } );
@@ -164,23 +85,26 @@ public class WaveTrideModel implements ITradeModel{
 
     private void checkSellInLittleWave( String stockId, KLineType kLineType ){
         dataProvider.getSimpleKBarExt( stockId, kLineType, 100, res -> {
+            String result = stockId + " : ";
             if( res.succeeded() ) {
                 final List<SimpleKBar> kBars = res.result();
                 if( KValueGreaterThan( kBars, 80 ) ) {//K值 > 80
                     if( checkDown( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {
-                        System.out.println( stockId + " : 卖出!!!!!!!!!!!!!!!!!!!!!" );
+                        result += "卖出";
+                        ctx.order( stockId, -200 );
+                        setAttachement( stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.SELL );
                     } else {
-                        System.out.println( stockId + " : " + kLineType + "线未形成下摆,不能卖出" );
+                        result += kLineType + "线未形成下摆,不能卖出";
                     }
                 } else {
-                    System.out.println( stockId + " : k值 < 80 ,不能卖出" );
+                    result += kLineType + "k值 < 80 ,不能卖出";
                 }
             } else {
-                res.cause().printStackTrace();
+                result += res.cause().getMessage();
             }
+            System.out.println( result );
         } );
     }
-
 
     /**
      * 判断周线是否上摆
@@ -216,11 +140,11 @@ public class WaveTrideModel implements ITradeModel{
         future.setHandler( res -> {
             String result = stockId + " : ";
             if( res.failed() ) {
-//                      res.cause().printStackTrace();
                 result += res.cause().getMessage();
             } else {
                 result += "买入";
-                ctx.order( stockId, 200, new JsonObject().put( StockTradeRecord.BUY_POINT_KUNIT, kLineType.toStr() ) );
+                ctx.order( stockId, 200 );
+                setAttachement( stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY );
             }
             System.out.println( result );
         } );
@@ -265,7 +189,6 @@ public class WaveTrideModel implements ITradeModel{
         return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN30, 100, f )
         ).compose( kBars -> {
             if( KValueLessThan( kBars, 35 ) ) {
-//              System.out.println("30分钟K值小于35，进入下一个检测");
                 if( checkUp( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {//检测30分钟是否形成上摆
                     return Future.succeededFuture( CheckResult.createResult( KLineType.MIN30 ) );
                 } else {
@@ -283,12 +206,11 @@ public class WaveTrideModel implements ITradeModel{
 
     @Override
     public void afterClose(){
-        log.info( "开始执行盘后策略: " + LocalDateTime.now().format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) ) );
+        log.info( "开始执行盘后策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             if( stock.getValue() != 0 ) {
                 double[] priceInBigWave = calcCleanPriceInBigWave( stock.getKey() );
-
             }
         }
     }
@@ -296,7 +218,7 @@ public class WaveTrideModel implements ITradeModel{
     /**
      * 判断大波段的股票加仓和清仓价格
      *
-     * @param stockId
+     * @param stockId stockId
      * @return 用一个数组保存加仓和减仓的价格.
      * [0]:加仓价格
      * [1]:清仓价格
@@ -334,7 +256,6 @@ public class WaveTrideModel implements ITradeModel{
         return doubles[0][len] > v;
     }
 
-
     /**
      * 判断两个k bar 是否形成上摆
      *
@@ -366,20 +287,18 @@ public class WaveTrideModel implements ITradeModel{
     }
 
     /**
-     * 清仓
+     * 当前股价低于清仓价
+     * 执行清仓
      *
      * @param stockId
      */
     private void cleanUp( String stockId ){
-        LocalDate beginDate = getBeginDate();
-        Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN30, 100, f )
-        ).compose( kBars -> {
-            return null;
+        dataProvider.getCurrentPrice( stockId, res -> {
+            Double cleanupPrice = attachements.get( stockId ).getDouble( Consts.CLEAN_UP_PRICE_KEY );
+            if( cleanupPrice > res.result() ) {
+                System.out.println( "当前价(" + res.result() + ")低于清仓点：" + cleanupPrice + "。卖出" );
+                ctx.cleanUp( stockId );
+            }
         } );
     }
-
-    private LocalDate getBeginDate(){
-        return null;
-    }
-
 }

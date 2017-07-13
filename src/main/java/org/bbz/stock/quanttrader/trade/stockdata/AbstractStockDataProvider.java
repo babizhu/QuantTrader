@@ -79,4 +79,9 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
         request.exceptionHandler( System.out::println ).end();
     }
 
+
+    @Override
+    public void getCurrentPrice( String stockId, Handler<AsyncResult<Double>> resultHandler ){
+
+    }
 }

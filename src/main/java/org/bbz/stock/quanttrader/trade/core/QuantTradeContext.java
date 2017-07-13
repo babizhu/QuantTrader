@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class QuantTradeContext{
 
 
+    private final RunType runType;
 //    set_order_cost(OrderCost(close_tax=0.001, open_commission=0.0003, close_commission=0.0003, min_commission=5), type='stock')
     /**
      * 交易手续费
@@ -38,6 +39,7 @@ public class QuantTradeContext{
         this.orderCost = orderCost;
         portfolio = new Portfolio( initBalance, orderCost );
         traderRecords = new ArrayList<>();
+        runType = RunType.REAL_TRADE;
     }
 
     public Portfolio getPortfolio(){
@@ -113,7 +115,7 @@ public class QuantTradeContext{
 
     /**
      * 计算今日可卖的股票数量
-     * @param stockId
+     * @param stockId       stockId
      * @return
      */
     public int getCanSellStockCount( String stockId){
@@ -125,4 +127,32 @@ public class QuantTradeContext{
         return traderRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
     }
 
+    /**
+     * 获取当前时间
+     * 回测当中由回测系统指定时间
+     * 真实交易则是当前时间
+     * @return
+     */
+    public LocalDate getCurrentDate(){
+        if(runType == RunType.REAL_TRADE){
+            return LocalDate.now();
+        }
+        else{
+            return LocalDate.now();
+        }
+    }
+
+    /**
+     * 清仓
+     * 由于T+1政策，因此有时候清仓会失败
+     * @param stockId
+     *
+     * @return
+     *          成功卖出的股票
+     */
+    public int cleanUp( String stockId ){
+        int stockNum = getCanSellStockCount( stockId );
+        order( stockId, -stockNum );
+        return stockNum;
+    }
 }
