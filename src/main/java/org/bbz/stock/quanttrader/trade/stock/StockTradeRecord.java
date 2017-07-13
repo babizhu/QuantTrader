@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
  */
 @Data
 public class StockTradeRecord{
-    public static final String BUY_POINT_KUNIT = "BUY_POINT_KUNIT";//买入的k线是哪个单位，60分钟？30分钟？或者日k，卢哥的波浪大法需要记录
 
     /**
      * 当次交易是否买入

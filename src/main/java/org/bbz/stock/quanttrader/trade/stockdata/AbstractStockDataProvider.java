@@ -10,7 +10,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import org.bbz.stock.quanttrader.consts.KLineType;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
+import org.bbz.stock.quanttrader.util.DateUtil;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,20 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
      */
     @Override
     public void getSimpleKBarExt( String stockId, KLineType kLineType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler ){
+//        String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+        getSimpleKBarExt( stockId,kLineType,count,null,null,resultHandler );
+    }
+
+
+    @Override
+    public void getSimpleKBarExt( String stockId, KLineType kLineType, int count,
+                           LocalDate start,
+                           LocalDate end,
+                           Handler<AsyncResult<List<SimpleKBar>>> resultHandler ){
         String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+        if( start != null && end != null ){
+            uri += "&&start=" + DateUtil.formatDate( start ) + "&&end=" + DateUtil.formatDate( end );
+        }
         final HttpClientRequest request = httpClient.get( uri, resp -> {
             resp.exceptionHandler( exception -> {
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
@@ -63,4 +78,5 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
         } );
         request.exceptionHandler( System.out::println ).end();
     }
+
 }

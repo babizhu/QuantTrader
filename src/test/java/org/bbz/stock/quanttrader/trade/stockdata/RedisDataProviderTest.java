@@ -80,6 +80,14 @@ public class RedisDataProviderTest{
     }
 
     @Test
+    public void x(){
+        JsonObject jsonObject = new JsonObject();
+        JsonObject attachement = new JsonObject().put( "s1","sv1" );
+        jsonObject.put( "k1","v1" ).put(  "k2","v2").put( "k1","v3" );
+//        jsonObject.put( attachement )
+        System.out.println(jsonObject);
+    }
+    @Test
     public void benchmark() throws InterruptedException{
 
 
