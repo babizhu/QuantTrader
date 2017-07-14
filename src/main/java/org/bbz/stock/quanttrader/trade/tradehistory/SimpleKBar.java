@@ -17,5 +17,5 @@ public class SimpleKBar{
     /**
      * 成交量
      */
-    private final int           amount;
+    private final int volume;
 }

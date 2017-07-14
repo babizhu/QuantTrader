@@ -1,7 +1,6 @@
 package org.bbz.stock.quanttrader.trade.model;
 
 import io.vertx.core.json.JsonObject;
-import org.bbz.stock.quanttrader.trade.model.impl.wavetrade.WaveTrideModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +27,14 @@ public abstract class AbstractTradeModel implements ITradeModel{
     }
     @Override
     public void initialize(){
+    }
+
+    public Double getDoubleFromAttachements(String stockId,String key){
+        final JsonObject jsonObject = attachements.get( stockId );
+        if( jsonObject == null ){
+            return null;
+        }
+        return jsonObject.getDouble( key );
     }
 
 }

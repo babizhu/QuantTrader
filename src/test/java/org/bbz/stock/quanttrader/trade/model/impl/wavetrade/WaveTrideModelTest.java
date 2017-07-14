@@ -2,11 +2,9 @@ package org.bbz.stock.quanttrader.trade.model.impl.wavetrade;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 import org.bbz.stock.quanttrader.trade.stockdata.RedisDataProvider;
 import org.junit.Test;
 
@@ -19,6 +17,11 @@ import java.util.Map;
  */
 public class WaveTrideModelTest{
     @Test
+    public void calcCleanPriceInBigWave() throws Exception{
+        WaveTrideModel.calcCleanPriceInBigWave( "" );
+    }
+
+    @Test
     public void run() throws Exception{
         final Vertx vertx = Vertx.vertx();
         final RedisClient redisClient = RedisClient.create( vertx );
@@ -29,7 +32,7 @@ public class WaveTrideModelTest{
         Map<String, Integer> stockMap = new HashMap<>();
 
         String STOCK_ID ="002491";
-        ctx.order( STOCK_ID, 1000, new JsonObject().put( StockTradeRecord.BUY_POINT_KUNIT, "60" ) );
+        ctx.order( STOCK_ID, 1000);
         stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );

@@ -43,9 +43,9 @@ public interface IStockDataProvider{
 
 
     /**
-     * 获取当前股价
+     * 获取当前k bar
      * @param stockId           stockId
      * @param resultHandler     回调
      */
-    void getCurrentPrice( String stockId, Handler<AsyncResult<Double>> resultHandler  );
+    void getCurrentKbar( String stockId, Handler<AsyncResult<SimpleKBar>> resultHandler  );
 }

@@ -81,7 +81,25 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
 
 
     @Override
-    public void getCurrentPrice( String stockId, Handler<AsyncResult<Double>> resultHandler ){
+    public void getCurrentKbar( String stockId, Handler<AsyncResult<SimpleKBar>> resultHandler ){
+        String uri = "/getCurrentPrice/" + stockId;
+        final HttpClientRequest request = httpClient.get( uri, resp -> {
+            resp.exceptionHandler( exception -> {
+                Future<SimpleKBar> failResult = Future.failedFuture( exception );
+                resultHandler.handle( failResult );
+            } );
+            resp.bodyHandler( body -> {
+                final JsonObject jo = body.toJsonObject();
+                final SimpleKBar simpleKBar = new SimpleKBar( jo.getDouble( "open" ), jo.getDouble( "high" )
+                        , jo.getDouble( "low" ), jo.getDouble( "price" )
+                        , jo.getInteger( "volume" ) );
 
+                Future<SimpleKBar> successResult = Future.succeededFuture( simpleKBar );
+                resultHandler.handle( successResult );
+            } );
+        } );
+        request.exceptionHandler( System.out::println ).end();
     }
+
+//    private void sendRequest( String url)
 }

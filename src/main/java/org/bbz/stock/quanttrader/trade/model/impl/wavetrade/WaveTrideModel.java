@@ -1,4 +1,5 @@
 package org.bbz.stock.quanttrader.trade.model.impl.wavetrade;
+
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
@@ -208,12 +209,12 @@ public class WaveTrideModel extends AbstractTradeModel{
     @Override
     public void afterClose(){
         log.info( "开始执行盘后策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
-        final Portfolio portfolio = ctx.getPortfolio();
-        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
-            if( stock.getValue() != 0 ) {
-                double[] priceInBigWave = calcCleanPriceInBigWave( stock.getKey() );
-            }
-        }
+//        final Portfolio portfolio = ctx.getPortfolio();
+//        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
+//            if( stock.getValue() != 0 ) {
+//                double[] priceInBigWave = calcCleanPriceInBigWave( stock.getKey() );
+//            }
+//        }
     }
 
     /**
@@ -224,7 +225,31 @@ public class WaveTrideModel extends AbstractTradeModel{
      * [0]:加仓价格
      * [1]:清仓价格
      */
-    private double[] calcCleanPriceInBigWave( String stockId ){
+    public static double[] calcCleanPriceInBigWave( String stockId ){
+        //                0       买       孕      外      上       下      下      上
+        int[][] data = {{10,20},{20,30},{22,28},{19,31},{22,32},{21,30},{19,29},{21,30}};
+        int[] current = data[0];
+        int lowPrice = current[0];
+        int highPrice = current[1];
+        boolean xb = false;
+        for( int i = 1; i < data.length; i++ ) {
+            if( current[0] > data[i][0] && current[1] > data[i][1]){//下摆
+                if(!xb){
+                    System.out.println(highPrice);
+                }
+                xb = true;
+                lowPrice = data[i][0];//记录下摆中的最低点
+                current = data[i];
+            }else  if( current[0] < data[i][0] && current[1] < data[i][1]){//上摆摆
+                if(xb){
+                    System.out.println(lowPrice);
+                }
+                xb = false;
+                highPrice = data[i][1];//记录上摆中的最高点
+                current = data[i];
+            }
+
+        }
         return null;
     }
 
@@ -294,9 +319,12 @@ public class WaveTrideModel extends AbstractTradeModel{
      * @param stockId stockId
      */
     private void cleanUp( String stockId ){
-        dataProvider.getCurrentPrice( stockId, res -> {
-            Double cleanupPrice = attachements.get( stockId ).getDouble( Consts.CLEAN_UP_PRICE_KEY );
-            if( cleanupPrice > res.result() ) {
+        Double cleanupPrice = getDoubleFromAttachements( stockId, Consts.CLEAN_UP_PRICE_KEY );
+        if( cleanupPrice == null ) {
+            return;
+        }
+        dataProvider.getCurrentKbar( stockId, res -> {
+            if( cleanupPrice > res.result().getClose() ) {
                 System.out.println( "当前价(" + res.result() + ")低于清仓点：" + cleanupPrice + "。卖出" );
                 ctx.cleanUp( stockId );
             }
