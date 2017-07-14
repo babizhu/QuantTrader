@@ -1,5 +1,4 @@
 package org.bbz.stock.quanttrader.trade.model.impl.wavetrade;
-
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +45,8 @@ public class WaveTrideModel extends AbstractTradeModel{
 
     /**
      * 小波段中检测加减仓条件<br/>
-     * 上一次交易记录是买，这次才能卖，反过来也一样<br/>
+     * 上一次交易记录是买，这次才能卖<br/>
+     * 上一次交易记录是卖，这次才能买<br/>
      * <p>
      * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成<br/>
      */
