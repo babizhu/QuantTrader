@@ -13,6 +13,8 @@ import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
 import org.bbz.stock.quanttrader.util.DateUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +70,8 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
                 List<SimpleKBar> data = new ArrayList<>();
                 for( Object o : result ) {
                     final JsonObject jo = (JsonObject) o;
-                    data.add( new SimpleKBar( jo.getDouble( "open" ), jo.getDouble( "high" )
+
+                    data.add( new SimpleKBar( DateUtil.parse( jo.getString( "date" )  ),jo.getDouble( "open" ), jo.getDouble( "high" )
                             , jo.getDouble( "low" ), jo.getDouble( "close" )
                             , 100 ) );
                 }
@@ -90,7 +93,7 @@ public abstract class AbstractStockDataProvider implements IStockDataProvider{
             } );
             resp.bodyHandler( body -> {
                 final JsonObject jo = body.toJsonObject();
-                final SimpleKBar simpleKBar = new SimpleKBar( jo.getDouble( "open" ), jo.getDouble( "high" )
+                final SimpleKBar simpleKBar = new SimpleKBar( DateUtil.parse( jo.getString( "date" )  ),jo.getDouble( "open" ), jo.getDouble( "high" )
                         , jo.getDouble( "low" ), jo.getDouble( "price" )
                         , jo.getInteger( "volume" ) );
 

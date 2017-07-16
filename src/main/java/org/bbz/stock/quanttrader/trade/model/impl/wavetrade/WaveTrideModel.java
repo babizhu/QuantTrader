@@ -12,9 +12,11 @@ import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
 import org.bbz.stock.quanttrader.util.DateUtil;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by liulaoye on 17-7-6.
@@ -225,32 +227,96 @@ public class WaveTrideModel extends AbstractTradeModel{
      * [0]:加仓价格
      * [1]:清仓价格
      */
-    public static double[] calcCleanPriceInBigWave( String stockId ){
-        //                0       买       孕      外      上       下      下      上
-        int[][] data = {{10,20},{20,30},{22,28},{19,31},{22,32},{21,30},{19,29},{21,30}};
-        int[] current = data[0];
-        int lowPrice = current[0];
-        int highPrice = current[1];
-        boolean xb = false;
-        for( int i = 1; i < data.length; i++ ) {
-            if( current[0] > data[i][0] && current[1] > data[i][1]){//下摆
-                if(!xb){
-                    System.out.println(highPrice);
+    public double[] calcCleanPriceInBigWave( String stockId ){
+        dataProvider.getSimpleKBarExt( stockId, KLineType.DAY, 100, res -> {
+            if( res.succeeded() ) {
+                List<SimpleKBar> result = res.result();
+                List<SimpleKBar> subList = result.stream().filter( v -> v.getTime().toLocalDate().isAfter( LocalDate.parse( "2017-06-06" ) ) ).collect( Collectors.toList() );
+                SimpleKBar current = subList.get( 0 );
+                double lowPrice = Double.MAX_VALUE;
+                double highPrice = Double.MIN_VALUE;
+
+                boolean isDown = false;
+                for( int i = 1; i < subList.size(); i++ ) {
+                    SimpleKBar temp = subList.get( i );
+                    if( current.getLow() > temp.getLow() && current.getHigh() > temp.getHigh() ) { //下摆
+                        if( !isDown ) {
+                            System.out.println( "高点 ：" + highPrice );
+                        }
+                        isDown = true;
+                        lowPrice = Math.min( lowPrice, temp.getLow() );//记录下摆中的最低点
+                        highPrice = Double.MIN_VALUE;
+                        current = temp;
+                    } else if( current.getLow() < temp.getLow() && current.getHigh() < temp.getHigh() ) { //上摆
+                        if( isDown ) {
+                            System.out.println( current.getTime() +" 低点 ：" + lowPrice );
+                        }
+                        isDown = false;
+                        highPrice = Math.max( highPrice, temp.getHigh() );//记录下摆中的最低点
+                        lowPrice = Double.MAX_VALUE;
+                        current = temp;
+                    } else {
+                        if( isDown ) {
+                            lowPrice = Math.min( lowPrice, temp.getLow() );//记录下摆中的最低点
+
+                        } else {
+                            highPrice = Math.max( highPrice, temp.getHigh() );//记录上摆中的最高点
+
+                        }
+                    }
                 }
-                xb = true;
-                lowPrice = data[i][0];//记录下摆中的最低点
-                current = data[i];
-            }else  if( current[0] < data[i][0] && current[1] < data[i][1]){//上摆摆
-                if(xb){
-                    System.out.println(lowPrice);
-                }
-                xb = false;
-                highPrice = data[i][1];//记录上摆中的最高点
-                current = data[i];
+            } else {
+                res.cause().printStackTrace();
             }
 
-        }
+        } );
         return null;
+//        double[][] data = {{18.55, 17.39}, {19.17, 18.50}, {19.10, 18.65},
+//                {19.45, 19.00}, {19.64, 19.22}, {19.40, 18.74}, {19.05, 18.68},
+//                {20.14, 18.62}, {20.37, 19.57}, {21.80, 19.75}, {23.07, 21.50},
+//                {22.30, 21.57}, {21.99, 21.46}, {21.86, 21.22}, {21.50, 20.91},
+//                {22.20, 20.53}, {22.59, 21.66}, {23.49, 22.11}, {23.36, 22.34},
+//                {24.65, 22.88}, {24.77, 23.48}, {24.50, 23.60}, {23.60, 22.68},
+//                {25.00, 22.80}, {25.73, 24.32}, {26.76, 24.14}};
+//        //                0       买       孕      外      上       下      下      上
+////        double[][] data = {{10,20},{20,30},{22,28},{19,31},{22,32},{21,30},{19,29},{21,30}};
+//        double[] current = data[0];
+////        double lowPrice = current[0];
+//        double lowPrice = 1000000;
+//        double highPrice = current[1];
+//
+//        boolean xb = false;
+//        for( int i = 1; i < data.length; i++ ) {
+//
+//            if( current[0] > data[i][0] && current[1] > data[i][1] ) {//下摆
+////                System.out.println(data[i][0] + ":" + data[i][1]);
+//                if( !xb ) {
+//                    System.out.println( "高点 ：" + highPrice );
+//                }
+//                xb = true;
+//                lowPrice = Math.min( lowPrice, data[i][1] );//记录下摆中的最低点
+//                highPrice = 0;
+//                current = data[i];
+//            } else if( current[0] < data[i][0] && current[1] < data[i][1] ) {//上摆
+//                if( xb ) {
+//                    System.out.println( "低点 ：" + lowPrice );
+//                }
+//                xb = false;
+//                highPrice = Math.max( highPrice, data[i][0] );//记录下摆中的最低点
+//                lowPrice = 100000;
+//                current = data[i];
+//            } else {
+//                if( xb ) {
+//                    lowPrice = Math.min( lowPrice, data[i][1] );//记录下摆中的最低点
+//
+//                } else {
+//                    highPrice = Math.max( highPrice, data[i][0] );//记录下摆中的最低点
+//
+//                }
+//            }
+//
+//        }
+//        return null;
     }
 
     /**
@@ -288,6 +354,7 @@ public class WaveTrideModel extends AbstractTradeModel{
      * @return true:   形成上摆
      * false:  未形成上摆
      */
+
     private boolean checkUp( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
             log.warn( "判断上摆的数据不等于2个" );

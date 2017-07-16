@@ -2,6 +2,7 @@ package org.bbz.stock.quanttrader.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -17,5 +18,22 @@ public class DateUtil{
     public static String formatDateTime( LocalDateTime dt ){
 //        return dt.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
        return dt.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) );
+    }
+
+    /**
+     * 把时间字符串格式化为标准时间
+     * 如果dt仅仅包含日期不包含时间，则设置小时、分钟、秒为0
+     * @param dt    返回的日期
+     * @return
+     */
+    public static LocalDateTime parse(String dt ){
+        LocalDateTime ret;
+        if( dt.length() < 11 ){
+            ret =  LocalDateTime.of( LocalDate.parse( dt ), LocalTime.of( 0, 0, 0 ) );
+
+        }else {
+            ret = LocalDateTime.parse( dt,DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) );
+        }
+        return ret;
     }
 }

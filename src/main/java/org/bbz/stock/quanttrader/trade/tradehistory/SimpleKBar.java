@@ -2,6 +2,8 @@ package org.bbz.stock.quanttrader.trade.tradehistory;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * Created by liu_k on 2017/6/20.
  * 日k线？哈哈哈
@@ -9,7 +11,7 @@ import lombok.Data;
  */
 @Data
 public class SimpleKBar{
-//    private final LocalDateTime time;
+    private final LocalDateTime time;
     private final double    open;
     private final double    high;
     private final double    low;

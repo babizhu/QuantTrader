@@ -6,6 +6,7 @@ import io.vertx.redis.RedisClient;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.stockdata.RedisDataProvider;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -16,13 +17,17 @@ import java.util.Map;
  * WaveTrideModelTest
  */
 public class WaveTrideModelTest{
+    WaveTrideModel model;
     @Test
     public void calcCleanPriceInBigWave() throws Exception{
-        WaveTrideModel.calcCleanPriceInBigWave( "" );
+        model.calcCleanPriceInBigWave( "600352" );
+
+        Thread.sleep( 100000000 );
+//        WaveTrideModel.( "" );
     }
 
-    @Test
-    public void run() throws Exception{
+    @Before
+    public void init(){
         final Vertx vertx = Vertx.vertx();
         final RedisClient redisClient = RedisClient.create( vertx );
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
@@ -36,7 +41,11 @@ public class WaveTrideModelTest{
         stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );
-        final WaveTrideModel model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
+        model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
+    }
+    @Test
+    public void run() throws Exception{
+
         model.run( 232323L );
 
         Thread.sleep( 100000000 );
