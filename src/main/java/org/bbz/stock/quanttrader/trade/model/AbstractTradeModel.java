@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public abstract class AbstractTradeModel implements ITradeModel{
     protected final Map<String, JsonObject> attachements = new HashMap<>();
+
     /**
      * 设置一些额外的参数，方便操作
      *
@@ -25,13 +26,19 @@ public abstract class AbstractTradeModel implements ITradeModel{
         }
         return this;
     }
+
     @Override
     public void initialize(){
     }
 
-    public Double getDoubleFromAttachements(String stockId,String key){
+    /**
+     * 从Attachements中获取double值，如果值不存在返回null
+     * @param stockId       stockId
+     * @param key           key
+     */
+    public Double getDoubleFromAttachements( String stockId, String key ){
         final JsonObject jsonObject = attachements.get( stockId );
-        if( jsonObject == null ){
+        if( jsonObject == null ) {
             return null;
         }
         return jsonObject.getDouble( key );

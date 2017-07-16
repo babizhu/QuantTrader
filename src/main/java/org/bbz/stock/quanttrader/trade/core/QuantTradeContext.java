@@ -53,7 +53,7 @@ public class QuantTradeContext{
      */
     public void order( String stockId, int count ){
         BigDecimal price = BigDecimal.valueOf( 3.45 );
-        trade( StockTradeRecord.create( stockId, count, price, new JsonObject(  ) ) );
+        trade( StockTradeRecord.create( stockId, count, price, new JsonObject() ) );
     }
 
     /**
@@ -115,15 +115,17 @@ public class QuantTradeContext{
 
     /**
      * 计算今日可卖的股票数量
-     * @param stockId       stockId
+     *
+     * @param stockId stockId
      * @return
      */
-    public int getCanSellStockCount( String stockId){
-        final List<StockTradeRecord> stocks = getTraderRecordsByStockId( stockId );
+    public int getCanSellStockCount( String stockId ){
+        final List<StockTradeRecord> stocks = getTradeRecordsByStockId( stockId );
         return stocks.stream().filter( v -> !v.getDate().toLocalDate().equals( LocalDate.now() ) ).mapToInt( v -> v.getCount() ).sum();
 
     }
-    public List<StockTradeRecord> getTraderRecordsByStockId( String stockId ){
+
+    public List<StockTradeRecord> getTradeRecordsByStockId( String stockId ){
         return traderRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
     }
 
@@ -131,13 +133,13 @@ public class QuantTradeContext{
      * 获取当前时间
      * 回测当中由回测系统指定时间
      * 真实交易则是当前时间
+     *
      * @return
      */
     public LocalDate getCurrentDate(){
-        if(runType == RunType.REAL_TRADE){
+        if( runType == RunType.REAL_TRADE ) {
             return LocalDate.now();
-        }
-        else{
+        } else {
             return LocalDate.now();
         }
     }
@@ -145,10 +147,9 @@ public class QuantTradeContext{
     /**
      * 清仓
      * 由于T+1政策，因此有时候清仓会失败
-     * @param stockId
      *
-     * @return
-     *          成功卖出的股票
+     * @param stockId
+     * @return 成功卖出的股票
      */
     public int cleanUp( String stockId ){
         int stockNum = getCanSellStockCount( stockId );

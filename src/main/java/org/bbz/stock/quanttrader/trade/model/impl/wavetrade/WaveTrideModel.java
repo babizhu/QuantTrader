@@ -211,23 +211,20 @@ public class WaveTrideModel extends AbstractTradeModel{
     @Override
     public void afterClose(){
         log.info( "开始执行盘后策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
-//        final Portfolio portfolio = ctx.getPortfolio();
-//        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
-//            if( stock.getValue() != 0 ) {
-//                double[] priceInBigWave = calcCleanPriceInBigWave( stock.getKey() );
-//            }
-//        }
+        final Portfolio portfolio = ctx.getPortfolio();
+        for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
+            if( stock.getValue() != 0 ) {
+                calcCleanPriceInBigWave( stock.getKey() );
+            }
+        }
     }
 
     /**
      * 判断大波段的股票加仓和清仓价格
      *
      * @param stockId stockId
-     * @return 用一个数组保存加仓和减仓的价格.
-     * [0]:加仓价格
-     * [1]:清仓价格
      */
-    public double[] calcCleanPriceInBigWave( String stockId ){
+    private void calcCleanPriceInBigWave( String stockId ){
         dataProvider.getSimpleKBarExt( stockId, KLineType.DAY, 100, res -> {
             if( res.succeeded() ) {
                 List<SimpleKBar> result = res.result();
@@ -249,7 +246,7 @@ public class WaveTrideModel extends AbstractTradeModel{
                         current = temp;
                     } else if( current.getLow() < temp.getLow() && current.getHigh() < temp.getHigh() ) { //上摆
                         if( isDown ) {
-                            System.out.println( current.getTime() +" 低点 ：" + lowPrice );
+                            System.out.println( current.getTime() + " 低点 ：" + lowPrice );
                         }
                         isDown = false;
                         highPrice = Math.max( highPrice, temp.getHigh() );//记录下摆中的最低点
@@ -265,12 +262,12 @@ public class WaveTrideModel extends AbstractTradeModel{
                         }
                     }
                 }
+                setAttachement( stockId, Consts.CLEAN_UP_PRICE_KEY, lowPrice );
             } else {
                 res.cause().printStackTrace();
             }
 
         } );
-        return null;
 //        double[][] data = {{18.55, 17.39}, {19.17, 18.50}, {19.10, 18.65},
 //                {19.45, 19.00}, {19.64, 19.22}, {19.40, 18.74}, {19.05, 18.68},
 //                {20.14, 18.62}, {20.37, 19.57}, {21.80, 19.75}, {23.07, 21.50},
@@ -391,9 +388,13 @@ public class WaveTrideModel extends AbstractTradeModel{
             return;
         }
         dataProvider.getCurrentKbar( stockId, res -> {
-            if( cleanupPrice > res.result().getClose() ) {
-                System.out.println( "当前价(" + res.result() + ")低于清仓点：" + cleanupPrice + "。卖出" );
-                ctx.cleanUp( stockId );
+            if( res.succeeded() ) {
+                if( cleanupPrice > res.result().getClose() ) {
+                    System.out.println( "当前价(" + res.result() + ")低于清仓点：" + cleanupPrice + "。清仓卖出！！！" );
+                    ctx.cleanUp( stockId );
+                }
+            } else {
+                res.cause().printStackTrace();
             }
         } );
     }
