@@ -88,7 +88,7 @@ public class WaveTrideModel extends AbstractTradeModel{
     }
 
     private void checkSellInLittleWave( String stockId, KLineType kLineType ){
-        dataProvider.getSimpleKBarExt( stockId, kLineType, 100, res -> {
+        dataProvider.getSimpleKBar( stockId, kLineType, 100, res -> {
             String result = stockId + " : ";
             if( res.succeeded() ) {
                 final List<SimpleKBar> kBars = res.result();
@@ -117,7 +117,7 @@ public class WaveTrideModel extends AbstractTradeModel{
      * @return Future<Boolean>
      */
     private Future<Void> checkWeekUp( String stockId ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.WEEK, 2, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBar( stockId, KLineType.WEEK, 2, f )
         ).compose( kBars -> {
             if( checkUp( kBars ) ) {
                 return Future.succeededFuture();
@@ -163,7 +163,7 @@ public class WaveTrideModel extends AbstractTradeModel{
      * 失败：Future.failedFuture( "失败原因" )
      */
     private Future<CheckResult> check60( String stockId, boolean needCheck30 ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN60, 100, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBar( stockId, KLineType.MIN60, 100, f )
         ).compose( kBars -> {
             if( KValueLessThan( kBars, 35 ) ) {
 //              System.out.println("60分钟K值小于35，进入下一个检测");
@@ -190,7 +190,7 @@ public class WaveTrideModel extends AbstractTradeModel{
      * 失败：Future.failedFuture( "失败原因" )
      */
     private Future<CheckResult> check30( String stockId ){
-        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBarExt( stockId, KLineType.MIN30, 100, f )
+        return Future.<List<SimpleKBar>>future( f -> dataProvider.getSimpleKBar( stockId, KLineType.MIN30, 100, f )
         ).compose( kBars -> {
             if( KValueLessThan( kBars, 35 ) ) {
                 if( checkUp( kBars.subList( kBars.size() - 2, kBars.size() ) ) ) {//检测30分钟是否形成上摆
@@ -224,8 +224,8 @@ public class WaveTrideModel extends AbstractTradeModel{
      *
      * @param stockId stockId
      */
-    private void calcCleanPriceInBigWave( String stockId ){
-        dataProvider.getSimpleKBarExt( stockId, KLineType.DAY, 100, res -> {
+    void calcCleanPriceInBigWave( String stockId ){
+        dataProvider.getSimpleKBar( stockId, KLineType.DAY, 100, res -> {
             if( res.succeeded() ) {
                 List<SimpleKBar> result = res.result();
                 List<SimpleKBar> subList = result.stream().filter( v -> v.getTime().toLocalDate().isAfter( LocalDate.parse( "2017-06-06" ) ) ).collect( Collectors.toList() );
@@ -255,10 +255,8 @@ public class WaveTrideModel extends AbstractTradeModel{
                     } else {
                         if( isDown ) {
                             lowPrice = Math.min( lowPrice, temp.getLow() );//记录下摆中的最低点
-
                         } else {
                             highPrice = Math.max( highPrice, temp.getHigh() );//记录上摆中的最高点
-
                         }
                     }
                 }
@@ -331,7 +329,7 @@ public class WaveTrideModel extends AbstractTradeModel{
     }
 
     /**
-     * 检测D值是否大于某个数值
+     * 检测kdj指标中的D值是否大于某个数值
      *
      * @param data k线序列
      * @param v    要比较的值
@@ -351,7 +349,6 @@ public class WaveTrideModel extends AbstractTradeModel{
      * @return true:   形成上摆
      * false:  未形成上摆
      */
-
     private boolean checkUp( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
             log.warn( "判断上摆的数据不等于2个" );
@@ -388,13 +385,9 @@ public class WaveTrideModel extends AbstractTradeModel{
             return;
         }
         dataProvider.getCurrentKbar( stockId, res -> {
-            if( res.succeeded() ) {
-                if( cleanupPrice > res.result().getClose() ) {
-                    System.out.println( "当前价(" + res.result() + ")低于清仓点：" + cleanupPrice + "。清仓卖出！！！" );
-                    ctx.cleanUp( stockId );
-                }
-            } else {
-                res.cause().printStackTrace();
+            if( cleanupPrice > res.getClose() ) {
+                System.out.println( "当前价(" + res + ")低于清仓点：" + cleanupPrice + "。清仓卖出！！！" );
+                ctx.cleanUp( stockId );
             }
         } );
     }

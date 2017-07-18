@@ -25,7 +25,7 @@ public interface IStockDataProvider{
      * 注意：
       如果指定了start或者end，即使end日期远大于今日日期，返回的数据不含今日的k线数据，这个需要修正一下
      */
-    void getSimpleKBarExt( String stockId, KLineType kLineTypeType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
+    void getSimpleKBar( String stockId, KLineType kLineTypeType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
 
     /**
      * 获取指定日期的K线周期指标
@@ -36,10 +36,10 @@ public interface IStockDataProvider{
      * @param end               结束日期
      * @param resultHandler     回调
      */
-    void getSimpleKBarExt( String stockId, KLineType kLineType, int count,
-                           LocalDate start,
-                           LocalDate end,
-                           Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
+    void getSimpleKBar( String stockId, KLineType kLineType, int count,
+                        LocalDate start,
+                        LocalDate end,
+                        Handler<AsyncResult<List<SimpleKBar>>> resultHandler );
 
 
     /**
@@ -47,5 +47,5 @@ public interface IStockDataProvider{
      * @param stockId           stockId
      * @param resultHandler     回调
      */
-    void getCurrentKbar( String stockId, Handler<AsyncResult<SimpleKBar>> resultHandler  );
+    void getCurrentKbar( String stockId, Handler<SimpleKBar> resultHandler  );
 }

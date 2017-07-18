@@ -5,7 +5,7 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.redis.RedisClient;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.trade.stockdata.RedisDataProvider;
+import org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class WaveTrideModelTest{
         final RedisClient redisClient = RedisClient.create( vertx );
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
         httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
-        RedisDataProvider.create( redisClient, vertx.createHttpClient( httpClientOptions ) );
+        final TuShareDataProvider provider = TuShareDataProvider.createShare( redisClient, vertx.createHttpClient( httpClientOptions ) );
         QuantTradeContext ctx = new QuantTradeContext( new OrderCost(), "10" );
         Map<String, Integer> stockMap = new HashMap<>();
 
@@ -41,7 +41,7 @@ public class WaveTrideModelTest{
         stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );
-        model = new WaveTrideModel( ctx, RedisDataProvider.INSTANCE() );
+        model = new WaveTrideModel( ctx, provider );
     }
     @Test
     public void run() throws Exception{

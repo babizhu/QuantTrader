@@ -1,0 +1,12 @@
+{
+  "server": {
+    "port": 8080
+  },
+  "db":{
+    "jdbcUrl":"jdbc:mysql://localhost:3306/stock?useSSL=true&&useUnicode=true&characterEncoding=utf8",
+    "user":"root",
+    "password":"root",
+    "maximumPoolSize":30
+  }
+
+}
