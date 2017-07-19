@@ -23,15 +23,15 @@ public class MainVerticle extends AbstractVerticle{
 
 
     @Override
-    public void start(Future<Void> startFuture ){
+    public void start( Future<Void> startFuture ){
 
         Future<String> dbVerticleDeployment = Future.future();
-        DeploymentOptions dbOptions= new DeploymentOptions().setConfig( config().getJsonObject( "db" ) );
-        vertx.deployVerticle( new DatabaseVercitle(),dbOptions, dbVerticleDeployment.completer() );
+        DeploymentOptions dbOptions = new DeploymentOptions().setConfig( config().getJsonObject( "db" ) );
+        vertx.deployVerticle( new DatabaseVercitle(), dbOptions, dbVerticleDeployment.completer() );
         dbVerticleDeployment.compose( id -> {
             Future<String> httpVerticleDeployment = Future.future();
 
-            DeploymentOptions options= new DeploymentOptions().setConfig( config().getJsonObject( "server" ) );
+            DeploymentOptions options = new DeploymentOptions().setConfig( config().getJsonObject( "server" ) );
             vertx.deployVerticle(
 //                    "com.srxk.car.user.behavioranalysis.http.HttpServerVerticle",
                     new HttpServerVerticle(),
@@ -39,9 +39,9 @@ public class MainVerticle extends AbstractVerticle{
                     httpVerticleDeployment.completer() );
             return httpVerticleDeployment;
 
-        } ).compose( id->{
+        } ).compose( id -> {
             Future<String> tradeVerticleDeployment = Future.future();
-            DeploymentOptions options= new DeploymentOptions().setInstances( 10 ).setConfig( config().getJsonObject( "server" ) );
+            DeploymentOptions options = new DeploymentOptions().setInstances( 1 ).setConfig( config().getJsonObject( "server" ) );
             vertx.deployVerticle(
                     "org.bbz.stock.quanttrader.trade.TradeVerticle",
 //                    new HttpServerVerticle(),
@@ -50,7 +50,6 @@ public class MainVerticle extends AbstractVerticle{
             return tradeVerticleDeployment;
         } ).setHandler( ar -> {
             if( ar.succeeded() ) {
-
                 startFuture.complete();
             } else {
                 startFuture.fail( ar.cause() );

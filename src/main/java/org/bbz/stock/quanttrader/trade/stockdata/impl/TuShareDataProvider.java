@@ -81,6 +81,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider{
             uri += "&&start=" + DateUtil.formatDate( start ) + "&&end=" + DateUtil.formatDate( end );
         }
         final HttpClientRequest request = httpClient.get( uri, resp -> {
+//            String finalUri = finalUri;
             resp.exceptionHandler( exception -> {
                 Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
                 resultHandler.handle( failResult );
@@ -93,9 +94,14 @@ public class TuShareDataProvider extends AbstractStockDataProvider{
                     return;
                 }
                 final List<SimpleKBar> data = parseResponse( result );
-
-                Future<List<SimpleKBar>> successResult = Future.succeededFuture( data );
-                resultHandler.handle( successResult );
+                final SimpleKBar simpleKBar = data.get( data.size() - 1 );
+                if( !simpleKBar.getTime().toLocalDate().equals( LocalDate.now() ) ) {
+                    Future<List<SimpleKBar>> failResult = Future.failedFuture( "股票未开盘" );
+                    resultHandler.handle( failResult );
+                } else {
+                    Future<List<SimpleKBar>> successResult = Future.succeededFuture( data );
+                    resultHandler.handle( successResult );
+                }
             } );
         } );
         request.exceptionHandler( System.out::println ).end();
@@ -134,7 +140,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider{
         final Future<List<SimpleKBar>> future = sendRequest( uri, res -> parseResponse( res.toJsonArray() ) );
         future.setHandler( res -> {
             if( res.succeeded() ) {
-               resultHandler.handle( future.result() );
+                resultHandler.handle( future.result() );
             } else {
                 res.cause().printStackTrace();
             }
@@ -165,13 +171,12 @@ public class TuShareDataProvider extends AbstractStockDataProvider{
      */
     private SimpleKBar parseResponse( JsonObject response ){
 
-        SimpleKBar simpleKBar = new SimpleKBar( DateUtil.parse( response.getString( "date" ) ),
+        return new SimpleKBar( DateUtil.parse( response.getString( "date" ) ),
                 Double.parseDouble( response.getString( "open" ) ),
                 Double.parseDouble( response.getString( "high" ) ),
                 Double.parseDouble( response.getString( "low" ) ),
                 Double.parseDouble( response.getString( "price" ) ),
                 Integer.parseInt( response.getString( "volume" ) ) );
-        return simpleKBar;
     }
 
     @Override

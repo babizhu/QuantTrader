@@ -20,7 +20,7 @@ public enum TradeHistory{
     private Map<String, List<DayKBar>> dayKLineMap = new HashMap<>();
 
     public void init() throws IOException{
-        List<String> strings = Files.readAllLines( Paths.get( "./resources/600109.txt" ) );
+        List<String> strings = Files.readAllLines( Paths.get( "./resources/stocks.csv" ) );
         List<DayKBar> dayKLines = strings.stream().map( v -> {
             String[] split = v.split( "," );
             LocalDate date = LocalDate.parse( split[0] );

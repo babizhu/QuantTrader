@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
  * 卢根 提供的策略
  */
 @Slf4j
-public class WaveTrideModel extends AbstractTradeModel{
+public class WaveTradeModel extends AbstractTradeModel{
     private final QuantTradeContext ctx;
     private final IStockDataProvider dataProvider;
 
-    public WaveTrideModel( QuantTradeContext ctx, IStockDataProvider dataProvider ){
+    public WaveTradeModel( QuantTradeContext ctx, IStockDataProvider dataProvider ){
         this.ctx = ctx;
         this.dataProvider = dataProvider;
     }
@@ -82,9 +82,25 @@ public class WaveTrideModel extends AbstractTradeModel{
                         KLineType kLineType = res.result().getkLineType();
                         setAttachement( stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr() );
                         setAttachement( stockId, Consts.FIRST_BUY_DATE_KEY, DateUtil.formatDate( ctx.getCurrentDate() ) );
+                        setFirstCleanupPrice( stockId, LocalDate.now() );
                     }
                     System.out.println( result );
                 } );
+    }
+
+    /**
+     * 设置第一个清仓点
+     *
+     * @param date
+     */
+    private void setFirstCleanupPrice( String stockId, LocalDate date ){
+        dataProvider.getSimpleKBar( stockId, KLineType.DAY, 100, date.plusDays( -1 ), date, res -> {
+            if(res.succeeded()){
+                setAttachement( stockId, Consts.CLEAN_UP_PRICE_KEY, res.result().get( 0 ).getLow() );
+            }else {
+                log.error( res.cause().getMessage());
+            }
+        });
     }
 
     private void checkSellInLittleWave( String stockId, KLineType kLineType ){
@@ -206,6 +222,7 @@ public class WaveTrideModel extends AbstractTradeModel{
 
     @Override
     public void beforeOpen(){
+        System.out.println( "WaveTradeModel.beforeOpen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
     }
 
     @Override
@@ -273,7 +290,7 @@ public class WaveTrideModel extends AbstractTradeModel{
 //                {22.20, 20.53}, {22.59, 21.66}, {23.49, 22.11}, {23.36, 22.34},
 //                {24.65, 22.88}, {24.77, 23.48}, {24.50, 23.60}, {23.60, 22.68},
 //                {25.00, 22.80}, {25.73, 24.32}, {26.76, 24.14}};
-//        //                0       买       孕      外      上       下      下      上
+//        //                      0       买       孕      外      上       下      下      上
 ////        double[][] data = {{10,20},{20,30},{22,28},{19,31},{22,32},{21,30},{19,29},{21,30}};
 //        double[] current = data[0];
 ////        double lowPrice = current[0];
@@ -352,6 +369,7 @@ public class WaveTrideModel extends AbstractTradeModel{
     private boolean checkUp( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
             log.warn( "判断上摆的数据不等于2个" );
+            return false;
         }
         final SimpleKBar oldSimpleKBar = data.get( 0 );
         final SimpleKBar newSimpleKBar = data.get( 1 );

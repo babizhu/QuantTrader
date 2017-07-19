@@ -14,10 +14,15 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 public class OrderCost{
-    private final BigDecimal closeTax = BigDecimal.valueOf( 0.001 );
-    private final BigDecimal openCommission = BigDecimal.valueOf( 0.0003 );
-    private final BigDecimal closeCommission = new BigDecimal( "0.0003" );
-    private final BigDecimal minCommission = BigDecimal.valueOf( 5 );
+    private final BigDecimal closeTax;
+    private final BigDecimal openCommission;
+    private final BigDecimal closeCommission;
+    private final BigDecimal minCommission;
 
-
+    public OrderCost(){
+        closeTax = new BigDecimal( "0.001" );
+        openCommission = new BigDecimal( "0.0003" );
+        closeCommission = new BigDecimal( "0.0003" );
+        minCommission = new BigDecimal( "5" );
+    }
 }

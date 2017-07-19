@@ -17,13 +17,13 @@ import java.util.Map;
  * WaveTrideModelTest
  */
 public class WaveTrideModelTest{
-    WaveTrideModel model;
+    WaveTradeModel model;
     @Test
     public void calcCleanPriceInBigWave() throws Exception{
         model.calcCleanPriceInBigWave( "600352" );
 
         Thread.sleep( 100000000 );
-//        WaveTrideModel.( "" );
+//        WaveTradeModel.( "" );
     }
 
     @Before
@@ -41,7 +41,7 @@ public class WaveTrideModelTest{
         stockMap.put( STOCK_ID, 1000 );
 
         ctx.getPortfolio().setStocks( stockMap );
-        model = new WaveTrideModel( ctx, provider );
+        model = new WaveTradeModel( ctx, provider );
     }
     @Test
     public void run() throws Exception{

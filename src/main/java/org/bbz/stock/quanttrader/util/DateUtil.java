@@ -28,6 +28,10 @@ public class DateUtil{
      */
     public static LocalDateTime parse(String dt ){
         LocalDateTime ret;
+        if(dt.length() == 16){//2017-06-15 10:30
+            dt += ":00";
+            return LocalDateTime.parse( dt,DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) );
+        }
         if( dt.length() < 11 ){
             ret =  LocalDateTime.of( LocalDate.parse( dt ), LocalTime.of( 0, 0, 0 ) );
 
