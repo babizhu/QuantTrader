@@ -74,8 +74,8 @@ public class TradeVerticle extends AbstractVerticle{
         final ITradeModel tradeModel = createTradeModel( argument );
         tradeModel.beforeOpen();
 
-        tradeModel.run( 343434344L );
-//        vertx.setPeriodic( 300000,tradeModel::run );
+//        tradeModel.run( 343434344L );
+        vertx.setPeriodic( 30000,tradeModel::run );
 //        c.newInstance( null );
     }
 
@@ -129,9 +129,17 @@ public class TradeVerticle extends AbstractVerticle{
         final HashMap<String, Integer> stocks = new HashMap<>();
         final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();
         for( String s : allStocks.keySet() ) {
-//            stocks.put( s, 0 );
+//            stocks.put( s, 0 );, 0 );
         }
-
+        stocks.put( "600332", 0 );
+        stocks.put( "000999", 0 );
+        stocks.put( "601607", 0 );
+        stocks.put( "000776", 0 );
+        stocks.put( "601555", 0 );
+        stocks.put( "000036", 0 );
+        stocks.put( "600067", 0 );
+        stocks.put( "600325", 0 );
+        stocks.put( "000965", 0 );
 //        000889 : 买入
 //        600239 : 买入
 //        300436 : 买入
