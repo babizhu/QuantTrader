@@ -8,7 +8,10 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.*;
+import org.bbz.stock.quanttrader.consts.Command;
+import org.bbz.stock.quanttrader.consts.ErrorCode;
+import org.bbz.stock.quanttrader.consts.EventBusAddress;
+import org.bbz.stock.quanttrader.consts.JsonConsts;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.model.ITradeModel;
@@ -53,8 +56,20 @@ public class TradeVerticle extends AbstractVerticle{
             message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
         }
         String action = message.headers().get( "action" );
-        switch(  )
-        System.out.println( address + "----------" + Thread.currentThread().getName() );
+        JsonObject body = message.body();
+        try {
+            switch( Command.valueOf( action ) ) {
+                case TRADE_RUN:
+                    runTradeModel( body );
+                    break;
+                default:
+                    message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
+
+            }
+        } catch( Exception e ) {
+            message.fail( ErrorCode.UNKNOW_ERROR.toNum(), e.getMessage() );
+
+        }
     }
 
     private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
@@ -66,19 +81,19 @@ public class TradeVerticle extends AbstractVerticle{
         }
 //        Class<?> clazz = tradeModelMap.get( "WaveTradeModel" );
 //        Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
-        final JsonObject argument = new JsonObject().put( JsonConsts.CTX_KEY, new JsonObject().put( JsonConsts.INIT_BALANCE_KEY, "100000" ) );
-        argument.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
-        System.out.println( argument );
+
 
     }
 
     /**
      * 通过json配置信息启动一个策略模型
-     * @param argument      配置参数
+     *
+     * @param argument 配置参数
      */
     private void runTradeModel( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
+
         final ITradeModel tradeModel = createTradeModel( argument );
-        vertx.setPeriodic( 30000,tradeModel::run );
+        vertx.setPeriodic( 30000, tradeModel::run );
     }
 
     /**

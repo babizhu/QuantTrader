@@ -2,13 +2,17 @@ package org.bbz.stock.quanttrader.http;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.bbz.stock.quanttrader.consts.Command;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
+import org.bbz.stock.quanttrader.consts.JsonConsts;
 
 /**
  * Created by liulaoye on 17-7-11.
@@ -25,6 +29,7 @@ public class HttpServerVerticle extends AbstractVerticle{
         Router router = Router.router( vertx );
         router.route().handler( BodyHandler.create() );
         router.route( "/info" ).handler( this::Info );
+        router.route( "/trade/run" ).handler( this::TradeRun );
         int portNumber = config().getInteger( "port", 8080 );
         eventBus = vertx.eventBus();
         server
@@ -38,6 +43,22 @@ public class HttpServerVerticle extends AbstractVerticle{
                         startFuture.fail( ar.cause() );
                     }
                 } );
+    }
+
+    private void TradeRun( RoutingContext context ){
+        final JsonObject argument = new JsonObject().put( JsonConsts.CTX_KEY, new JsonObject().put( JsonConsts.INIT_BALANCE_KEY, "100000" ) );
+        argument.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
+        System.out.println( argument );
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", Command.TRADE_RUN.name() );
+        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", options, reply -> {
+            if( reply.succeeded() ) {
+                context.response().setStatusCode( 200 ).end( "ok" );
+                log.info( " ok" );
+            } else {
+//                context.fail( reply.cause() );
+                context.response().setStatusCode( 500 ).end( reply.cause().getMessage() );
+            }
+        } );
     }
 
     /**
