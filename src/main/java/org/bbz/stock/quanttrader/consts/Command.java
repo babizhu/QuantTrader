@@ -9,16 +9,16 @@ import java.util.Map;
  * Time         2015/8/10 17:19
  */
 
-public enum ErrorCode{
+public enum Command{
 
-    SUCCESS( 0 ),
+
 
     ////////////////////////////////////////////////系统错误/////////////////////////////////////////
 
     /**
-     * 无效的http请求
+     * 运行一个策略
      */
-    INVALID_REQUEST( 100 ),
+    TRADE_RUN( "TRADE_RUN" ),
 
     /**
      * 处理句柄不存在
@@ -248,12 +248,12 @@ public enum ErrorCode{
     ////////////////////////////////////////////////枚举结束/////////////////////////////////////////
 
 
-    private static final Map<Integer, ErrorCode> numToEnum = new HashMap<>();
+    private static final Map<Integer, Command> numToEnum = new HashMap<>();
 
     static{
-        for( ErrorCode t : values() ) {
+        for( Command t : values() ) {
 
-            ErrorCode s = numToEnum.put( t.number, t );
+            Command s = numToEnum.put( t.number, t );
             if( s != null ) {
                 throw new RuntimeException( t.number + "重复了" );
             }
@@ -274,18 +274,18 @@ public enum ErrorCode{
     private final int number;
     private final String msg;
 
-    ErrorCode( int number ){
+    Command( int number ){
         this.number = number;
         this.msg = "aaa";
 
     }
 
-    ErrorCode( int number, String msg ){
+    Command( int number, String msg ){
         this.number = number;
         this.msg = msg;
     }
 
-    public static ErrorCode fromNum( int n ){
+    public static Command fromNum( int n ){
         return numToEnum.get( n );
     }
 
@@ -294,9 +294,6 @@ public enum ErrorCode{
     }
 
 
-    public static void main( String[] args ){
-        System.out.println( ErrorCode.SUCCESS.toNum() );
-    }
 
 }
 

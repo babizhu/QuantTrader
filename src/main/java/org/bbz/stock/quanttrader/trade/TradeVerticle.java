@@ -8,10 +8,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.AllStocks;
-import org.bbz.stock.quanttrader.consts.Consts;
-import org.bbz.stock.quanttrader.consts.EventBusAddress;
-import org.bbz.stock.quanttrader.consts.JsonConsts;
+import org.bbz.stock.quanttrader.consts.*;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.model.ITradeModel;
@@ -26,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.bbz.stock.quanttrader.consts.Consts.TRADE_MODEL_CLASS_PREFIX;
+
 /**
  * Created by liulaoye on 17-7-17.
  * TradeVerticle
@@ -37,7 +36,7 @@ public class TradeVerticle extends AbstractVerticle{
     private static AtomicInteger index = new AtomicInteger( 0 );
     private String address;
     /**
-     * 属于本线程的策略模型实例
+     * 保存属于本verticle(线程)的策略模型实例
      */
     private Map<String, Class<?>> tradeModelMap = new HashMap<>();
 
@@ -50,33 +49,36 @@ public class TradeVerticle extends AbstractVerticle{
     }
 
     private void onMessage( Message<JsonObject> message ){
-
+        if( !message.headers().contains( "action" ) ) {
+            message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
+        }
+        String action = message.headers().get( "action" );
+        switch(  )
         System.out.println( address + "----------" + Thread.currentThread().getName() );
     }
 
     private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
         ClassPath classpath = ClassPath.from( Thread.currentThread().getContextClassLoader() ); // scans the class path used by classloader
-        for( ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive( "org.bbz.stock.quanttrader.trade.model.impl" ) ) {
-//            System.out.println( classInfo.getName() );
+        for( ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive( TRADE_MODEL_CLASS_PREFIX ) ) {
             if( classInfo.load().getSuperclass().equals( org.bbz.stock.quanttrader.trade.model.AbstractTradeModel.class ) ) {
                 tradeModelMap.put( classInfo.getSimpleName(), classInfo.load() );
             }
-//            System.out.print( classInfo.getName() + "::::::");
-//            Arrays.stream( classInfo.load().getInterfaces() ).forEach( System.out::println );
         }
-
-//        System.out.println( tradeModelMap );
-        Class<?> clazz = tradeModelMap.get( "WaveTradeModel" );
-        Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
+//        Class<?> clazz = tradeModelMap.get( "WaveTradeModel" );
+//        Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
         final JsonObject argument = new JsonObject().put( JsonConsts.CTX_KEY, new JsonObject().put( JsonConsts.INIT_BALANCE_KEY, "100000" ) );
         argument.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
         System.out.println( argument );
-        final ITradeModel tradeModel = createTradeModel( argument );
-        tradeModel.beforeOpen();
 
-//        tradeModel.run( 343434344L );
+    }
+
+    /**
+     * 通过json配置信息启动一个策略模型
+     * @param argument      配置参数
+     */
+    private void runTradeModel( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
+        final ITradeModel tradeModel = createTradeModel( argument );
         vertx.setPeriodic( 30000,tradeModel::run );
-//        c.newInstance( null );
     }
 
     /**
@@ -95,21 +97,20 @@ public class TradeVerticle extends AbstractVerticle{
     }
 
     /**
-     * 获取完整的类名（包括包名）
+     * 获取完整的类名（包括完整包名）
      *
      * @param simpleClassName 简单的类名称
      * @return 添加包路径的类名称
      */
     private String getClassName( String simpleClassName ){
         String packageName = simpleClassName.toLowerCase().replace( "model", "" );
-        return Consts.TRADE_MODEL_CLASS_PREFIX + packageName + "." + simpleClassName;
+        return TRADE_MODEL_CLASS_PREFIX + "." + packageName + "." + simpleClassName;
     }
 
     private IStockDataProvider createDataProvider( JsonObject dataProvider ){
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
         httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
         return TuShareDataProvider.createShare( null, vertx.createHttpClient( httpClientOptions ) );
-
     }
 
     /**
@@ -127,10 +128,10 @@ public class TradeVerticle extends AbstractVerticle{
         final String initBalance = ctxJson.getString( JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
         final QuantTradeContext ctx = new QuantTradeContext( orderCost, initBalance );
         final HashMap<String, Integer> stocks = new HashMap<>();
-        final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();
-        for( String s : allStocks.keySet() ) {
-//            stocks.put( s, 0 );, 0 );
-        }
+//        final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();
+//        for( String s : allStocks.keySet() ) {
+////            stocks.put( s, 0 );, 0 );
+//        }
         stocks.put( "600332", 0 );
         stocks.put( "000999", 0 );
         stocks.put( "601607", 0 );
