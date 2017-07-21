@@ -33,4 +33,9 @@ public interface ITradeModel{
 
     }
 
+    /**
+     * 获取策略运行的最新信息
+     * @return
+     */
+    String getLastRunInfo();
 }

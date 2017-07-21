@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public abstract class AbstractTradeModel implements ITradeModel{
     protected final Map<String, JsonObject> attachements = new HashMap<>();
-
+    protected String lastRunInfo;
     /**
      * 设置一些额外的参数，方便操作
      *
@@ -27,6 +27,10 @@ public abstract class AbstractTradeModel implements ITradeModel{
         return this;
     }
 
+    @Override
+    public String getLastRunInfo(){
+        return lastRunInfo;
+    }
     @Override
     public void initialize(){
     }

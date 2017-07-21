@@ -35,6 +35,7 @@ public class WaveTradeModel extends AbstractTradeModel{
     @Override
     public void run( Long aLong ){
         log.info( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
+        lastRunInfo = "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now()  ) + "</br>";
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             cleanUp( stock.getKey() );
@@ -85,6 +86,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                         setFirstCleanupPrice( stockId, LocalDate.now() );
                     }
                     System.out.println( result );
+                    lastRunInfo += result+"<br/>";
                 } );
     }
 
@@ -123,6 +125,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 result += res.cause().getMessage();
             }
             System.out.println( result );
+            lastRunInfo += result+"<br/>";
         } );
     }
 
@@ -167,6 +170,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 setAttachement( stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY );
             }
             System.out.println( result );
+            lastRunInfo += result+"<br/>";
         } );
     }
 
@@ -235,6 +239,8 @@ public class WaveTradeModel extends AbstractTradeModel{
             }
         }
     }
+
+
 
     /**
      * 判断大波段的股票加仓和清仓价格
@@ -368,7 +374,7 @@ public class WaveTradeModel extends AbstractTradeModel{
      */
     private boolean checkUp( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
-            log.warn( "判断上摆的数据不等于2个" );
+            log.error( "判断上摆的数据不等于2个" );
             return false;
         }
         final SimpleKBar oldSimpleKBar = data.get( 0 );
@@ -384,7 +390,8 @@ public class WaveTradeModel extends AbstractTradeModel{
      */
     private boolean checkDown( List<SimpleKBar> data ){
         if( data.size() != 2 ) {
-            log.warn( "判断下摆的数据不等于2个,数量为：" + data.size() );
+            log.error( "判断下摆的数据不等于2个,数量为：" + data.size() );
+            return false;
         }
         final SimpleKBar oldSimpleKBar = data.get( 0 );
         final SimpleKBar newSimpleKBar = data.get( 1 );

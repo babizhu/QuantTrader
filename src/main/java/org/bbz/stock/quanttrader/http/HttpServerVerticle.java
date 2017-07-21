@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -30,6 +31,7 @@ public class HttpServerVerticle extends AbstractVerticle{
         router.route().handler( BodyHandler.create() );
         router.route( "/info" ).handler( this::Info );
         router.route( "/trade/run" ).handler( this::TradeRun );
+        router.route( "/trade/info" ).handler( this::TradeLastRunInfo );
         int portNumber = config().getInteger( "port", 8080 );
         eventBus = vertx.eventBus();
         server
@@ -45,18 +47,49 @@ public class HttpServerVerticle extends AbstractVerticle{
                 } );
     }
 
-    private void TradeRun( RoutingContext context ){
+    private void TradeLastRunInfo( RoutingContext ctx ){
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", Command.TRADE_LAST_RUN_INFO.name() );
+        final int taskId = Integer.parseInt( ctx.request().getParam( "taskId" ) );
+        final JsonObject arguments = new JsonObject().put( "taskId", taskId );
+        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", arguments, options, reply -> {
+            if( reply.succeeded() ) {
+                final JsonObject body = (JsonObject) reply.result().body();
+//                String res = "<http><head></head><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\"><meta http-equiv=\"refresh\" content=\"10\"><body>";
+                String res = body.getString( "res" )+"<br/><br/><br/><br/><br/><br/><br/>";
+                res += "<h3>L-L(ver 1.0)必发财炒股鸡</h3>";
+//                res += "</body></html>";
+
+//                ctx.response().putHeader( "charset","UTF-8" );
+                ctx.response().setStatusCode( 200 )
+                        .putHeader("content-type","text/html; charset=utf-8").end( res );
+                log.info( res );
+            } else {
+//                ctx.fail( reply.cause() );
+                ReplyException e = (ReplyException) reply.cause();
+//                final Throwable cause = e.getCause();
+//                cause.getMessage();
+//                e.getCause().getMessage();
+//                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
+                ctx.fail(reply.cause());
+            }
+        } );
+    }
+
+    private void TradeRun( RoutingContext ctx ){
         final JsonObject argument = new JsonObject().put( JsonConsts.CTX_KEY, new JsonObject().put( JsonConsts.INIT_BALANCE_KEY, "100000" ) );
         argument.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
+        argument.put( "taskId", Integer.parseInt( ctx.request().getParam( "taskId" ) ) );
         System.out.println( argument );
+
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", Command.TRADE_RUN.name() );
-        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", options, reply -> {
+
+        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", argument, options, reply -> {
             if( reply.succeeded() ) {
-                context.response().setStatusCode( 200 ).end( "ok" );
+                ctx.response().setStatusCode( 200 ).end( "ok" );
                 log.info( " ok" );
             } else {
-//                context.fail( reply.cause() );
-                context.response().setStatusCode( 500 ).end( reply.cause().getMessage() );
+//                ctx.fail( reply.cause() );
+                ctx.response().setStatusCode( 500 ).end( reply.cause().getMessage() );
             }
         } );
     }

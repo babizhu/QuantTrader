@@ -41,7 +41,12 @@ public class TradeVerticle extends AbstractVerticle{
     /**
      * 保存属于本verticle(线程)的策略模型实例
      */
-    private Map<String, Class<?>> tradeModelMap = new HashMap<>();
+    private Map<String, Class<?>> tradeModelClassMap = new HashMap<>();
+    /**
+     * 正在运行的策略任务
+     */
+    private Map<Integer,ITradeModel> tradeModelTaskMap = new HashMap<>(  );
+
 
     public void start( Future<Void> startFuture ) throws Exception{
         final EventBus eventBus = vertx.eventBus();
@@ -56,30 +61,50 @@ public class TradeVerticle extends AbstractVerticle{
             message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
         }
         String action = message.headers().get( "action" );
-        JsonObject body = message.body();
+        JsonObject arguments = message.body();
+        JsonObject result = null;
         try {
             switch( Command.valueOf( action ) ) {
                 case TRADE_RUN:
-                    runTradeModel( body );
+                    runTradeModel( arguments );
+                    break;
+                case TRADE_LAST_RUN_INFO:
+                    result = getLastInfo(arguments);
                     break;
                 default:
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
 
             }
         } catch( Exception e ) {
-            message.fail( ErrorCode.UNKNOW_ERROR.toNum(), e.getMessage() );
+            message.fail( ErrorCode.SYSTEM_ERROR.toNum(), e.toString() );
+            return;
 
         }
+        if(result != null ){
+            message.reply( result );
+        }else {
+            message.reply( ErrorCode.SUCCESS.toNum() );
+        }
+    }
+
+
+
+    private JsonObject getLastInfo( JsonObject arguments ){
+        final Integer taskId = arguments.getInteger( "taskId" );
+        final ITradeModel tradeModel = tradeModelTaskMap.get( taskId );
+        String lastInfo = tradeModel.getLastRunInfo();
+        return new JsonObject().put( "res",lastInfo );
+
     }
 
     private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
         ClassPath classpath = ClassPath.from( Thread.currentThread().getContextClassLoader() ); // scans the class path used by classloader
         for( ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive( TRADE_MODEL_CLASS_PREFIX ) ) {
             if( classInfo.load().getSuperclass().equals( org.bbz.stock.quanttrader.trade.model.AbstractTradeModel.class ) ) {
-                tradeModelMap.put( classInfo.getSimpleName(), classInfo.load() );
+                tradeModelClassMap.put( classInfo.getSimpleName(), classInfo.load() );
             }
         }
-//        Class<?> clazz = tradeModelMap.get( "WaveTradeModel" );
+//        Class<?> clazz = tradeModelClassMap.get( "WaveTradeModel" );
 //        Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
 
 
@@ -92,7 +117,9 @@ public class TradeVerticle extends AbstractVerticle{
      */
     private void runTradeModel( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
 
+        final Integer taskId = argument.getInteger( "taskId" );
         final ITradeModel tradeModel = createTradeModel( argument );
+        tradeModelTaskMap.put( taskId, tradeModel );
         vertx.setPeriodic( 30000, tradeModel::run );
     }
 

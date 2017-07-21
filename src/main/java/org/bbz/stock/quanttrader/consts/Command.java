@@ -1,7 +1,5 @@
 package org.bbz.stock.quanttrader.consts;
 
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -15,5 +13,9 @@ public enum Command{
      * 运行一个策略
      */
     TRADE_RUN,
+    /**
+     * 策略最后一次的运行状况
+     */
+    TRADE_LAST_RUN_INFO,
 }
 

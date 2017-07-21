@@ -2,13 +2,13 @@ package org.bbz.stock.quanttrader.trade.model.impl.simpletrade;
 
 import org.bbz.stock.quanttrader.trade.core.Portfolio;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.trade.model.ITradeModel;
+import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 
 /**
  * Created by liu_k on 2017/6/20.
  * 最简单的交易模型例子
  */
-public class SimpleTradeModel implements ITradeModel{
+public class SimpleTradeModel extends AbstractTradeModel{
     private final QuantTradeContext ctx;
     private final String stockId;
 

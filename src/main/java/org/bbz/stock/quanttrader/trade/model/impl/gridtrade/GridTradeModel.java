@@ -2,7 +2,7 @@ package org.bbz.stock.quanttrader.trade.model.impl.gridtrade;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.trade.model.ITradeModel;
+import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 
 /**
  * Created by liukun on 2017/6/17.
@@ -13,7 +13,7 @@ import org.bbz.stock.quanttrader.trade.model.ITradeModel;
  * https://www.joinquant.com/post/539
  */
 @Slf4j
-public class GridTradeModel implements ITradeModel{
+public class GridTradeModel extends AbstractTradeModel{
 
     private final QuantTradeContext ctx;
     private final String stockId;
