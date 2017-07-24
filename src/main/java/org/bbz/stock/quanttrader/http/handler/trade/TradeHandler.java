@@ -32,7 +32,7 @@ public class TradeHandler extends AbstractHandler{
     }
 
     /**
-     * 查看策略上次的运行结果
+     * 查看策略的运行情况
      */
     private void getTradeInfo( RoutingContext ctx ){
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_LAST_RUN_INFO.name() );
