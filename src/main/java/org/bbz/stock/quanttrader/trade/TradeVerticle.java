@@ -8,7 +8,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.Command;
+import org.bbz.stock.quanttrader.consts.EventBusCommand;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.JsonConsts;
@@ -64,7 +64,7 @@ public class TradeVerticle extends AbstractVerticle{
         JsonObject arguments = message.body();
         JsonObject result = null;
         try {
-            switch( Command.valueOf( action ) ) {
+            switch( EventBusCommand.valueOf( action ) ) {
                 case TRADE_RUN:
                     runTradeModel( arguments );
                     break;

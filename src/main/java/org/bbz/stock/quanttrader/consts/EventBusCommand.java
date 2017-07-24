@@ -7,7 +7,7 @@ package org.bbz.stock.quanttrader.consts;
  * Time         2015/8/10 17:19
  */
 
-public enum Command{
+public enum EventBusCommand{
 
     /**
      * 运行一个策略
