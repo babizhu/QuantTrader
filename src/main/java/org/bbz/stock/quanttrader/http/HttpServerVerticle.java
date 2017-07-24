@@ -58,7 +58,7 @@ public class HttpServerVerticle extends AbstractVerticle{
     }
 //
 //    private void TradeLastRunInfo( RoutingContext ctx ){
-//        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_LAST_RUN_INFO.name() );
+//        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_GET_INFO.name() );
 //        final int taskId = Integer.parseInt( ctx.request().getParam( "taskId" ) );
 //        final JsonObject arguments = new JsonObject().put( "taskId", taskId );
 //        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", arguments, options, reply -> {

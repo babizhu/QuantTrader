@@ -67,6 +67,7 @@ public enum FinanceIndicators{
      * @param M2 3
      */
 
+    @SuppressWarnings("SameParameterValue")
     public final double[][] calcKDJ( final List<SimpleKBar> list, int N, int M1, int M2 ){
         double[] high = list.stream().mapToDouble( SimpleKBar::getHigh ).toArray();
         double[] low = list.stream().mapToDouble( SimpleKBar::getLow ).toArray();
@@ -117,6 +118,4 @@ public enum FinanceIndicators{
 
         return new double[][]{outSlowK, outSlowD, outSlowJ};
     }
-
 }
-

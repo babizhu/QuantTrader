@@ -7,7 +7,7 @@ import org.bbz.stock.quanttrader.consts.KLineType;
  * 保存各种回调的中间结果
  */
 
-public class CheckResult{
+public final class CheckResult{
 
     private final int resultCode;
 

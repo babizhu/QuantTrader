@@ -32,6 +32,9 @@ public class WaveTradeModel extends AbstractTradeModel{
         this.dataProvider = dataProvider;
     }
 
+    void getInfo(){
+
+    }
     @Override
     public void run( Long aLong ){
         log.info( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );

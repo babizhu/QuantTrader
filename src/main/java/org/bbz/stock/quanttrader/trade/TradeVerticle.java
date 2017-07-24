@@ -68,7 +68,7 @@ public class TradeVerticle extends AbstractVerticle{
                 case TRADE_RUN:
                     runTradeModel( arguments );
                     break;
-                case TRADE_LAST_RUN_INFO:
+                case TRADE_GET_INFO:
                     result = getLastInfo(arguments);
                     break;
                 default:

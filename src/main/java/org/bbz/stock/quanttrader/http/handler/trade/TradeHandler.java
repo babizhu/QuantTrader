@@ -35,7 +35,7 @@ public class TradeHandler extends AbstractHandler{
      * 查看策略的运行情况
      */
     private void getTradeInfo( RoutingContext ctx ){
-        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_LAST_RUN_INFO.name() );
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_GET_INFO.name() );
         final int taskId = Integer.parseInt( ctx.request().getParam( "taskId" ) );
         final JsonObject msg = new JsonObject().put( "taskId", taskId );
         send( EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx, reply -> {

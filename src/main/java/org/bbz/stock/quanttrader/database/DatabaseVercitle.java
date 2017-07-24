@@ -30,26 +30,27 @@ public class DatabaseVercitle extends AbstractVerticle{
 //                .put("driverClassName", "org.postgresql.Driver")
                 .put( "maximumPoolSize", config().getInteger( "maximumPoolSize" ) );
 
-        dbClient = JDBCClient.createShared( vertx, config );
-        dbClient.getConnection( ar -> {
-            if( ar.failed() ) {
-                log.error( "Could not open a database connection", ar.cause() );
-                startFuture.fail( ar.cause() );
-            } else {
-                SQLConnection connection = ar.result();
-                connection.execute( "select * from trade_model", create -> {
-                    connection.close();
-                    if( create.failed() ) {
-                        log.error( "Database preparation error", create.cause() );
-                        startFuture.fail( create.cause() );
-                    } else {
-                        log.info( "database init success!" );
-                        vertx.eventBus().consumer( CONFIG_DB_QUEUE, this::onMessage );
-                        startFuture.complete();
-                    }
-                } );
-            }
-        } );
+//        dbClient = JDBCClient.createShared( vertx, config );
+//        dbClient.getConnection( ar -> {
+//            if( ar.failed() ) {
+//                log.error( "Could not open a database connection", ar.cause() );
+//                startFuture.fail( ar.cause() );
+//            } else {
+//                SQLConnection connection = ar.result();
+//                connection.execute( "select * from trade_model", create -> {
+//                    connection.close();
+//                    if( create.failed() ) {
+//                        log.error( "Database preparation error", create.cause() );
+//                        startFuture.fail( create.cause() );
+//                    } else {
+//                        log.info( "database init success!" );
+//                        vertx.eventBus().consumer( CONFIG_DB_QUEUE, this::onMessage );
+//                        startFuture.complete();
+//                    }
+//                } );
+//            }
+//        } );
+        startFuture.complete();
     }
 
 

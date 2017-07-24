@@ -16,6 +16,6 @@ public enum EventBusCommand{
     /**
      * 策略最后一次的运行状况
      */
-    TRADE_LAST_RUN_INFO,
+    TRADE_GET_INFO,
 }
 
