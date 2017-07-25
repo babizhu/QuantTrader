@@ -18,8 +18,6 @@ import org.bbz.stock.quanttrader.database.service.UserService;
  */
 @Slf4j
 public class MongoDatabaseVercitle extends AbstractVerticle{
-    private MongoClient mongoClient;
-    public static final String CONFIG_DB_QUEUE = "db.queue";
     private UserService userService;
 
     @Override
@@ -34,8 +32,8 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
                 .put( "connection_string", uri )
                 .put( "db_name", db );
 
-        mongoClient = MongoClient.createShared( vertx, mongoconfig );
-        userService = new UserService(mongoClient);
+        MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
+        userService = new UserService( mongoClient );
         vertx.eventBus().consumer( EventBusAddress.DB_ADDR, this::onMessage );
         startFuture.complete();
     }
@@ -46,11 +44,14 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
             message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
         }
         String action = message.headers().get( "action" );
-        JsonObject result = null;
         try {
             switch( EventBusCommand.valueOf( action ) ) {
-                case DB_ADD_USER:
+                case DB_USER_ADD:
                     userService.addUser( message );
+
+                    break;
+                case DB_USER_GET:
+                    userService.getAll( message );
 
                     break;
 
@@ -60,7 +61,6 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         } catch( Exception e ) {
             message.fail( ErrorCode.SYSTEM_ERROR.toNum(), e.toString() );
             e.printStackTrace();
-            return;
         }
 //        if( result != null ) {
 //            message.reply( result );

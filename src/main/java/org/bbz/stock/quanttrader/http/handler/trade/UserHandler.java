@@ -1,7 +1,9 @@
 package org.bbz.stock.quanttrader.http.handler.trade;
 
+import com.google.common.base.Strings;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -26,8 +28,29 @@ public class UserHandler extends AbstractHandler{
     public Router addRouter( Router restAPI ){
         restAPI.route( "/save" ).handler( this::saveUser );
         restAPI.route( "/del" ).handler( this::delUser );
+        restAPI.route( "/get" ).handler( this::get );
 
         return restAPI;
+    }
+
+    private void get( RoutingContext ctx ){
+        JsonObject condition = new JsonObject();
+        HttpServerRequest request = ctx.request();
+        String name = request.getParam( "name" );
+        if( !Strings.isNullOrEmpty( name ) ) {
+
+            condition.put( "name", name );
+        }
+        String id = request.getParam( "id" );
+        if( !Strings.isNullOrEmpty( id ) ) {
+
+            condition.put( "_id", id );
+        }
+
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_GET.name() );
+
+        send( EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
+                ctx.response().end( reply.body().toString() ) );
     }
 
     private void delUser( RoutingContext routingContext ){
@@ -37,10 +60,10 @@ public class UserHandler extends AbstractHandler{
      * 添加或者修改用户信息
      */
     private void saveUser( RoutingContext ctx ){
-        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_ADD_USER.name() );
-        final JsonObject msg = new JsonObject().put( "name", "liulaoye" ).put( "password","123456" );
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_ADD.name() );
+        final JsonObject msg = new JsonObject().put( "name", "liulaoye" ).put( "password", "123456" );
         send( EventBusAddress.DB_ADDR, msg, options, ctx, reply -> {
-            final String  id = (String) reply.body();
+            final String id = (String) reply.body();
             ctx.response().end( id );
         } );
     }

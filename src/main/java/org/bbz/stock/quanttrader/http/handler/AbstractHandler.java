@@ -60,7 +60,6 @@ public abstract class AbstractHandler{
             if( reply.succeeded() ) {
                 replyHandler.handle( reply.result() );
             } else {
-//                buildResponseJson(  )
                 ReplyException e = (ReplyException) reply.cause();
                 ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
 //                reply.cause().printStackTrace();
@@ -68,4 +67,18 @@ public abstract class AbstractHandler{
         } );
 
     }
+    protected void send( String address, DeliveryOptions options, RoutingContext ctx,
+                         Handler<Message<Object>> replyHandler ){
+        eventBus.send( address, options, reply -> {
+            if( reply.succeeded() ) {
+                replyHandler.handle( reply.result() );
+            } else {
+                ReplyException e = (ReplyException) reply.cause();
+                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
+//                reply.cause().printStackTrace();
+            }
+        } );
+    }
+
+
 }
