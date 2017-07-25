@@ -54,7 +54,8 @@ public abstract class AbstractHandler{
     abstract protected Router addRouter( io.vertx.ext.web.Router restAPI );
 
 
-    protected void send( String address, JsonObject msg, DeliveryOptions options, RoutingContext ctx, Handler<Message<Object>> replyHandler ){
+    protected void send( String address, JsonObject msg, DeliveryOptions options, RoutingContext ctx,
+                         Handler<Message<Object>> replyHandler ){
         eventBus.send( address, msg, options, reply -> {
             if( reply.succeeded() ) {
                 replyHandler.handle( reply.result() );

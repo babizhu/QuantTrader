@@ -32,12 +32,11 @@ import static org.bbz.stock.quanttrader.consts.Consts.TRADE_MODEL_CLASS_PREFIX;
  * Created by liulaoye on 17-7-17.
  * TradeVerticle
  */
-@SuppressWarnings("unused")
+//@SuppressWarnings("unused")
 @Slf4j
 public class TradeVerticle extends AbstractVerticle{
 
     private static AtomicInteger index = new AtomicInteger( 0 );
-    private String address;
     /**
      * 保存属于本verticle(线程)的策略模型实例
      */
@@ -45,12 +44,11 @@ public class TradeVerticle extends AbstractVerticle{
     /**
      * 正在运行的策略任务
      */
-    private Map<Integer,ITradeModel> tradeModelTaskMap = new HashMap<>(  );
-
+    private Map<Integer, ITradeModel> tradeModelTaskMap = new HashMap<>();
 
     public void start( Future<Void> startFuture ) throws Exception{
         final EventBus eventBus = vertx.eventBus();
-        address = EventBusAddress.TRADE_MODEL_ADDR + index.getAndAdd( 1 );
+        String address = EventBusAddress.TRADE_MODEL_ADDR + index.getAndAdd( 1 );
         eventBus.consumer( address, this::onMessage );
         log.info( "TradeVerticle Started completed. Listen on " + address );
         init();
@@ -65,36 +63,32 @@ public class TradeVerticle extends AbstractVerticle{
         JsonObject result = null;
         try {
             switch( EventBusCommand.valueOf( action ) ) {
-                case TRADE_RUN:
-                    runTradeModel( arguments );
+                case TRADE_START:
+                    startTrade( arguments );
                     break;
                 case TRADE_GET_INFO:
-                    result = getLastInfo(arguments);
+                    result = getLastInfo( arguments );
                     break;
                 default:
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
-
             }
         } catch( Exception e ) {
             message.fail( ErrorCode.SYSTEM_ERROR.toNum(), e.toString() );
+            e.printStackTrace();
             return;
-
         }
-        if(result != null ){
+        if( result != null ) {
             message.reply( result );
-        }else {
+        } else {
             message.reply( ErrorCode.SUCCESS.toNum() );
         }
     }
-
-
 
     private JsonObject getLastInfo( JsonObject arguments ){
         final Integer taskId = arguments.getInteger( "taskId" );
         final ITradeModel tradeModel = tradeModelTaskMap.get( taskId );
         String lastInfo = tradeModel.getLastRunInfo();
-        return new JsonObject().put( "res",lastInfo );
-
+        return new JsonObject().put( "res", lastInfo );
     }
 
     private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
@@ -104,10 +98,6 @@ public class TradeVerticle extends AbstractVerticle{
                 tradeModelClassMap.put( classInfo.getSimpleName(), classInfo.load() );
             }
         }
-//        Class<?> clazz = tradeModelClassMap.get( "WaveTradeModel" );
-//        Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
-
-
     }
 
     /**
@@ -115,7 +105,7 @@ public class TradeVerticle extends AbstractVerticle{
      *
      * @param argument 配置参数
      */
-    private void runTradeModel( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
+    private void startTrade( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
 
         final Integer taskId = argument.getInteger( "taskId" );
         final ITradeModel tradeModel = createTradeModel( argument );
@@ -137,6 +127,7 @@ public class TradeVerticle extends AbstractVerticle{
         Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
         return (ITradeModel) c.newInstance( ctx, dataProvider );
     }
+
 
     /**
      * 获取完整的类名（包括完整包名）
@@ -169,20 +160,26 @@ public class TradeVerticle extends AbstractVerticle{
         final OrderCost orderCost = new OrderCost( closeTax, openCommission, closeCommission, minCommission );
         final String initBalance = ctxJson.getString( JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
         final QuantTradeContext ctx = new QuantTradeContext( orderCost, initBalance );
+        final String stockList = ctxJson.getString( JsonConsts.STOCK_LIST_KEY );
         final HashMap<String, Integer> stocks = new HashMap<>();
+
 //        final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();
 //        for( String s : allStocks.keySet() ) {
 ////            stocks.put( s, 0 );, 0 );
 //        }
-        stocks.put( "600332", 0 );
-        stocks.put( "000999", 0 );
-        stocks.put( "601607", 0 );
-        stocks.put( "000776", 0 );
-        stocks.put( "601555", 0 );
-        stocks.put( "000036", 0 );
-        stocks.put( "600067", 0 );
-        stocks.put( "600325", 0 );
-        stocks.put( "000965", 0 );
+
+        for( String stock : stockList.split( "," ) ) {
+            stocks.put( stock, 0 );
+        }
+//        stocks.put( "600332", 0 );
+//        stocks.put( "000999", 0 );
+//        stocks.put( "601607", 0 );
+//        stocks.put( "000776", 0 );
+//        stocks.put( "601555", 0 );
+//        stocks.put( "000036", 0 );
+//        stocks.put( "600067", 0 );
+//        stocks.put( "600325", 0 );
+//        stocks.put( "000965", 0 );
 //        000889 : 买入
 //        600239 : 买入
 //        300436 : 买入
@@ -194,7 +191,7 @@ public class TradeVerticle extends AbstractVerticle{
 //        stocks.put( "300436", 0 );
 ////        stocks.put( "000546", 0 );
 //        stocks.put( "002006", 0 );
-        stocks.put( "000012", 0 );
+//        stocks.put( "000012", 0 );
 
 //        stocks.put( "000031", 0 );
 //        stocks.put( "601318", 0 );

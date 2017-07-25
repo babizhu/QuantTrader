@@ -3,7 +3,7 @@ package org.bbz.stock.quanttrader;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.database.DatabaseVercitle;
+import org.bbz.stock.quanttrader.database.MongoDatabaseVercitle;
 import org.bbz.stock.quanttrader.http.HttpServerVerticle;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 @Slf4j
 public class MainVerticle extends AbstractVerticle{
 
-    private static final int PORT = 8000;
+//    private static final int PORT = 8000;
 
 //    private HttpClient httpClient;
 
@@ -26,11 +26,10 @@ public class MainVerticle extends AbstractVerticle{
     public void start( Future<Void> startFuture ){
 
         Future<String> dbVerticleDeployment = Future.future();
-        DeploymentOptions dbOptions = new DeploymentOptions().setConfig( config().getJsonObject( "db" ) );
-        vertx.deployVerticle( new DatabaseVercitle(), dbOptions, dbVerticleDeployment.completer() );
+        DeploymentOptions dbOptions = new DeploymentOptions().setConfig( config().getJsonObject( "mongo" ) );
+        vertx.deployVerticle( new MongoDatabaseVercitle(), dbOptions, dbVerticleDeployment.completer() );
         dbVerticleDeployment.compose( id -> {
             Future<String> httpVerticleDeployment = Future.future();
-
             DeploymentOptions options = new DeploymentOptions().setConfig( config().getJsonObject( "server" ) );
             vertx.deployVerticle(
 //                    "com.srxk.car.user.behavioranalysis.http.HttpServerVerticle",

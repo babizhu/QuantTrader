@@ -12,10 +12,15 @@ public enum EventBusCommand{
     /**
      * 运行一个策略
      */
-    TRADE_RUN,
+    TRADE_START,
     /**
      * 策略最后一次的运行状况
      */
     TRADE_GET_INFO,
+
+    /**
+     * 添加用户
+     */
+    DB_ADD_USER,
 }
 

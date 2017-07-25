@@ -6,4 +6,5 @@ package org.bbz.stock.quanttrader.consts;
  */
 public class EventBusAddress{
     public static final String TRADE_MODEL_ADDR = "TRADE_MODEL";
+    public static final String DB_ADDR = "DB";
 }

@@ -11,6 +11,7 @@ import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
+import org.bbz.stock.quanttrader.http.handler.trade.UserHandler;
 
 /**
  * Created by liulaoye on 17-7-11.
@@ -55,6 +56,7 @@ public class HttpServerVerticle extends AbstractVerticle{
     private void dispatcher( Router mainRouter, EventBus eventBus ){
         Router restAPI = Router.router( vertx );
         mainRouter.mountSubRouter( API_PREFIX + "trade", new TradeHandler( eventBus ).addRouter( restAPI ) );
+        mainRouter.mountSubRouter( API_PREFIX + "user", new UserHandler( eventBus ).addRouter( restAPI ) );
     }
 //
 //    private void TradeLastRunInfo( RoutingContext ctx ){
@@ -91,7 +93,7 @@ public class HttpServerVerticle extends AbstractVerticle{
 //        argument.put( "taskId", Integer.parseInt( ctx.request().getParam( "taskId" ) ) );
 //        System.out.println( argument );
 //
-//        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_RUN.name() );
+//        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_START.name() );
 //
 //        eventBus.send( EventBusAddress.TRADE_MODEL_ADDR + "0", argument, options, reply -> {
 //            if( reply.succeeded() ) {
