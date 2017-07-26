@@ -58,7 +58,7 @@ public class TradeHandler extends AbstractHandler{
         final JsonObject msg = new JsonObject().put( JsonConsts.CTX_KEY,
                 new JsonObject()
                         .put( JsonConsts.INIT_BALANCE_KEY, "100000" )
-                        .put( JsonConsts.STOCK_LIST_KEY,"603268,603298,603929,601991,000415" ));
+                        .put( JsonConsts.STOCK_LIST_KEY,"603268,603298,603929,601991,000415,002401" ));
         msg.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
         msg.put( "taskId", Integer.parseInt( ctx.request().getParam( "taskId" ) ) );
         System.out.println( msg );

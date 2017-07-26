@@ -38,4 +38,6 @@ public interface ITradeModel{
      * @return
      */
     String getLastRunInfo();
+
+    void refreshTradeRecords();
 }

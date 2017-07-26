@@ -4,9 +4,14 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import lombok.extern.slf4j.Slf4j;
@@ -21,18 +26,17 @@ import org.bbz.stock.quanttrader.http.handler.trade.UserHandler;
 public class HttpServerVerticle extends AbstractVerticle{
 
     private static final String API_PREFIX = "/api/";
+    JWTAuth jwtAuth;
 
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router( vertx );
         initBaseHandler( router );
-//        router.route( "/info" ).handler( this::Info );
-//        router.route( "/trade/run" ).handler( this::TradeRun );
-//        router.route( "/trade/info" ).handler( this::TradeLastRunInfo );
-        int portNumber = config().getInteger( "port", 8080 );
+
         EventBus eventBus = vertx.eventBus();
         dispatcher( router, eventBus );
+        int portNumber = config().getInteger( "port", 8080 );
         server
                 .requestHandler( router::accept )
                 .listen( portNumber, ar -> {
@@ -51,6 +55,27 @@ public class HttpServerVerticle extends AbstractVerticle{
         router.route().handler( CookieHandler.create() );
         router.route().handler( SessionHandler.create( LocalSessionStore.create( vertx ) ) );
         router.route().handler( BodyHandler.create() );
+
+
+        JsonObject config = new JsonObject().put( "keyStore", new JsonObject()
+                .put( "path", "/home/liulaoye/jwt/keystore.jceks" )
+                .put( "type", "jceks" )
+                .put( "password", "secret" ) );
+
+        jwtAuth = JWTAuth.create( vertx, config );
+        router.route( "/s/*" ).handler( JWTAuthHandler.create( jwtAuth, "/s/newToken" ) );
+        router.route( "/s/newToken" ).handler( this::login );
+        router.route( "/s/isLogin" ).handler( this::isLogin );
+    }
+
+    private void isLogin( RoutingContext ctx ){
+        ctx.response().end( ctx.user().principal().toString() );
+    }
+
+    private void login( RoutingContext ctx ){
+        String token = jwtAuth.generateToken( new JsonObject().put( "sub", "liulaoye" ), new JWTOptions() );
+        ctx.response().putHeader( "Authorization","Bearer "+ token ).end( "success" );
+
     }
 
     private void dispatcher( Router mainRouter, EventBus eventBus ){

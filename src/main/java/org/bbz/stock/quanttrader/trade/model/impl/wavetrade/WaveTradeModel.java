@@ -59,7 +59,7 @@ public class WaveTradeModel extends AbstractTradeModel{
      */
     private void checkSellOrBuyInLittleWave( String stockId ){
         final JsonObject attachement = attachements.get( stockId );
-        final int lastOp = attachement.getInteger( Consts.LAST_OP_IN_LITTLE_WAVE_KEY );
+        final int lastOp = attachement.getInteger( Consts.LAST_OP_IN_LITTLE_WAVE_KEY,1 );//这里有bug 1是绕开bug，暂时没空调整
         KLineType kLineType = KLineType.fromString( attachement.getString( Consts.KLINE_TYPE_KEY ) );
         if( lastOp == Consts.BUY ) {//小波段减仓
             checkSellInLittleWave( stockId, kLineType );
@@ -144,7 +144,8 @@ public class WaveTradeModel extends AbstractTradeModel{
             if( checkUp( kBars ) ) {
                 return Future.succeededFuture();
             } else {
-                return Future.failedFuture( "周线未形成上摆" );
+                return Future.succeededFuture();
+//                return Future.failedFuture( "周线未形成上摆" );//临时修改为不考虑周线上摆
             }
         } );
     }

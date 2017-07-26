@@ -110,7 +110,7 @@ public class QuantTradeContextTest{
         stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTradeRecord::getCount ).sum();
         assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID3 ) );
 
-        assertEquals( traderRecords.size(), tradeContext.getTraderRecords().size() );
+        assertEquals( traderRecords.size(), tradeContext.getTradeRecords().size() );
 
         calcProfit( tradeContext, traderRecords );
         tradeException( tradeContext );

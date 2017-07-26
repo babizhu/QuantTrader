@@ -33,12 +33,12 @@ public class QuantTradeContext{
     /**
      * 成功的交易记录
      */
-    private List<StockTradeRecord> traderRecords;
+    private List<StockTradeRecord> tradeRecords;
 
     public QuantTradeContext( OrderCost orderCost, String initBalance ){
         this.orderCost = orderCost;
         portfolio = new Portfolio( initBalance, orderCost );
-        traderRecords = new ArrayList<>();
+        tradeRecords = new ArrayList<>();
         runType = RunType.REAL_TRADE;
     }
 
@@ -104,12 +104,12 @@ public class QuantTradeContext{
         }
 
         portfolio.trade( traderRecord );
-        traderRecords.add( traderRecord );
+        tradeRecords.add( traderRecord );
     }
 
 
-    public List<StockTradeRecord> getTraderRecords(){
-        return traderRecords;
+    public List<StockTradeRecord> getTradeRecords(){
+        return tradeRecords;
     }
 
 
@@ -126,7 +126,7 @@ public class QuantTradeContext{
     }
 
     public List<StockTradeRecord> getTradeRecordsByStockId( String stockId ){
-        return traderRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
+        return tradeRecords.stream().filter( v -> v.getStockId().equals( stockId ) ).collect( Collectors.toList() );
     }
 
     /**

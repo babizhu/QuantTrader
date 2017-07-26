@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.EventBusCommand;
+import org.bbz.stock.quanttrader.database.service.TradeService;
 import org.bbz.stock.quanttrader.database.service.UserService;
 
 /**
@@ -19,6 +20,7 @@ import org.bbz.stock.quanttrader.database.service.UserService;
 @Slf4j
 public class MongoDatabaseVercitle extends AbstractVerticle{
     private UserService userService;
+    private TradeService tradeService;
 
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
@@ -38,7 +40,6 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         startFuture.complete();
     }
 
-
     private void onMessage( Message<JsonObject> message ){
         if( !message.headers().contains( "action" ) ) {
             message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
@@ -47,11 +48,10 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         try {
             switch( EventBusCommand.valueOf( action ) ) {
                 case DB_USER_ADD:
-                    userService.addUser( message );
-
+                    userService.add( message );
                     break;
-                case DB_USER_GET:
-                    userService.getAll( message );
+                case DB_USER_QUERY:
+                    userService.query( message );
 
                     break;
 
@@ -62,11 +62,6 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
             message.fail( ErrorCode.SYSTEM_ERROR.toNum(), e.toString() );
             e.printStackTrace();
         }
-//        if( result != null ) {
-//            message.reply( result );
-//        } else {
-//            message.reply( ErrorCode.SUCCESS.toNum() );
-//        }
     }
 
 

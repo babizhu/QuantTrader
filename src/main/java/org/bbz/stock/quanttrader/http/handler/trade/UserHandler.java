@@ -28,12 +28,12 @@ public class UserHandler extends AbstractHandler{
     public Router addRouter( Router restAPI ){
         restAPI.route( "/save" ).handler( this::saveUser );
         restAPI.route( "/del" ).handler( this::delUser );
-        restAPI.route( "/get" ).handler( this::get );
+        restAPI.route( "/query" ).handler( this::query );
 
         return restAPI;
     }
 
-    private void get( RoutingContext ctx ){
+    private void query( RoutingContext ctx ){
         JsonObject condition = new JsonObject();
         HttpServerRequest request = ctx.request();
         String name = request.getParam( "name" );
@@ -47,7 +47,7 @@ public class UserHandler extends AbstractHandler{
             condition.put( "_id", id );
         }
 
-        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_GET.name() );
+        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_QUERY.name() );
 
         send( EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
                 ctx.response().end( reply.body().toString() ) );
