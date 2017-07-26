@@ -7,6 +7,8 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTOptions;
+import io.vertx.ext.auth.mongo.MongoAuth;
+import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -30,6 +32,12 @@ public class HttpServerVerticle extends AbstractVerticle{
 
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
+        MongoClient client = MongoClient.createShared(vertx, mongoClientConfig);
+        JsonObject authProperties = new JsonObject();
+        MongoAuth authProvider = MongoAuth.create(client, authProperties);
+        authProvider.authenticate(  );
+
+
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router( vertx );
         initBaseHandler( router );
