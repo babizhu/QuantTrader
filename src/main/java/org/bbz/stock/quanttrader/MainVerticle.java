@@ -30,7 +30,10 @@ public class MainVerticle extends AbstractVerticle{
         vertx.deployVerticle( new MongoDatabaseVercitle(), dbOptions, dbVerticleDeployment.completer() );
         dbVerticleDeployment.compose( id -> {
             Future<String> httpVerticleDeployment = Future.future();
-            DeploymentOptions options = new DeploymentOptions().setConfig( config().getJsonObject( "server" ) );
+            DeploymentOptions options = new DeploymentOptions().setConfig(
+                    config().getJsonObject( "server" ).
+                        put( "mongo",config().getJsonObject( "mongo" ) ) );
+
             vertx.deployVerticle(
 //                    "com.srxk.car.user.behavioranalysis.http.HttpServerVerticle",
                     new HttpServerVerticle(),

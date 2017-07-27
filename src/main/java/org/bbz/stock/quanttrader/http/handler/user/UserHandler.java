@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.http.handler.trade;
+package org.bbz.stock.quanttrader.http.handler.user;
 
 import com.google.common.base.Strings;
 import io.vertx.core.eventbus.DeliveryOptions;

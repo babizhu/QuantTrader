@@ -1,10 +1,14 @@
 package org.bbz.stock.quanttrader.http;
 
+import com.google.common.base.Strings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.auth.mongo.MongoAuth;
@@ -12,13 +16,14 @@ import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.JWTAuthHandler;
-import io.vertx.ext.web.handler.SessionHandler;
-import io.vertx.ext.web.sstore.LocalSessionStore;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
-import org.bbz.stock.quanttrader.http.handler.trade.UserHandler;
+import org.bbz.stock.quanttrader.http.handler.user.UserHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by liulaoye on 17-7-11.
@@ -28,16 +33,14 @@ import org.bbz.stock.quanttrader.http.handler.trade.UserHandler;
 public class HttpServerVerticle extends AbstractVerticle{
 
     private static final String API_PREFIX = "/api/";
-    JWTAuth jwtAuth;
+    private MongoAuth authProvider;
+    private JWTAuth jwtAuthProvider;
+    private AtomicInteger ids = new AtomicInteger( 0 );
 
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
-        MongoClient client = MongoClient.createShared(vertx, mongoClientConfig);
-        JsonObject authProperties = new JsonObject();
-        MongoAuth authProvider = MongoAuth.create(client, authProperties);
-        authProvider.authenticate(  );
 
-
+        initAuthProvider( startFuture );
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router( vertx );
         initBaseHandler( router );
@@ -58,10 +61,26 @@ public class HttpServerVerticle extends AbstractVerticle{
                 } );
     }
 
+    private void initAuthProvider( Future<Void> startFuture ){
+        JsonObject config = config().getJsonObject( "mongo" );
+        String uri = config.getString( "uri", "mongodb://localhost:27017" );
+        String db = config.getString( "db" );
+        if( db == null ) {
+            startFuture.fail( "没有指定db" );
+        }
+        JsonObject mongoconfig = new JsonObject()
+                .put( "connection_string", uri )
+                .put( "db_name", db );
+
+        MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
+        JsonObject authProperties = new JsonObject();
+        authProvider = MongoAuth.create( mongoClient, authProperties );
+    }
+
 
     private void initBaseHandler( Router router ){
-        router.route().handler( CookieHandler.create() );
-        router.route().handler( SessionHandler.create( LocalSessionStore.create( vertx ) ) );
+//        router.route().handler( CookieHandler.create() );
+//        router.route().handler( SessionHandler.create( LocalSessionStore.create( vertx ) ) );
         router.route().handler( BodyHandler.create() );
 
 
@@ -70,19 +89,71 @@ public class HttpServerVerticle extends AbstractVerticle{
                 .put( "type", "jceks" )
                 .put( "password", "secret" ) );
 
-        jwtAuth = JWTAuth.create( vertx, config );
-        router.route( "/s/*" ).handler( JWTAuthHandler.create( jwtAuth, "/s/newToken" ) );
+        jwtAuthProvider = JWTAuth.create( vertx, config );
+        router.route( "/s/*" ).handler( JWTAuthHandler.create( jwtAuthProvider, "/s/newToken" ) );
         router.route( "/s/newToken" ).handler( this::login );
         router.route( "/s/isLogin" ).handler( this::isLogin );
+        router.route( "/createUser" ).handler( this::createUser );
     }
 
     private void isLogin( RoutingContext ctx ){
         ctx.response().end( ctx.user().principal().toString() );
     }
 
+    private void createUser( RoutingContext ctx ){
+        final HttpServerRequest request = ctx.request();
+        String name = request.getParam( "name" );
+        if( Strings.isNullOrEmpty(name)){
+            name = "liukun"+ids.getAndAdd( 1 );
+        }
+        String password = request.getParam( "password" );
+        if( Strings.isNullOrEmpty(password)){
+            password = "123456";
+        }
+
+        List<String> roles = new ArrayList<>();
+        roles.add( "admin" );
+        roles.add( "sys" );
+        List<String> permissions = new ArrayList<>();
+        permissions.add( "/sys/user/add" );
+        permissions.add( "/sys/user/del" );
+        String finalName = name;
+        String finalPassword = password;
+        authProvider.insertUser( name,password,roles,permissions, res->{
+            if(res.succeeded()){
+                ctx.response().end( "添加用户成功！name=" + finalName +",password=" + finalPassword );
+            }else {
+                ctx.response().end( res.cause().getMessage() );
+            }
+        } );
+    }
     private void login( RoutingContext ctx ){
-        String token = jwtAuth.generateToken( new JsonObject().put( "sub", "liulaoye" ), new JWTOptions() );
-        ctx.response().putHeader( "Authorization","Bearer "+ token ).end( "success" );
+
+
+        JsonObject authInfo = new JsonObject()
+                .put( "username", "liukun1" )
+                .put( "password", "123456" );
+        authProvider.authenticate( authInfo, res -> {
+            if( res.succeeded() ) {
+                User user = res.result();
+                ctx.response().end( user.principal().toString());
+            } else {
+                ctx.response().end( res.cause().getMessage() );
+                return;
+            }
+        } );
+        String token = jwtAuthProvider.generateToken( // <3>
+                new JsonObject()
+                        .put( "username", "liulaoye" )
+                        .put("canCreate", true)
+                        .put( "permissions", new JsonArray(  ).add( "admin" ).add( "/sys/user/add" )),
+                new JWTOptions()
+                        .setSubject( "Wiki API" )
+                        .setIssuer( "Vert.x" ) );
+
+//ctx.response().end( token );
+//        String token = jwtAuth.generateToken( new JsonObject().put( "sub", "liulaoye" ), new JWTOptions() );
+//        ctx.response().putHeader( "Authorization", "Bearer " + token ).end( "success" );
 
     }
 
