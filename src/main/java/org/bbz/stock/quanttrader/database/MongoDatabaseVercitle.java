@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.EventBusCommand;
+import org.bbz.stock.quanttrader.database.service.AuthService;
 import org.bbz.stock.quanttrader.database.service.TradeService;
 import org.bbz.stock.quanttrader.database.service.UserService;
 
@@ -21,21 +22,21 @@ import org.bbz.stock.quanttrader.database.service.UserService;
 public class MongoDatabaseVercitle extends AbstractVerticle{
     private UserService userService;
     private TradeService tradeService;
+    private AuthService authService;
 
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
         JsonObject config = config();
         String uri = config.getString( "uri", "mongodb://localhost:27017" );
         String db = config.getString( "db" );
-        if( db == null ) {
-            startFuture.fail( "没有指定db" );
-        }
+
         JsonObject mongoconfig = new JsonObject()
                 .put( "connection_string", uri )
                 .put( "db_name", db );
 
         MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
         userService = new UserService( mongoClient );
+        authService = new AuthService( mongoClient );
         vertx.eventBus().consumer( EventBusAddress.DB_ADDR, this::onMessage );
         startFuture.complete();
     }
@@ -47,14 +48,18 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         String action = message.headers().get( "action" );
         try {
             switch( EventBusCommand.valueOf( action ) ) {
-                case DB_USER_ADD:
-                    userService.add( message );
+                case DB_USER_SAVE:
+                    userService.save( message );
                     break;
                 case DB_USER_QUERY:
                     userService.query( message );
-
                     break;
-
+                case DB_ROLE_SAVE:
+                    authService.save( message );
+                    break;
+                case DB_ROLE_QUERY:
+                    authService.query( message );
+                    break;
                 default:
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
             }
@@ -63,10 +68,10 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
             e.printStackTrace();
         }
     }
-
-
-    private void reportQueryError( Message<JsonObject> message, Throwable cause ){
-        log.error( "Database query error", cause );
-        message.fail( ErrorCode.DB_ERROR.ordinal(), cause.getMessage() );
-    }
+//
+//
+//    private void reportQueryError( Message<JsonObject> message, Throwable cause ){
+//        log.error( "Database query error", cause );
+//        message.fail( ErrorCode.DB_ERROR.ordinal(), cause.getMessage() );
+//    }
 }

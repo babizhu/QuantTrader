@@ -71,8 +71,8 @@ public enum ErrorCode{
     /**
      * 用户体力值不足
      */
-    USER_STRENGTH_NOT_ENOUGH( 1020 ),
-
+    USER_STRENGTH_NOT_ENOUGH( 1020 )
+    , USER_PERMISSION_DENY( 1021 ),
 
     HERO_NOT_FOUND( 2000 ),
 
@@ -277,22 +277,19 @@ public enum ErrorCode{
     }
 
     private final int number;
-    private final String msg;
 
     ErrorCode( int number ){
         this.number = number;
-        this.msg = "aaa";
 
     }
+//
+//    ErrorCode( int number ){
+//        this.number = number;
+//    }
 
-    ErrorCode( int number, String msg ){
-        this.number = number;
-        this.msg = msg;
-    }
-
-    public static ErrorCode fromNum( int n ){
-        return numToEnum.get( n );
-    }
+//    public static ErrorCode fromNum( int n ){
+//        return numToEnum.get( n );
+//    }
 
     public int toNum(){
         return number;

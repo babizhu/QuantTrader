@@ -172,7 +172,7 @@ public class FinanceIndicatorsTest{
     public void calcKDJ() throws Exception{
 
 
-//        dayK002770.add( new SimpleKBar( LocalDateTime.now(),5.34, 5.47, 5.34, 5.39, 100 ) );
+//        dayK002770.save( new SimpleKBar( LocalDateTime.now(),5.34, 5.47, 5.34, 5.39, 100 ) );
         List<SimpleKBar> simpleDayKBars = dayK600848.subList( 0, dayK002770.size() );
 //        System.out.println( simpleDayKBars.size() );
 //        System.out.println( simpleDayKBars );

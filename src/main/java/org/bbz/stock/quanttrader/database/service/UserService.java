@@ -9,8 +9,9 @@ public class UserService extends AbstractDataServiceWithIdentity{
 
     public UserService( MongoClient mongoClient ){
         super( mongoClient, USER_TABLE );
-
     }
+
+
 
 
 }

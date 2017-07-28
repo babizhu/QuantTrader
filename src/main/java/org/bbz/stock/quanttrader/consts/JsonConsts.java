@@ -33,4 +33,9 @@ public class JsonConsts{
     public static final String STOCK_LIST_KEY = "stockList";
 
 
+    public static final String USER_SALT = "salt";
+    public static final String USER_NAME = "username";
+    public static final String USER_PASSWORD = "password";
+    public static final String USER_PERMISSIONS = "permissions";
+    public static final String USER_ROLES = "roles";
 }

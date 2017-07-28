@@ -21,6 +21,7 @@ public class TradeHandler extends AbstractHandler{
 
     public TradeHandler( EventBus eventBus ){
         super( eventBus );
+
     }
 
     @Override
