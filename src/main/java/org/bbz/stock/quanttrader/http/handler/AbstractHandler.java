@@ -104,9 +104,16 @@ public abstract class AbstractHandler{
 //        ctx.response().end( buildSuccessResponse().toString() );
 //    }
 
+    /**
+     * 用来处理返回值只有一个简单的errorCode和一个字符串的情况
+     */
+    private String buildResponseMsg( ErrorCode errorCode, String msg ){
+        return "{\"result\":" + errorCode.toNum() + ",\"msg\":\"" + msg + "\"}";
+
+    }
 
     protected void reportSuccessMsg( RoutingContext ctx, String msg ){
-        ctx.response().end( buildResponseJson( ErrorCode.SUCCESS, msg ).toString() );
+        ctx.response().end( buildResponseMsg( ErrorCode.SUCCESS, msg ).toString() );
     }
 //    protected void reportMsg(RoutingContext ctx, ErrorCode errorCode, String msg ){
 //        if( errorCode.isSuccess() ) {
