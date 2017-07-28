@@ -91,7 +91,7 @@ public class HttpServerVerticle extends AbstractVerticle{
 
         jwtAuthProvider = JWTAuth.create( vertx, config );
 //        router.route( "/api/*" ).handler( new CustomJWTAuthHandlerImpl( jwtAuthProvider ) );
-        router.route( "/s/newToken" ).handler( this::login );
+        router.route( "/login" ).handler( this::login );
         router.route( "/s/isLogin" ).handler( this::isLogin );
         router.route( "/createUser" ).handler( this::createUser );
     }
@@ -129,27 +129,28 @@ public class HttpServerVerticle extends AbstractVerticle{
     }
     private void login( RoutingContext ctx ){
 
-
-        JsonObject authInfo = new JsonObject()
-                .put( "username", "liukun1" )
-                .put( "password", "123456" );
-        authProvider.authenticate( authInfo, res -> {
-            if( res.succeeded() ) {
-                User user = res.result();
-                ctx.response().end( user.principal().toString());
-            } else {
-                ctx.response().end( res.cause().getMessage() );
-                return;
-            }
-        } );
-        String token = jwtAuthProvider.generateToken( // <3>
-                new JsonObject()
-                        .put( "username", "liulaoye" )
-                        .put("canCreate", true)
-                        .put( "permissions", new JsonArray(  ).add( "admin" ).add( "/sys/user/save" )),
-                new JWTOptions()
-                        .setSubject( "Wiki API" )
-                        .setIssuer( "Vert.x" ) );
+        ctx.reroute("/api/user/login?" + ctx.request().query());
+//
+//        JsonObject authInfo = new JsonObject()
+//                .put( "username", "liukun1" )
+//                .put( "password", "123456" );
+//        authProvider.authenticate( authInfo, res -> {
+//            if( res.succeeded() ) {
+//                User user = res.result();
+//                ctx.response().end( user.principal().toString());
+//            } else {
+//                ctx.response().end( res.cause().getMessage() );
+//                return;
+//            }
+//        } );
+//        String token = jwtAuthProvider.generateToken( // <3>
+//                new JsonObject()
+//                        .put( "username", "liulaoye" )
+//                        .put("canCreate", true)
+//                        .put( "permissions", new JsonArray(  ).add( "admin" ).add( "/sys/user/save" )),
+//                new JWTOptions()
+//                        .setSubject( "Wiki API" )
+//                        .setIssuer( "Vert.x" ) );
 
 //ctx.response().end( token );
 //        String token = jwtAuth.generateToken( new JsonObject().put( "sub", "liulaoye" ), new JWTOptions() );
