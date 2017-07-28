@@ -85,7 +85,7 @@ public class HttpServerVerticle extends AbstractVerticle{
 
 
         JsonObject config = new JsonObject().put( "keyStore", new JsonObject()
-                .put( "path", "/home/liulaoye/jwt/keystore.jceks" )
+                .put( "path", "./resources/keystore.jceks" )
                 .put( "type", "jceks" )
                 .put( "password", "secret" ) );
 
@@ -160,7 +160,7 @@ public class HttpServerVerticle extends AbstractVerticle{
     private void dispatcher( Router mainRouter, EventBus eventBus ){
 //        Router restAPI = Router.router( vertx );
         mainRouter.mountSubRouter( API_PREFIX + "trade", new TradeHandler( eventBus ).addRouter( Router.router( vertx ) ) );
-        mainRouter.mountSubRouter( API_PREFIX + "user", new UserHandler( eventBus ).addRouter( Router.router( vertx ) ) );
+        mainRouter.mountSubRouter( API_PREFIX + "user", new UserHandler( eventBus,jwtAuthProvider ).addRouter( Router.router( vertx ) ) );
         mainRouter.mountSubRouter( API_PREFIX + "auth", new AuthHandler( eventBus ).addRouter( Router.router( vertx ) ) );
     }
 }

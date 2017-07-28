@@ -47,9 +47,9 @@ public abstract class AbstractHandler{
      *
      * @return json
      */
-    private JsonObject buildSuccessResponse(){
+    private JsonObject buildSuccessResponse( JsonObject msg ){
 
-        return this.buildResponseJson( ErrorCode.SUCCESS, "" );
+        return this.buildResponseJson( ErrorCode.SUCCESS, msg.toString() );
     }
 
     abstract protected Router addRouter( io.vertx.ext.web.Router restAPI );
@@ -64,7 +64,7 @@ public abstract class AbstractHandler{
                 ReplyException e = (ReplyException) reply.cause();
 //                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
 //                ctx.response().setStatusCode( 500 ).end( e.toString() );
-                reportQueryError( ctx, e.failureCode(), e.toString() );
+                reportError( ctx, e.failureCode(), e.toString() );
 //                reply.cause().printStackTrace();
             }
         } );
@@ -83,11 +83,15 @@ public abstract class AbstractHandler{
 //        } );
 //    }
 
-    protected void reportQueryError( RoutingContext ctx, ErrorCode errorCode, String msg ){
-        reportQueryError( ctx, errorCode.toNum(), msg );
+    protected void reportError( RoutingContext ctx, ErrorCode errorCode ){
+        reportError( ctx, errorCode.toNum(), "" );
     }
 
-    private void reportQueryError( RoutingContext ctx, int errorCode, String msg ){
+    protected void reportError( RoutingContext ctx, ErrorCode errorCode, String msg ){
+        reportError( ctx, errorCode.toNum(), msg );
+    }
+
+    private void reportError( RoutingContext ctx, int errorCode, String msg ){
         JsonObject resp = new JsonObject()
                 .put( "eid", errorCode )
                 .put( "msg", msg );
@@ -95,18 +99,21 @@ public abstract class AbstractHandler{
         ctx.response().setStatusCode( 500 ).end( resp.toString() );
     }
 
-    protected void reportSuccess( RoutingContext ctx ){
+//    protected void reportSuccessMsg( RoutingContext ctx ){
+//
+//        ctx.response().end( buildSuccessResponse().toString() );
+//    }
 
-        ctx.response().end( buildSuccessResponse().toString() );
+
+    protected void reportSuccessMsg( RoutingContext ctx, String msg ){
+        ctx.response().end( buildResponseJson( ErrorCode.SUCCESS, msg ).toString() );
     }
-
-
-    protected void reportMsg(RoutingContext ctx, ErrorCode errorCode, String msg ){
-        if( errorCode.isSuccess() ) {
-            reportSuccess( ctx );
-        }else {
-            reportQueryError( ctx,errorCode,msg );
-        }
-    }
+//    protected void reportMsg(RoutingContext ctx, ErrorCode errorCode, String msg ){
+//        if( errorCode.isSuccess() ) {
+//            reportSuccessMsg( ctx );
+//        }else {
+//            reportError( ctx,errorCode,msg );
+//        }
+//    }
 
 }

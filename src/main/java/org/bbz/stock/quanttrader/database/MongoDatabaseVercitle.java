@@ -70,7 +70,7 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
     }
 //
 //
-//    private void reportQueryError( Message<JsonObject> message, Throwable cause ){
+//    private void reportError( Message<JsonObject> message, Throwable cause ){
 //        log.error( "Database query error", cause );
 //        message.fail( ErrorCode.DB_ERROR.ordinal(), cause.getMessage() );
 //    }

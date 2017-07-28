@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.JWTAuthHandler;
@@ -94,11 +95,14 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
 
     public CustomJWTAuthHandlerImpl( JWTAuth authProvider ){
+//        authProvider.a
         super( authProvider );
     }
 
     @Override
     public JWTAuthHandler setAudience( List<String> audience ){
+
+
         options.put( "audience", new JsonArray( audience ) );
         return this;
     }
@@ -188,4 +192,6 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     protected void authorise( User user, RoutingContext context ){
         super.authorise( user, context );
     }
+
+
 }
