@@ -10,6 +10,8 @@ import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.EventBusCommand;
 import org.bbz.stock.quanttrader.consts.JsonConsts;
 import org.bbz.stock.quanttrader.http.handler.AbstractHandler;
+import org.bbz.stock.quanttrader.http.handler.auth.anno.RequirePermissions;
+import org.bbz.stock.quanttrader.http.handler.auth.anno.RequireRoles;
 
 /**
  * 负责处理股票交易相关接口
@@ -35,9 +37,11 @@ public class TradeHandler extends AbstractHandler{
     /**
      * 查看策略的运行情况
      */
+    @RequirePermissions("sys:trade:query")
+    @RequireRoles( "user")
     private void getTradeInfo( RoutingContext ctx ){
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.TRADE_GET_INFO.name() );
-        final int taskId = Integer.parseInt( ctx.request().getParam( "taskId" ) );
+        final int taskId = Integer.parseInt( ctx.request().getParam( "taskId" ));
         final JsonObject msg = new JsonObject().put( "taskId", taskId );
         send( EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx, reply -> {
 

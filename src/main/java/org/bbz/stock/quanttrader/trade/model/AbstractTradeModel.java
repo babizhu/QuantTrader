@@ -1,7 +1,6 @@
 package org.bbz.stock.quanttrader.trade.model;
 
 import io.vertx.core.json.JsonObject;
-import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ public abstract class AbstractTradeModel implements ITradeModel{
     }
 
     @Override
-    public String getLastRunInfo(){
+    public String getTradeInfo(){
         return lastRunInfo;
     }
     @Override

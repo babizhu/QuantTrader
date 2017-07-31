@@ -67,7 +67,7 @@ public class TradeVerticle extends AbstractVerticle{
                     startTrade( arguments );
                     break;
                 case TRADE_GET_INFO:
-                    result = getLastInfo( arguments );
+                    result = getTradeInfo( arguments );
                     break;
                 default:
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
@@ -84,10 +84,11 @@ public class TradeVerticle extends AbstractVerticle{
         }
     }
 
-    private JsonObject getLastInfo( JsonObject arguments ){
+    private JsonObject getTradeInfo( JsonObject arguments ){
         final Integer taskId = arguments.getInteger( "taskId" );
         final ITradeModel tradeModel = tradeModelTaskMap.get( taskId );
-        String lastInfo = tradeModel.getLastRunInfo();
+
+        String lastInfo = tradeModel.getTradeInfo();
         return new JsonObject().put( "res", lastInfo );
     }
 

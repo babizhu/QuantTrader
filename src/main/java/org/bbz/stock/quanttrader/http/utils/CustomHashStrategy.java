@@ -1,4 +1,4 @@
-package org.bbz.stock.quanttrader.http.handler.user;
+package org.bbz.stock.quanttrader.http.utils;
 
 import io.vertx.core.VertxException;
 
@@ -49,5 +49,12 @@ public enum CustomHashStrategy{
         return new String( chars );
     }
 
-
+    /**
+     * 根据密码明文和salt生成加密后的密码字符串
+     * @param password  原始密码明文
+     * @param salt      salt
+     */
+    public String cryptPassword( String password, String salt ){
+        return computeHash( password, salt, "SHA-512" );
+    }
 }
