@@ -72,9 +72,10 @@ private  EventBus eventBus;
 //        router.route().handler(UserSessionHandler.create(auth));  (1)
 
         router.route().handler( BodyHandler.create() );
-        JsonObject config = new JsonObject().put( "keyStore", new JsonObject()
+        JsonObject config = new JsonObject().put( "permissionsClaimKey","roles" ).put( "keyStore", new JsonObject()
                 .put( "path", "./resources/keystore.jceks" )
                 .put( "type", "jceks" )
+
                 .put( "password", "secret" ) );
 
         jwtAuthProvider = JWTAuth.create( vertx, config );

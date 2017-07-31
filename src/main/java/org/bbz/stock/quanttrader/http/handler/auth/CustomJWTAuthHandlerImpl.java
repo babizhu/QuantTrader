@@ -35,7 +35,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     /**
      * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
      */
-    private static final Map<String, PermisstionAndRoleSet> authMap = new HashMap<>();
+    private static final Map<String, Set<String>> authMap = new HashMap<>();
     /**
      * 角色到权限的映射
      */
@@ -64,17 +64,17 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
         for( Method method : methods ) {
             if( method.isAnnotationPresent( RequirePermissions.class ) || method.isAnnotationPresent( RequireRoles.class ) ) {
                 final String clazzName = getClassName( clazz );
-                PermisstionAndRoleSet roleAndPermisstionSet = new PermisstionAndRoleSet();
+                Set<String> permisstionSet = new HashSet<>();
 
                 if( method.isAnnotationPresent( RequirePermissions.class ) ) {
-                    roleAndPermisstionSet.addPermissions( getSetFromStr( method.getDeclaredAnnotation( RequirePermissions.class ).value() ) );
+                    permisstionSet.addAll( getSetFromStr( method.getDeclaredAnnotation( RequirePermissions.class ).value() ) );
                 }
-                if( method.isAnnotationPresent( RequireRoles.class ) ) {
-                    roleAndPermisstionSet.addRoles( getSetFromStr( method.getDeclaredAnnotation( RequireRoles.class ).value() ) );
-                }
+//                if( method.isAnnotationPresent( RequireRoles.class ) ) {
+//                    roleAndPermisstionSet.addRoles( getSetFromStr( method.getDeclaredAnnotation( RequireRoles.class ).value() ) );
+//                }
                 ///api/trade/getTradeInfo
                 String url = clazzName + "/" + method.getName();
-                authMap.put( url, roleAndPermisstionSet );
+                authMap.put( url, permisstionSet );
             }
         }
     }
@@ -109,6 +109,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
     public CustomJWTAuthHandlerImpl( EventBus eventBus, JWTAuth authProvider ){
 //        authProvider.a
+
         super( authProvider );
         this.eventBus = eventBus;
         initRoles();
@@ -197,12 +198,12 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
     @Override
     protected void authorise( User user, RoutingContext ctx ){
-        log.debug( "检测权限,用户的权限：" + user.principal().getString( "roles" ) );
+        log.debug( "检测权限,用户的权限：" + user.principal().getJsonArray( "roles" ) );
         final String uri = ctx.request().uri();
         log.debug( "访问的地址：" + uri );
         log.debug( "需要的权限：" + authMap.get( uri ) );
 //        super.authorise( user, context );
-        if( doIsPermitted( user.principal().getString( "roles" ), authMap.get( uri ) ) ) {
+        if( doIsPermitted( user.principal().getJsonArray( "roles" ), authMap.get( uri ) ) ) {
             ctx.next();
         } else {
             ctx.put( "e", ErrorCode.USER_PERMISSION_DENY ).fail( 403 );
@@ -210,20 +211,29 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     }
 
 
-    private boolean doIsPermitted( String  roles, PermisstionAndRoleSet permissionOrRole ){
-//        Set<String> roles = user.getRoles();
+    private boolean doIsPermitted( JsonArray userRoles, Set<String> uriPermissionSet ){
+
+//        Set<String> userRoles = user.getRoles();
 //        Set<String> permissions = user.getPermissions();
-//        return roles.contains( "admin" ) || permissionOrRole.contains( roles ) || permissionOrRole.contains( permissions );
-        for( String role : roles.split( "," ) ) {
+//        return userRoles.contains( "admin" ) || permissionOrRole.contains( userRoles ) || permissionOrRole.contains( permissions );
+        for( Object role : userRoles ) {
+            if( role.equals( "admin" ) ) {
+                return true;
+            }
             final Set<String> permisstions = rolesPermissionsMap.get( role );
-            if( permisstions.contains(  ))
+            if( permisstions == null ) {
+                return false;
+            }
+            if( permisstions.contains( uriPermissionSet ) ) {
+                return true;
+            }
         }
-        return true;
+        return false;
 
     }
 
     /**
-     * 很明显一旦[角色-权限]发生变化，在集群的条件下，没有办法通知到每个verticle实例的缓存，这个问题以后在着手解决
+     * 很明显一旦[角色-权限表]的数据发生变化，在集群的条件下，没有办法通知到每个verticle实例的缓存，这个问题以后在着手解决
      */
     private void initRoles(){
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_ROLE_QUERY.name() );
