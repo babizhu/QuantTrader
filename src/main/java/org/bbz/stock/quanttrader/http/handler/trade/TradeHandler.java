@@ -46,7 +46,7 @@ public class TradeHandler extends AbstractHandler{
         send( EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx, reply -> {
 
             final JsonObject body = (JsonObject) reply.body();
-            String res = body.getString( "res" ) + "<br/><br/><br/><br/><br/><br/><br/>";
+            String res = "<meta http-equiv=\"refresh\" content=\"10\">"+body.getString( "res" ) + "<br/><br/><br/><br/><br/><br/><br/>";
             res += "<h3>L-L(ver 1.0)必发财炒股鸡</h3>";
 //
             ctx.response().setStatusCode( 200 )
@@ -60,10 +60,11 @@ public class TradeHandler extends AbstractHandler{
      * 开始运行一个策略
      */
     private void startTrade( RoutingContext ctx ){
+        String stocks = "600023,600166,600200,600361,600482,600489,600498,600722,600787,601000,601928,601929,000034,000401,002146,002373,002375,002467,002477,002657";
         final JsonObject msg = new JsonObject().put( JsonConsts.CTX_KEY,
                 new JsonObject()
                         .put( JsonConsts.INIT_BALANCE_KEY, "100000" )
-                        .put( JsonConsts.STOCK_LIST_KEY,"603268,603298,603929,601991,000415,002401" ));
+                        .put( JsonConsts.STOCK_LIST_KEY,stocks ));
         msg.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
         msg.put( "taskId", Integer.parseInt( ctx.request().getParam( "taskId" ) ) );
         System.out.println( msg );

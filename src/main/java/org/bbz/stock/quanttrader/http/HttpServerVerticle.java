@@ -9,7 +9,6 @@ import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.http.handler.auth.CustomJWTAuthHandlerImpl;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
 import org.bbz.stock.quanttrader.http.handler.user.AuthHandler;
 import org.bbz.stock.quanttrader.http.handler.user.LoginHandler;
@@ -80,7 +79,7 @@ private  EventBus eventBus;
 
         jwtAuthProvider = JWTAuth.create( vertx, config );
 
-        router.route( "/api/*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );
+//        router.route( "/api/*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );
 //        router.route( "/login" ).handler( this::login );
 //        router.route( "/s/isLogin" ).handler( this::isLogin );
 //        router.route( "/createUser" ).handler( this::createUser );
