@@ -1,6 +1,5 @@
 package org.bbz.stock.quanttrader.trade;
 
-import com.google.common.reflect.ClassPath;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -8,17 +7,13 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.EventBusCommand;
-import org.bbz.stock.quanttrader.consts.ErrorCode;
-import org.bbz.stock.quanttrader.consts.EventBusAddress;
-import org.bbz.stock.quanttrader.consts.JsonConsts;
+import org.bbz.stock.quanttrader.consts.*;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.model.ITradeModel;
 import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -37,10 +32,10 @@ import static org.bbz.stock.quanttrader.consts.Consts.TRADE_MODEL_CLASS_PREFIX;
 public class TradeVerticle extends AbstractVerticle{
 
     private static AtomicInteger index = new AtomicInteger( 0 );
-    /**
-     * 保存属于本verticle(线程)的策略模型实例
-     */
-    private Map<String, Class<?>> tradeModelClassMap = new HashMap<>();
+
+//    保存属于本verticle(线程)的策略模型实例
+
+//    private Map<String, Class<?>> tradeModelClassMap = new HashMap<>();
     /**
      * 正在运行的策略任务
      */
@@ -51,9 +46,12 @@ public class TradeVerticle extends AbstractVerticle{
         String address = EventBusAddress.TRADE_MODEL_ADDR + index.getAndAdd( 1 );
         eventBus.consumer( address, this::onMessage );
         log.info( "TradeVerticle Started completed. Listen on " + address );
-        init();
+//        init();
     }
 
+    /**
+     * @param message message
+     */
     private void onMessage( Message<JsonObject> message ){
         if( !message.headers().contains( "action" ) ) {
             message.fail( ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified" );
@@ -72,11 +70,16 @@ public class TradeVerticle extends AbstractVerticle{
                 default:
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
             }
+        } catch( ErrorCodeException e ) {
+            message.fail( e.getErrorCode().toNum(), e.getMessage() );
+            e.printStackTrace();
+            return;
         } catch( Exception e ) {
             message.fail( ErrorCode.SYSTEM_ERROR.toNum(), e.toString() );
             e.printStackTrace();
             return;
         }
+        //确保所有的调用都是同步返回的，否则下面的代码就没有意义
         if( result != null ) {
             message.reply( result );
         } else {
@@ -88,18 +91,21 @@ public class TradeVerticle extends AbstractVerticle{
         final Integer taskId = arguments.getInteger( "taskId" );
         final ITradeModel tradeModel = tradeModelTaskMap.get( taskId );
 
+        if( tradeModel == null ) {
+            throw new ErrorCodeException( ErrorCode.PARAMETER_ERROR, taskId+"" );
+        }
         String lastInfo = tradeModel.getTradeInfo();
         return new JsonObject().put( "res", lastInfo );
     }
 
-    private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
-        ClassPath classpath = ClassPath.from( Thread.currentThread().getContextClassLoader() ); // scans the class path used by classloader
-        for( ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive( TRADE_MODEL_CLASS_PREFIX ) ) {
-            if( classInfo.load().getSuperclass().equals( org.bbz.stock.quanttrader.trade.model.AbstractTradeModel.class ) ) {
-                tradeModelClassMap.put( classInfo.getSimpleName(), classInfo.load() );
-            }
-        }
-    }
+//    private void init() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException{
+//        ClassPath classpath = ClassPath.from( Thread.currentThread().getContextClassLoader() ); // scans the class path used by classloader
+//        for( ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive( TRADE_MODEL_CLASS_PREFIX ) ) {
+//            if( classInfo.load().getSuperclass().equals( org.bbz.stock.quanttrader.trade.model.AbstractTradeModel.class ) ) {
+//                tradeModelClassMap.put( classInfo.getSimpleName(), classInfo.load() );
+//            }
+//        }
+//    }
 
     /**
      * 通过json配置信息启动一个策略模型
@@ -123,8 +129,8 @@ public class TradeVerticle extends AbstractVerticle{
         QuantTradeContext ctx = createQuantTradeContext( argument.getJsonObject( JsonConsts.CTX_KEY ) );
         final IStockDataProvider dataProvider = createDataProvider( argument.getJsonObject( JsonConsts.DATA_PROVIDER_KEY ) );
 
-        String className = getClassName( argument.getString( JsonConsts.MODEL_CLASS_KEY ) );
-        Class<?> clazz = Class.forName( className );
+        String tradeModelClassName = getClassName( argument.getString( JsonConsts.MODEL_CLASS_KEY ) );
+        Class<?> clazz = Class.forName( tradeModelClassName );
         Constructor c = clazz.getConstructor( QuantTradeContext.class, IStockDataProvider.class );
         return (ITradeModel) c.newInstance( ctx, dataProvider );
     }
@@ -143,7 +149,8 @@ public class TradeVerticle extends AbstractVerticle{
 
     private IStockDataProvider createDataProvider( JsonObject dataProvider ){
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
-        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
+        String host = dataProvider.getString( "host", "localhost" );
+        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( host ).setConnectTimeout( 4000 ).setKeepAlive( true );
         return TuShareDataProvider.createShare( null, vertx.createHttpClient( httpClientOptions ) );
     }
 

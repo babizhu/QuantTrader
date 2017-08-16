@@ -55,7 +55,6 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
         }
         log.info( authMap.toString() );
 
-
     }
 
     private static void parseClass( Class<?> clazz ){

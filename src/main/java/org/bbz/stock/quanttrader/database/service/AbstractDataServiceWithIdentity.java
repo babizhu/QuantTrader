@@ -42,7 +42,6 @@ public class AbstractDataServiceWithIdentity{
                 log.info( "记录条数：" + String.valueOf( res.result().size() ) );
             } else {
                 reportQueryError( msg, res.cause() );
-
             }
         } );
 

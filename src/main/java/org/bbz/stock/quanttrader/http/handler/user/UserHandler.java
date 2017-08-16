@@ -141,7 +141,7 @@ public class UserHandler extends AbstractHandler{
                 ctx.response().end( reply.body().toString() ) );
     }
 
-    private void delUser( RoutingContext routingContext ){
+    private void delUser( RoutingContext ctx ){
     }
 
     /**

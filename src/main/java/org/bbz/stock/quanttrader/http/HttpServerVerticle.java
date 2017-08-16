@@ -23,7 +23,8 @@ public class HttpServerVerticle extends AbstractVerticle{
 
     private static final String API_PREFIX = "/api/";
     private JWTAuth jwtAuthProvider;
-private  EventBus eventBus;
+    private EventBus eventBus;
+
     @Override
     public void start( Future<Void> startFuture ) throws Exception{
 
@@ -31,8 +32,8 @@ private  EventBus eventBus;
         Router router = Router.router( vertx );
         eventBus = vertx.eventBus();
         initBaseHandler( router );
-
         dispatcher( router );
+
         int portNumber = config().getInteger( "port", 8080 );
         server
                 .requestHandler( router::accept )
@@ -71,25 +72,27 @@ private  EventBus eventBus;
 //        router.route().handler(UserSessionHandler.create(auth));  (1)
 
         router.route().handler( BodyHandler.create() );
-        JsonObject config = new JsonObject().put( "permissionsClaimKey","roles" ).put( "keyStore", new JsonObject()
+        JsonObject jwtConfig = new JsonObject().put( "permissionsClaimKey", "roles" ).put( "keyStore", new JsonObject()
                 .put( "path", "./resources/keystore.jceks" )
                 .put( "type", "jceks" )
-
                 .put( "password", "secret" ) );
 
-        jwtAuthProvider = JWTAuth.create( vertx, config );
+        jwtAuthProvider = JWTAuth.create( vertx, jwtConfig );
 
-//        router.route( "/api/*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );
+
+//        router.route( API_PREFIX+"*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );//暂时只能屏蔽
 //        router.route( "/login" ).handler( this::login );
 //        router.route( "/s/isLogin" ).handler( this::isLogin );
 //        router.route( "/createUser" ).handler( this::createUser );
     }
 
-    private void dispatcher( Router mainRouter){
+    private void dispatcher( Router mainRouter ){
         mainRouter.mountSubRouter( "/user", new LoginHandler( eventBus, jwtAuthProvider ).addRouter( Router.router( vertx ) ) );
 
         mainRouter.mountSubRouter( API_PREFIX + "trade", new TradeHandler( eventBus ).addRouter( Router.router( vertx ) ) );
         mainRouter.mountSubRouter( API_PREFIX + "user", new UserHandler( eventBus, jwtAuthProvider ).addRouter( Router.router( vertx ) ) );
         mainRouter.mountSubRouter( API_PREFIX + "auth", new AuthHandler( eventBus ).addRouter( Router.router( vertx ) ) );
+//        mainRouter.route(API_PREFIX+"*").handler( new ResponseHandler() );
+
     }
 }
