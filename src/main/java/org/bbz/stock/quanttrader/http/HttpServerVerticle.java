@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
 import org.bbz.stock.quanttrader.http.handler.user.AuthHandler;
@@ -70,7 +71,7 @@ public class HttpServerVerticle extends AbstractVerticle{
 //        router.route().handler(BodyHandler.create());
 //        router.route().handler( SessionHandler.create( LocalSessionStore.create(vertx)));
 //        router.route().handler(UserSessionHandler.create(auth));  (1)
-
+        router.route().handler(StaticHandler.create());
         router.route().handler( BodyHandler.create() );
         JsonObject jwtConfig = new JsonObject().put( "permissionsClaimKey", "roles" ).put( "keyStore", new JsonObject()
                 .put( "path", "./resources/keystore.jceks" )
