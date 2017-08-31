@@ -37,6 +37,7 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
         userService = new UserService( mongoClient );
         authService = new AuthService( mongoClient );
+        tradeService = new TradeService( mongoClient );
         vertx.eventBus().consumer( EventBusAddress.DB_ADDR, this::onMessage );
         startFuture.complete();
     }

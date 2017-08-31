@@ -1,9 +1,7 @@
 package org.bbz.stock.quanttrader.http.handler.user;
 
-import com.google.common.base.Strings;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -39,23 +37,44 @@ public class LoginHandler extends AbstractHandler{
     public Router addRouter( Router restAPI ){
 
         restAPI.route( "/login" ).handler( this::login );
+        restAPI.route( "/logout" ).handler( this::logout );
 
         return restAPI;
     }
 
-    private void login( RoutingContext ctx ){
-        HttpServerRequest request = ctx.request();
+    private void logout( RoutingContext ctx ){
+        ctx.response().end(  );
+    }
 
-        String username = request.getParam( "username" );
-        if( Strings.isNullOrEmpty( username ) ) {
+    private void login( RoutingContext ctx ){
+//        HttpServerRequest request = ctx.request();
+//
+//        MultiMap params = request.params();
+//        for( Map.Entry<String, String> param : params ) {
+//            System.out.println(param.getKey() + " \t" + param.getValue());
+//        }
+//        String username = request.getParam( "username" );
+//        if( Strings.isNullOrEmpty( username ) ) {
+//            reportError( ctx, ErrorCode.PARAMETER_ERROR, "username is null" );
+//            return;
+//        }
+//        String password = request.getParam( "password" );
+//        if( Strings.isNullOrEmpty( password ) ) {
+//            reportError( ctx, ErrorCode.PARAMETER_ERROR, "password is null" );
+//            return;
+//        }
+        JsonObject userJson = ctx.getBodyAsJson();
+        String username = userJson.getString( JsonConsts.USER_NAME );
+        if( username == null ){
             reportError( ctx, ErrorCode.PARAMETER_ERROR, "username is null" );
             return;
         }
-        String password = request.getParam( "password" );
-        if( Strings.isNullOrEmpty( password ) ) {
+        String password = userJson.getString( JsonConsts.USER_PASSWORD );
+        if( password == null){
             reportError( ctx, ErrorCode.PARAMETER_ERROR, "password is null" );
             return;
         }
+
         JsonObject usernameJson = new JsonObject().put( JsonConsts.USER_NAME, username );
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_QUERY.name() );
 
@@ -64,7 +83,9 @@ public class LoginHandler extends AbstractHandler{
             if( errorCode.isSuccess() ) {
                 String token = jwtAuthProvider.generateToken(
                         new JsonObject()
-                                .put( "username", username)
+                                .put( "success", true )
+                                .put( "message", "ok" )
+                                .put( "username", username )
                                 .put( "roles", new JsonArray().add( "admin" ) ),
                         new JWTOptions()
                                 .setSubject( "Quant Trade" )
@@ -78,9 +99,8 @@ public class LoginHandler extends AbstractHandler{
     }
 
 
-
     private boolean examinePassword( String password, String storedPassword, String salt ){
-        String cryptPassword =CustomHashStrategy.INSTANCE.cryptPassword( password, salt );
+        String cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword( password, salt );
         return storedPassword != null && storedPassword.equals( cryptPassword );
     }
 
@@ -114,8 +134,6 @@ public class LoginHandler extends AbstractHandler{
             }
         }
     }
-
-
 
 
 }
