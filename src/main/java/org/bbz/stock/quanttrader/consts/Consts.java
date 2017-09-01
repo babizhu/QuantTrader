@@ -12,4 +12,5 @@ public class Consts{
     public static final String TRADE_MODEL_CLASS_PREFIX = "org.bbz.stock.quanttrader.trade.model.impl";
 
 
+
 }

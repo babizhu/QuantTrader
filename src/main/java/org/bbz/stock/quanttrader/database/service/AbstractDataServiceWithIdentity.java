@@ -35,7 +35,6 @@ public class AbstractDataServiceWithIdentity{
 
     public void query( Message<JsonObject> msg ){
         JsonObject condition = msg.body();
-        log.info( condition.toString() );
         mongoClient.find( tableName, condition, res -> {
             if( res.succeeded() ) {
                 msg.reply( new JsonArray(  res.result()) );
