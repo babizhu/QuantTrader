@@ -32,6 +32,8 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
 
         JsonObject mongoconfig = new JsonObject()
                 .put( "connection_string", uri )
+                .put("connectTimeoutMS",5000)
+                .put("serverSelectionTimeoutMS",5000)
                 .put( "db_name", db );
 
         MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
