@@ -9,10 +9,8 @@
     "maximumPoolSize":30
   },
   "mongo":{
-    "uri":"mongodb://localhost:27017",
     "uri":"mongodb://localhost:27017/?serverSelectionTimeoutMS=500",
     "db":"quant_trader"
-
   }
 
 }
