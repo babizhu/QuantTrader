@@ -16,6 +16,7 @@ import java.util.Base64;
 
 
 
+@SuppressWarnings("unused")
 public class Base64Utils {
 
     /**
@@ -29,9 +30,8 @@ public class Base64Utils {
      * </p>
      *
      * @param base64    base64字符
-     * @throws Exception
      */
-    public static byte[] decode(String base64) throws Exception {
+    public static byte[] decode(String base64) {
         return Base64.getDecoder().decode( base64.getBytes() );
 
 //        return Base64.decode(base64.getBytes());
@@ -42,13 +42,11 @@ public class Base64Utils {
      * 二进制数据编码为BASE64字符串
      * </p>
      *
-     * @param bytes
-     * @return
-     * @throws Exception
+     * @param bytes     bytes
      */
-    public static String encode(byte[] bytes) throws Exception {
+    static String encode( byte[] bytes ){
 
-        return new String(Base64.getEncoder().encodeToString( bytes ));
+        return Base64.getEncoder().encodeToString( bytes );
     }
 
     /**
@@ -60,8 +58,6 @@ public class Base64Utils {
      * </p>
      *
      * @param filePath 文件绝对路径
-     * @return
-     * @throws Exception
      */
     public static String encodeFile(String filePath) throws Exception {
         byte[] bytes = fileToByte(filePath);
@@ -75,7 +71,6 @@ public class Base64Utils {
      *
      * @param filePath 文件绝对路径
      * @param base64 编码字符串
-     * @throws Exception
      */
     public static void decodeToFile(String filePath, String base64) throws Exception {
         byte[] bytes = decode(base64);
@@ -88,17 +83,15 @@ public class Base64Utils {
      * </p>
      *
      * @param filePath 文件路径
-     * @return
-     * @throws Exception
      */
-    public static byte[] fileToByte(String filePath) throws Exception {
+    private static byte[] fileToByte( String filePath ) throws Exception {
         byte[] data = new byte[0];
         File file = new File(filePath);
         if (file.exists()) {
             FileInputStream in = new FileInputStream(file);
             ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
             byte[] cache = new byte[CACHE_SIZE];
-            int nRead = 0;
+            int nRead;
             while ((nRead = in.read(cache)) != -1) {
                 out.write(cache, 0, nRead);
                 out.flush();
@@ -118,7 +111,8 @@ public class Base64Utils {
      * @param bytes 二进制数据
      * @param filePath 文件生成目录
      */
-    public static void byteArrayToFile(byte[] bytes, String filePath) throws Exception {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void byteArrayToFile( byte[] bytes, String filePath ) throws Exception {
         InputStream in = new ByteArrayInputStream(bytes);
         File destFile = new File(filePath);
         if (!destFile.getParentFile().exists()) {
@@ -127,7 +121,7 @@ public class Base64Utils {
         destFile.createNewFile();
         OutputStream out = new FileOutputStream(destFile);
         byte[] cache = new byte[CACHE_SIZE];
-        int nRead = 0;
+        int nRead;
         while ((nRead = in.read(cache)) != -1) {
             out.write(cache, 0, nRead);
             out.flush();
