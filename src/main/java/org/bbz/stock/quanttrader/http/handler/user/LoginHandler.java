@@ -23,9 +23,7 @@ import org.bbz.stock.quanttrader.util.RSAUtils;
  */
 @Slf4j
 public class LoginHandler extends AbstractHandler {
-    static {
-        com.sun.org.apache.xml.internal.security.Init.init();
-    }
+
 
     private final JWTAuth jwtAuthProvider;
 
