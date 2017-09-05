@@ -3,11 +3,13 @@ package org.bbz.stock.quanttrader.http;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
@@ -89,8 +91,15 @@ public class HttpServerVerticle extends AbstractVerticle{
 //        router.route( "/createUser" ).handler( this::createUser );
     }
 
-    private void dispatcher( Router mainRouter ){
-        mainRouter.mountSubRouter( API_PREFIX, new LoginHandler( eventBus, jwtAuthProvider ).addRouter( Router.router( vertx ) ) );
+    private void dispatcher(Router mainRouter) {
+//        mainRouter.route().handler(CorsHandler.create("vertx\\.io").allowedMethod(HttpMethod.));
+        final CorsHandler corsHandler = CorsHandler.create("*")
+                .maxAgeSeconds(17280000)
+                .allowedMethod(HttpMethod.GET)
+                .allowedMethod(HttpMethod.POST)
+                .allowedHeader("Content-Type");
+        mainRouter.route(API_PREFIX + "*").handler(corsHandler);
+        mainRouter.mountSubRouter(API_PREFIX, new LoginHandler(eventBus, jwtAuthProvider).addRouter(Router.router(vertx)));
 
         mainRouter.mountSubRouter( API_PREFIX + "trade", new TradeHandler( eventBus ).addRouter( Router.router( vertx ) ) );
         mainRouter.mountSubRouter( API_PREFIX + "user", new UserHandler( eventBus, jwtAuthProvider ).addRouter( Router.router( vertx ) ) );
