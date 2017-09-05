@@ -1,5 +1,8 @@
 package org.bbz.stock.quanttrader.util;
 
+import java.io.*;
+import java.util.Base64;
+
 /**
  * Created by liulaoye on 16-11-11.
  */
@@ -9,33 +12,32 @@ package org.bbz.stock.quanttrader.util;
 
 //import io.netty.handler.codec.base64.Base64;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+//import com.sun.org.apache.xml.internal.security.utils.Base64;
 
-import java.io.*;
 
 
 public class Base64Utils {
 
-    /** *//**
+    /**
      * 文件读取缓冲区大小
      */
     private static final int CACHE_SIZE = 1024;
 
-    /** *//**
+    /**
      * <p>
      * BASE64字符串解码为二进制数据
      * </p>
      *
-     * @param base64
-     * @return
+     * @param base64    base64字符
      * @throws Exception
      */
     public static byte[] decode(String base64) throws Exception {
+        return Base64.getDecoder().decode( base64.getBytes() );
 
-        return Base64.decode(base64.getBytes());
+//        return Base64.decode(base64.getBytes());
     }
 
-    /** *//**
+    /**
      * <p>
      * 二进制数据编码为BASE64字符串
      * </p>
@@ -45,10 +47,11 @@ public class Base64Utils {
      * @throws Exception
      */
     public static String encode(byte[] bytes) throws Exception {
-        return new String(Base64.encode(bytes));
+
+        return new String(Base64.getEncoder().encodeToString( bytes ));
     }
 
-    /** *//**
+    /**
      * <p>
      * 将文件编码为BASE64字符串
      * </p>
@@ -65,7 +68,7 @@ public class Base64Utils {
         return encode(bytes);
     }
 
-    /** *//**
+    /**
      * <p>
      * BASE64字符串转回文件
      * </p>
@@ -79,7 +82,7 @@ public class Base64Utils {
         byteArrayToFile(bytes, filePath);
     }
 
-    /** *//**
+    /**
      * <p>
      * 文件转换为二进制数组
      * </p>
@@ -107,7 +110,7 @@ public class Base64Utils {
         return data;
     }
 
-    /** *//**
+    /**
      * <p>
      * 二进制数据写文件
      * </p>
