@@ -60,6 +60,8 @@ public class MainVerticle extends AbstractVerticle{
     }
 
     public static void main( String[] args ) throws IOException{
+
+        System.out.println( "vertx.logger-delegate-factory-class-name=" + System.getProperty( "vertx.logger-delegate-factory-class-name" ) );
         final VertxOptions vertxOptions = new VertxOptions();
         vertxOptions.setBlockedThreadCheckInterval( 1000000 );
         Vertx vertx = Vertx.vertx( vertxOptions );
