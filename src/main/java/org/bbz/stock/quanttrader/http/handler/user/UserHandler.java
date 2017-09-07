@@ -38,8 +38,8 @@ public class UserHandler extends AbstractHandler{
 
     @Override
     public Router addRouter( Router restAPI ){
-        restAPI.route( "/save" ).handler( this::saveUser );
-        restAPI.route( "/del" ).handler( this::delUser );
+        restAPI.route( "/save" ).handler( this::save );
+        restAPI.route( "/del" ).handler( this::del );
         restAPI.route( "/query" ).handler( this::query );
 //        restAPI.route( "/login" ).handler( this::login );
 
@@ -141,49 +141,50 @@ public class UserHandler extends AbstractHandler{
                 ctx.response().end( reply.body().toString() ) );
     }
 
-    private void delUser( RoutingContext ctx ){
+    private void del( RoutingContext ctx ){
     }
 
     /**
      * 添加或者修改用户信息
      */
-    private void saveUser( RoutingContext ctx ){
+    private void save( RoutingContext ctx ){
 
         HttpServerRequest request = ctx.request();
-//        final HttpServerResponse response = ctx.response();
-        String username = request.getParam( "username" );
-        if( Strings.isNullOrEmpty( username ) ) {
-            reportError( ctx, ErrorCode.PARAMETER_ERROR, "username is null" );
+        JsonObject userJson = ctx.getBodyAsJson();
+        String username = userJson.getString(JsonConsts.USER_NAME);
+        if (username == null) {
+            reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
             return;
         }
-        String password = request.getParam( "password" );
-        if( Strings.isNullOrEmpty( password ) ) {
-            reportError( ctx, ErrorCode.PARAMETER_ERROR, "password is null" );
+        String password = userJson.getString(JsonConsts.USER_PASSWORD);
+        if (password == null) {
+            reportError(ctx, ErrorCode.PARAMETER_ERROR, "password is null");
             return;
         }
-        String roles = request.getParam( "roles" );
 
+        String roles = userJson.getString(JsonConsts.USER_ROLES);
+        if (roles == null) {
+            reportError(ctx, ErrorCode.PARAMETER_ERROR, "roles is null");
+            return;
+        }
 
 //        List<String> roles = new ArrayList<>();
-//        roles.add( "guest" );
-
-        List<String> permissions = new ArrayList<>();
-        permissions.add( "/sys/user/query" );
-
-        JsonObject principal = new JsonObject();
-        principal.put( JsonConsts.USER_NAME, username );
-
-        principal.put( JsonConsts.USER_ROLES, roles );
-
-//        principal.put( JsonConsts.USER_PERMISSIONS, new JsonArray( permissions ) );
+//
+//
+//        JsonObject principal = new JsonObject();
+//        userJson.put( JsonConsts.USER_NAME, username );
+//
+//        principal.put( JsonConsts.USER_ROLES, roles );
+//
+////        principal.put( JsonConsts.USER_PERMISSIONS, new JsonArray( permissions ) );
 
         final String salt = CustomHashStrategy.generateSalt();
-        principal.put( JsonConsts.USER_SALT, salt );
+        userJson.put( JsonConsts.USER_SALT, salt );
         String cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword( password, salt );
 
-        principal.put( JsonConsts.USER_PASSWORD, cryptPassword );
+        userJson.put( JsonConsts.USER_PASSWORD, cryptPassword );
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_SAVE.name() );
-        send( EventBusAddress.DB_ADDR, principal, options, ctx, reply -> {
+        send( EventBusAddress.DB_ADDR, userJson, options, ctx, reply -> {
             final String id = (String) reply.body();
             ctx.response().end( id );
         } );
