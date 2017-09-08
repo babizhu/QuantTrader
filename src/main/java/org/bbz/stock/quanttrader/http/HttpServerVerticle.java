@@ -85,6 +85,11 @@ public class HttpServerVerticle extends AbstractVerticle{
         dispatcher( router );
 
         router.route().handler( StaticHandler.create() );//必须放在最后
+        router.exceptionHandler(event -> {
+            event.printStackTrace();
+
+        });
+
 
 //        router.route( "/login" ).handler( this::login );
 //        router.route( "/s/isLogin" ).handler( this::isLogin );
@@ -93,12 +98,16 @@ public class HttpServerVerticle extends AbstractVerticle{
 
     private void dispatcher(Router mainRouter) {
 //        mainRouter.route().handler(CorsHandler.create("vertx\\.io").allowedMethod(HttpMethod.));
+
         final CorsHandler corsHandler = CorsHandler.create("*")
                 .maxAgeSeconds(17280000)
                 .allowedMethod(HttpMethod.GET)
                 .allowedMethod(HttpMethod.POST)
                 .allowedHeader("Content-Type");
-        mainRouter.route(API_PREFIX + "*").handler(corsHandler);
+        mainRouter.route(API_PREFIX + "*").handler(corsHandler).failureHandler(ctx -> {
+
+            ctx.response().end(ctx.failure().getMessage());
+        });
         mainRouter.mountSubRouter(API_PREFIX, new LoginHandler(eventBus, jwtAuthProvider).addRouter(Router.router(vertx)));
 
         mainRouter.mountSubRouter( API_PREFIX + "trade", new TradeHandler( eventBus ).addRouter( Router.router( vertx ) ) );

@@ -17,34 +17,30 @@ import org.bbz.stock.quanttrader.http.handler.AbstractHandler;
 import org.bbz.stock.quanttrader.http.handler.auth.anno.RequirePermissions;
 import org.bbz.stock.quanttrader.http.utils.CustomHashStrategy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * 负责处理股票交易相关接口
- * 2017-07-24 16:20
- * author:liulaoye
+ * 负责处理股票交易相关接口 2017-07-24 16:20 author:liulaoye
  */
 @Slf4j
-public class UserHandler extends AbstractHandler{
+public class UserHandler extends AbstractHandler {
 
-    private final JWTAuth jwtAuthProvider;
+  private final JWTAuth jwtAuthProvider;
 
-    public UserHandler( EventBus eventBus, JWTAuth jwtAuthProvider ){
-        super( eventBus );
-        this.jwtAuthProvider = jwtAuthProvider;
+  public UserHandler(EventBus eventBus, JWTAuth jwtAuthProvider) {
+    super(eventBus);
+    this.jwtAuthProvider = jwtAuthProvider;
 
-    }
+  }
 
-    @Override
-    public Router addRouter( Router restAPI ){
-        restAPI.route( "/save" ).handler( this::save );
-        restAPI.route( "/del" ).handler( this::del );
-        restAPI.route( "/query" ).handler( this::query );
+  @Override
+  public Router addRouter(Router restAPI) {
+    restAPI.route("/save").handler(this::save);
+    restAPI.route("/del").handler(this::del);
+    restAPI.route("/query").handler(this::query);
+
 //        restAPI.route( "/login" ).handler( this::login );
 
-        return restAPI;
-    }
+    return restAPI;
+  }
 
 //    private void login( RoutingContext ctx ){
 //        HttpServerRequest request = ctx.request();
@@ -83,7 +79,6 @@ public class UserHandler extends AbstractHandler{
 //        } );
 //    }
 
-
 //    private boolean examinePassword( String password, String storedPassword, String salt ){
 //        String cryptPassword = cryptPassword( password, salt );
 //        return storedPassword != null && storedPassword.equals( cryptPassword );
@@ -120,53 +115,65 @@ public class UserHandler extends AbstractHandler{
 //        }
 //    }
 
-    @RequirePermissions("sys:user:query")
-    private void query( RoutingContext ctx ){
-        JsonObject condition = new JsonObject();
-        HttpServerRequest request = ctx.request();
-        String name = request.getParam( "name" );
-        if( !Strings.isNullOrEmpty( name ) ) {
+  @RequirePermissions("sys:user:query")
+  private void query(RoutingContext ctx) {
+    JsonObject condition = new JsonObject();
+    HttpServerRequest request = ctx.request();
+    String name = request.getParam("name");
+    if (!Strings.isNullOrEmpty(name)) {
 
-            condition.put( JsonConsts.USER_NAME, name );
-        }
-        String id = request.getParam( "id" );
-        if( !Strings.isNullOrEmpty( id ) ) {
+      condition.put(JsonConsts.USER_NAME, name);
+    }
+    String id = request.getParam("id");
+    if (!Strings.isNullOrEmpty(id)) {
 
-            condition.put( "_id", id );
-        }
-
-        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_QUERY.name() );
-
-        send( EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
-                ctx.response().end( reply.body().toString() ) );
+      condition.put("_id", id);
     }
 
-    private void del( RoutingContext ctx ){
+    DeliveryOptions options = new DeliveryOptions()
+        .addHeader("action", EventBusCommand.DB_USER_QUERY.name());
+
+    send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
+        ctx.response().end(reply.body().toString()));
+
+  }
+
+  private void del(RoutingContext ctx) {
+  }
+
+  /**
+   * 添加或者修改用户信息
+   */
+  private void save(RoutingContext ctx) {
+
+//        HttpServerRequest request = ctx.request();
+    JsonObject userJson = ctx.getBodyAsJson();
+    int postId = userJson.getInteger(JsonConsts.MONGO_DB_ID);
+
+
+    if( postId == -1 ) {
+      String username = userJson.getString(JsonConsts.USER_NAME);
+      if (username == null) {
+        reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
+        return;
+      }
+      String password = userJson.getString(JsonConsts.USER_PASSWORD);
+      if (password == null) {
+        reportError(ctx, ErrorCode.PARAMETER_ERROR, "password is null");
+        return;
+      }
+
+      String roles = userJson.getString(JsonConsts.USER_ROLES);
+      if (roles == null) {
+        reportError(ctx, ErrorCode.PARAMETER_ERROR, "roles is null");
+        return;
+      }
+      final String salt = CustomHashStrategy.generateSalt();
+      userJson.put(JsonConsts.USER_SALT, salt);
+      String cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword(password, salt);
+
+      userJson.put(JsonConsts.USER_PASSWORD, cryptPassword);
     }
-
-    /**
-     * 添加或者修改用户信息
-     */
-    private void save( RoutingContext ctx ){
-
-        HttpServerRequest request = ctx.request();
-        JsonObject userJson = ctx.getBodyAsJson();
-        String username = userJson.getString(JsonConsts.USER_NAME);
-        if (username == null) {
-            reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
-            return;
-        }
-        String password = userJson.getString(JsonConsts.USER_PASSWORD);
-        if (password == null) {
-            reportError(ctx, ErrorCode.PARAMETER_ERROR, "password is null");
-            return;
-        }
-
-        String roles = userJson.getString(JsonConsts.USER_ROLES);
-        if (roles == null) {
-            reportError(ctx, ErrorCode.PARAMETER_ERROR, "roles is null");
-            return;
-        }
 
 //        List<String> roles = new ArrayList<>();
 //
@@ -178,15 +185,15 @@ public class UserHandler extends AbstractHandler{
 //
 ////        principal.put( JsonConsts.USER_PERMISSIONS, new JsonArray( permissions ) );
 
-        final String salt = CustomHashStrategy.generateSalt();
-        userJson.put( JsonConsts.USER_SALT, salt );
-        String cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword( password, salt );
 
-        userJson.put( JsonConsts.USER_PASSWORD, cryptPassword );
-        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_USER_SAVE.name() );
-        send( EventBusAddress.DB_ADDR, userJson, options, ctx, reply -> {
-            final String id = (String) reply.body();
-            ctx.response().end( id );
-        } );
-    }
+    DeliveryOptions options = new DeliveryOptions()
+        .addHeader("action", EventBusCommand.DB_USER_SAVE.name());
+    send(EventBusAddress.DB_ADDR, userJson, options, ctx, reply -> {
+
+      final String id = (String) reply.body();
+      ctx.response().end(id == null ? "" : id);//不知道为什么update不会返回任何值
+    });
+  }
+
+
 }

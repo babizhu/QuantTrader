@@ -38,4 +38,6 @@ public class JsonConsts{
     public static final String USER_PASSWORD = "password";
     public static final String USER_PERMISSIONS = "permissions";
     public static final String USER_ROLES = "roles";
+    public static final String MONGO_DB_ID = "_id";
+
 }

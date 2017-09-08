@@ -46,15 +46,7 @@ public class AbstractDataServiceWithIdentity{
 
     }
 
-    /**
-     * 如果数据库存在(id为标准)此数据，则更新此数据，否则添加此数据
-     *
-     * @param jo 要更新的数据
-     * @return {@code true} 如果是替换
-     */
-    public boolean save( JsonObject jo ){
-        return true;
-    }
+
 
     private void reportQueryError( Message<JsonObject> message, Throwable cause ){
         log.error( "Database query error", cause );
