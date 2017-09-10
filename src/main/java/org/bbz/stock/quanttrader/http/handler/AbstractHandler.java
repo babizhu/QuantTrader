@@ -8,6 +8,7 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
 
@@ -110,5 +111,24 @@ public abstract class AbstractHandler {
 //            reportError( ctx,errorCode,msg );
 //        }
 //    }
+
+  /**
+   * 检测客户端输入参数是否正确，不多也不少
+   * @param keys
+   * @param arguments
+   * @return
+   */
+  boolean checkArguments( String[] keys, JsonObject arguments){
+    if( arguments.size() != keys.length){
+      return false;
+    }
+    for (String key : keys) {
+      if( !arguments.containsKey(key)){
+        log.debug(key + "参数未找到");
+        return false;
+      }
+    }
+    return true;
+  }
 
 }
