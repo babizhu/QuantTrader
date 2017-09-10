@@ -54,6 +54,9 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
                 case DB_USER_SAVE:
                     userService.save( message );
                     break;
+                case DB_USER_UPDATE:
+                    userService.update(message);
+                    break;
                 case DB_USER_QUERY:
                     userService.query( message );
                     break;

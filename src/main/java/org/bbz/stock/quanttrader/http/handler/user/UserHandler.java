@@ -150,7 +150,8 @@ public class UserHandler extends AbstractHandler {
     JsonObject userJson = ctx.getBodyAsJson();
     String postId = userJson.getString(JsonConsts.MONGO_DB_ID);
 
-    if (postId.equals("-1")) {
+    boolean isCreate = postId.equals("-1");
+    if (isCreate) {
       String username = userJson.getString(JsonConsts.USER_NAME);
       if (username == null) {
         reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
@@ -185,12 +186,17 @@ public class UserHandler extends AbstractHandler {
 //
 ////        principal.put( JsonConsts.USER_PERMISSIONS, new JsonArray( permissions ) );
 
+    EventBusCommand op = isCreate?EventBusCommand.DB_ROLE_SAVE:EventBusCommand.DB_USER_UPDATE;
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_USER_SAVE.name());
+        .addHeader("action", op.name());
     send(EventBusAddress.DB_ADDR, userJson, options, ctx, reply -> {
 
-      final String id = (String) reply.body();
-      ctx.response().end(id == null ? "" : id);//不知道为什么update不会返回任何值
+      if( op == EventBusCommand.DB_ROLE_SAVE) {
+        final String id = (String) reply.body();
+        ctx.response().end(id == null ? "" : id);//不知道为什么update不会返回任何值
+      }else {
+        ctx.response().end();
+      }
     });
   }
 
