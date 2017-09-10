@@ -148,10 +148,9 @@ public class UserHandler extends AbstractHandler {
 
 //        HttpServerRequest request = ctx.request();
     JsonObject userJson = ctx.getBodyAsJson();
-    int postId = userJson.getInteger(JsonConsts.MONGO_DB_ID);
+    String postId = userJson.getString(JsonConsts.MONGO_DB_ID);
 
-
-    if( postId == -1 ) {
+    if (postId.equals("-1")) {
       String username = userJson.getString(JsonConsts.USER_NAME);
       if (username == null) {
         reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
@@ -173,6 +172,7 @@ public class UserHandler extends AbstractHandler {
       String cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword(password, salt);
 
       userJson.put(JsonConsts.USER_PASSWORD, cryptPassword);
+      userJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
     }
 
 //        List<String> roles = new ArrayList<>();
@@ -184,7 +184,6 @@ public class UserHandler extends AbstractHandler {
 //        principal.put( JsonConsts.USER_ROLES, roles );
 //
 ////        principal.put( JsonConsts.USER_PERMISSIONS, new JsonArray( permissions ) );
-
 
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.DB_USER_SAVE.name());

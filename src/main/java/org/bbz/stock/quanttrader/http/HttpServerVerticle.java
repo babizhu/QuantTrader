@@ -3,6 +3,7 @@ package org.bbz.stock.quanttrader.http;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -84,10 +85,6 @@ public class HttpServerVerticle extends AbstractVerticle {
     dispatcher(router);
 
     router.route().handler(StaticHandler.create());//必须放在最后
-    router.exceptionHandler(event -> {
-      event.printStackTrace();
-
-    });
 
 //        router.route( "/login" ).handler( this::login );
 //        router.route( "/s/isLogin" ).handler( this::isLogin );
@@ -102,10 +99,15 @@ public class HttpServerVerticle extends AbstractVerticle {
         .allowedMethod(HttpMethod.GET)
         .allowedMethod(HttpMethod.POST)
         .allowedHeader("Content-Type");
-    mainRouter.route(API_PREFIX + "*").handler(corsHandler).failureHandler(ctx -> {
+    mainRouter.route(API_PREFIX + "*").handler(corsHandler)
+        .failureHandler(ctx -> {
 
+      int errId = ErrorCode.SYSTEM_ERROR.toNum();
+      if (ctx.failure() instanceof ReplyException) {
+        errId = ((ReplyException) ctx.failure()).failureCode();
+      }
       JsonObject errorResponse = new JsonObject()
-          .put("eid", ErrorCode.SYSTEM_ERROR.toNum())
+          .put("eid", errId)
           .put("msg", ctx.failure().getMessage());
       ctx.response().setStatusCode(500).end(errorResponse.toString());
     });

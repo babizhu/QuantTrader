@@ -1,20 +1,26 @@
 package org.bbz.stock.quanttrader.consts;
 
-public class ErrorCodeException extends RuntimeException{
-    private final ErrorCode errorCode;
+public class ErrorCodeException extends RuntimeException {
 
-    public ErrorCodeException( ErrorCode errorCode, String message ){
-        super( message );
-        this.errorCode = errorCode;
+  private final int errorCode;
 
-    }
+  public ErrorCodeException(ErrorCode errorCode, String message) {
+    super(message);
+    this.errorCode = errorCode.toNum();
 
-    public ErrorCodeException( ErrorCode errorCode ){
-        this.errorCode = errorCode;
+  }
 
-    }
+  public ErrorCodeException(ErrorCode errorCode) {
+    this.errorCode = errorCode.toNum();
 
-    public ErrorCode getErrorCode(){
-        return errorCode;
-    }
+  }
+
+  public ErrorCodeException(int errorCode, String message) {
+    super(message);
+    this.errorCode = errorCode;
+  }
+
+  public int getErrorCode() {
+    return errorCode;
+  }
 }

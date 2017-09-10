@@ -71,7 +71,7 @@ public class TradeVerticle extends AbstractVerticle{
                     message.fail( ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action );
             }
         } catch( ErrorCodeException e ) {
-            message.fail( e.getErrorCode().toNum(), e.getMessage() );
+            message.fail( e.getErrorCode(), e.getMessage() );
             e.printStackTrace();
             return;
         } catch( Exception e ) {
