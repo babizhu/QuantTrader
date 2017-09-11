@@ -51,11 +51,14 @@ public class MongoDatabaseVercitle extends AbstractVerticle{
         String action = message.headers().get( "action" );
         try {
             switch( EventBusCommand.valueOf( action ) ) {
-                case DB_USER_SAVE:
+                case DB_USER_INSERT:
                     userService.save( message );
                     break;
                 case DB_USER_UPDATE:
                     userService.update(message);
+                    break;
+                case DB_USER_DELETE:
+                    userService.delete(message);
                     break;
                 case DB_USER_QUERY:
                     userService.query( message );

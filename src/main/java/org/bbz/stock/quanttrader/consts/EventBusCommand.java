@@ -21,14 +21,16 @@ public enum EventBusCommand{
     /**
      * 添加用户
      */
-    DB_USER_SAVE,
+    DB_USER_INSERT,
     DB_USER_UPDATE,
+    DB_USER_DELETE,
     DB_USER_LOGIN,
     DB_USER_QUERY,
 
     /**
      * 权限管理
      */
-    DB_ROLE_QUERY, DB_ROLE_SAVE,
+    DB_ROLE_QUERY, DB_ROLE_SAVE,;
+
 }
 

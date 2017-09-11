@@ -8,9 +8,9 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
+import org.bbz.stock.quanttrader.consts.ErrorCodeException;
 
 @Slf4j
 public abstract class AbstractHandler {
@@ -57,21 +57,22 @@ public abstract class AbstractHandler {
   abstract protected Router addRouter(io.vertx.ext.web.Router restAPI);
 
 
-    protected void send( String address, JsonObject msg, DeliveryOptions options, RoutingContext ctx,
-                         Handler<Message<Object>> replyHandler ){
-        eventBus.send( address, msg, options, reply -> {
-            if( reply.succeeded() ) {
-                replyHandler.handle( reply.result() );
-            } else {
-                ReplyException e = (ReplyException) reply.cause();
+  protected void send(String address, JsonObject msg, DeliveryOptions options, RoutingContext ctx,
+      Handler<Message<Object>> replyHandler) {
+    eventBus.send(address, msg, options, reply -> {
+      if (reply.succeeded()) {
+        replyHandler.handle(reply.result());
+      } else {
+        ReplyException e = (ReplyException) reply.cause();
 //                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
 //                ctx.response().setStatusCode( 500 ).end( e.toString() );
-                reportError( ctx, e.failureCode(), e.toString() );
+        reportError(ctx, e.failureCode(), e.toString());
 //                reply.cause().printStackTrace();
-            }
-        } );
+      }
+    });
 
   }
+
   protected void reportError(RoutingContext ctx, ErrorCode errorCode) {
     reportError(ctx, errorCode.toNum(), "");
   }
@@ -114,21 +115,22 @@ public abstract class AbstractHandler {
 
   /**
    * 检测客户端输入参数是否正确，不多也不少
-   * @param keys
-   * @param arguments
-   * @return
+   *
+   * @param keys 需要的key
+   * @param arguments 客户上传的json
+   * @return null 成功 返回
    */
-  boolean checkArguments( String[] keys, JsonObject arguments){
-    if( arguments.size() != keys.length){
-      return false;
+  protected void checkArguments(JsonObject arguments, String... keys) {
+    System.out.println();
+    if (arguments.size() != keys.length) {
+      throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR);
     }
     for (String key : keys) {
-      if( !arguments.containsKey(key)){
-        log.debug(key + "参数未找到");
-        return false;
+      if (!arguments.containsKey(key)) {
+
+        throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR, key + " is null");
       }
     }
-    return true;
   }
 
 }

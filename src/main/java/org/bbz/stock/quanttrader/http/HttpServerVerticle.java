@@ -3,7 +3,6 @@ package org.bbz.stock.quanttrader.http;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -14,6 +13,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
+import org.bbz.stock.quanttrader.consts.ErrorCodeException;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
 import org.bbz.stock.quanttrader.http.handler.user.AuthHandler;
 import org.bbz.stock.quanttrader.http.handler.user.LoginHandler;
@@ -99,25 +99,29 @@ public class HttpServerVerticle extends AbstractVerticle {
         .allowedMethod(HttpMethod.GET)
         .allowedMethod(HttpMethod.POST)
         .allowedHeader("Content-Type");
+
     mainRouter.route(API_PREFIX + "*").handler(corsHandler)
         .failureHandler(ctx -> {
+          int errId = ErrorCode.SYSTEM_ERROR.toNum();
+//      if (ctx.failure() instanceof ReplyException) {
+//        errId = ((ReplyException) ctx.failure()).failureCode();
+//      }//以上代码不太确定是否有必要存在，
+          if (ctx.failure() instanceof ErrorCodeException) {
+            errId = ((ErrorCodeException) ctx.failure()).getErrorCode();
 
-      int errId = ErrorCode.SYSTEM_ERROR.toNum();
-      if (ctx.failure() instanceof ReplyException) {
-        errId = ((ReplyException) ctx.failure()).failureCode();
-      }
-      JsonObject errorResponse = new JsonObject()
-          .put("eid", errId)
-          .put("msg", ctx.failure().getMessage());
-      ctx.response().setStatusCode(500).end(errorResponse.toString());
-    });
+          }
+          JsonObject errorResponse = new JsonObject()
+              .put("eid", errId)
+              .put("msg", ctx.failure().getMessage());
+          ctx.response().setStatusCode(500).end(errorResponse.toString());
+        });
     mainRouter.mountSubRouter(API_PREFIX,
         new LoginHandler(eventBus, jwtAuthProvider).addRouter(Router.router(vertx)));
 
     mainRouter.mountSubRouter(API_PREFIX + "trade",
         new TradeHandler(eventBus).addRouter(Router.router(vertx)));
     mainRouter.mountSubRouter(API_PREFIX + "user",
-        new UserHandler(eventBus, jwtAuthProvider).addRouter(Router.router(vertx)));
+        new UserHandler(eventBus).addRouter(Router.router(vertx)));
     mainRouter.mountSubRouter(API_PREFIX + "auth",
         new AuthHandler(eventBus).addRouter(Router.router(vertx)));
 //        mainRouter.route(API_PREFIX+"*").handler( new ResponseHandler() );

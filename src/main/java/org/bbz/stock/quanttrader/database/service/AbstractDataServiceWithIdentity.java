@@ -19,6 +19,18 @@ public class AbstractDataServiceWithIdentity {
     this.tableName = tableName;
   }
 
+  public void delete(Message<JsonObject> msg) {
+    JsonObject deleteField = msg.body();
+    deleteField.put(JsonConsts.USER_NAME, new JsonObject().put("$ne", "admin"));//不能删除admin
+    mongoClient.removeDocument(tableName, deleteField, res -> {
+      if (res.succeeded()) {
+        msg.reply(res.result().toJson());
+      } else {
+        reportError(msg, res.cause());
+      }
+    });
+  }
+
   public void update(Message<JsonObject> msg) {
     JsonObject updateField = msg.body();
 //    String id = updateField.getString(JsonConsts.MONGO_DB_ID);
@@ -29,7 +41,7 @@ public class AbstractDataServiceWithIdentity {
           if (res.succeeded()) {
             msg.reply(res.result().toJson());
           } else {
-            reportQueryError(msg, res.cause());
+            reportError(msg, res.cause());
           }
 
         });
@@ -43,7 +55,7 @@ public class AbstractDataServiceWithIdentity {
       if (res.succeeded()) {
         msg.reply(res.result());
       } else {
-        reportQueryError(msg, res.cause());
+        reportError(msg, res.cause());
 
       }
     });
@@ -56,14 +68,14 @@ public class AbstractDataServiceWithIdentity {
         msg.reply(new JsonArray(res.result()));
 //        log.info("记录条数：" + String.valueOf(res.result().size()));
       } else {
-        reportQueryError(msg, res.cause());
+        reportError(msg, res.cause());
       }
     });
 
   }
 
 
-  private void reportQueryError(Message<JsonObject> message, Throwable cause) {
+  private void reportError(Message<JsonObject> message, Throwable cause) {
     log.error("Database query error", cause);
     message.fail(ErrorCode.DB_ERROR.toNum(), cause.getMessage());
   }
