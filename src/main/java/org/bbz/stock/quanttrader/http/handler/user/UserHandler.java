@@ -66,7 +66,7 @@ public class UserHandler extends AbstractHandler {
 
 //    log.info(ctx.toString());
     JsonObject delJson = ctx.getBodyAsJson();
-    checkArguments(delJson,JsonConsts.MONGO_DB_ID);
+    checkArgumentsStrict(delJson,JsonConsts.MONGO_DB_ID);
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.DB_USER_DELETE.name());
     send(EventBusAddress.DB_ADDR, delJson, options, ctx, reply ->
@@ -102,7 +102,7 @@ public class UserHandler extends AbstractHandler {
   }
 
   private void insert(RoutingContext ctx, JsonObject userJson) {
-    checkArguments(userJson, "email", "phone",
+    checkArgumentsStrict(userJson, "email", "phone","address",
         JsonConsts.MONGO_DB_ID, "roles", "username", "password");
     final String salt = CustomHashStrategy.generateSalt();
     userJson.put(JsonConsts.USER_SALT, salt);

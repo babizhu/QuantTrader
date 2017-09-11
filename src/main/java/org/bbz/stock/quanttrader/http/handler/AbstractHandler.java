@@ -120,11 +120,23 @@ public abstract class AbstractHandler {
    * @param arguments 客户上传的json
    * @return null 成功 返回
    */
-  protected void checkArguments(JsonObject arguments, String... keys) {
+  protected void checkArgumentsStrict(JsonObject arguments, String... keys) {
     System.out.println();
     if (arguments.size() != keys.length) {
       throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR);
     }
+    checkArguments(arguments,keys);
+  }
+
+  /**
+   * 检测客户端输入参数是否正确，要求keys内的项目不能少，但是其余的输入不做硬性要求
+   *
+   * @param keys 需要的key
+   * @param arguments 客户上传的json
+   * @return null 成功 返回
+   */
+  protected void checkArguments(JsonObject arguments, String... keys) {
+
     for (String key : keys) {
       if (!arguments.containsKey(key)) {
 
