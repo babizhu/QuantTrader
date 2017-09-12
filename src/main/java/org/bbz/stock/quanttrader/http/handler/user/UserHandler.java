@@ -40,12 +40,11 @@ public class UserHandler extends AbstractHandler {
     return restAPI;
   }
 
-
   @RequirePermissions("sys:user:query")
   private void query(RoutingContext ctx) {
     JsonObject condition = new JsonObject();
     HttpServerRequest request = ctx.request();
-    String name = request.getParam("name");
+    String name = request.getParam(JsonConsts.USER_NAME);
     if (!Strings.isNullOrEmpty(name)) {
       condition.put(JsonConsts.USER_NAME, name);
     }
@@ -59,12 +58,9 @@ public class UserHandler extends AbstractHandler {
 
     send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
         ctx.response().end(reply.body().toString()));
-
   }
 
   private void del(RoutingContext ctx) {
-
-//    log.info(ctx.toString());
     JsonObject delJson = ctx.getBodyAsJson();
     checkArgumentsStrict(delJson,JsonConsts.MONGO_DB_ID);
     DeliveryOptions options = new DeliveryOptions()
@@ -80,9 +76,9 @@ public class UserHandler extends AbstractHandler {
     JsonObject userJson = ctx.getBodyAsJson();
     String postId = userJson.getString(JsonConsts.MONGO_DB_ID);
 
-    boolean isInsert = postId.equals("-1");
-    if (isInsert) {
-      insert(ctx, userJson);
+    boolean isCreate = postId.equals("-1");
+    if (isCreate) {
+      create(ctx, userJson);
     } else {
       update(ctx, userJson);
     }
@@ -101,7 +97,7 @@ public class UserHandler extends AbstractHandler {
 
   }
 
-  private void insert(RoutingContext ctx, JsonObject userJson) {
+  private void create(RoutingContext ctx, JsonObject userJson) {
     checkArgumentsStrict(userJson, "email", "phone","address",
         JsonConsts.MONGO_DB_ID, "roles", "username", "password");
     final String salt = CustomHashStrategy.generateSalt();
@@ -113,10 +109,10 @@ public class UserHandler extends AbstractHandler {
     userJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
 
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_USER_INSERT.name());
+        .addHeader("action", EventBusCommand.DB_USER_CREATE.name());
     send(EventBusAddress.DB_ADDR, userJson, options, ctx, reply -> {
       final String id = (String) reply.body();
-      ctx.response().end(id);
+      ctx.response().end(new JsonObject().put(JsonConsts.MONGO_DB_ID,id).toString());
     });
   }
 }

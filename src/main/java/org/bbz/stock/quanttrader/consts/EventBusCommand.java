@@ -21,7 +21,7 @@ public enum EventBusCommand{
     /**
      * 添加用户
      */
-    DB_USER_INSERT,
+    DB_USER_CREATE,
     DB_USER_UPDATE,
     DB_USER_DELETE,
     DB_USER_LOGIN,
