@@ -19,13 +19,18 @@ public enum EventBusCommand{
     TRADE_GET_INFO,
 
     /**
-     * 添加用户
+     * 用户
      */
     DB_USER_CREATE,
     DB_USER_UPDATE,
     DB_USER_DELETE,
     DB_USER_LOGIN,
     DB_USER_QUERY,
+
+    /**
+     * 策略
+     */
+    DB_TRADING_STRATEGY_CREATE,
 
     /**
      * 权限管理

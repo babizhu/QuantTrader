@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.ErrorCode;
 import org.bbz.stock.quanttrader.consts.ErrorCodeException;
 import org.bbz.stock.quanttrader.http.handler.trade.TradeHandler;
+import org.bbz.stock.quanttrader.http.handler.tradingstrategy.TradingStrategyHandler;
 import org.bbz.stock.quanttrader.http.handler.user.AuthHandler;
 import org.bbz.stock.quanttrader.http.handler.user.LoginHandler;
 import org.bbz.stock.quanttrader.http.handler.user.UserHandler;
@@ -102,6 +103,13 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     mainRouter.route(API_PREFIX + "*").handler(corsHandler)
         .failureHandler(ctx -> {
+          if( ctx.statusCode() == 404){
+            JsonObject errorResponse = new JsonObject()
+                .put("eid", 404)
+                .put("msg", "Not Found");
+            ctx.response().setStatusCode(500).end(errorResponse.toString());
+            return;
+          }
           int errId = ErrorCode.SYSTEM_ERROR.toNum();
 //      if (ctx.failure() instanceof ReplyException) {
 //        errId = ((ReplyException) ctx.failure()).failureCode();
@@ -124,6 +132,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         new UserHandler(eventBus).addRouter(Router.router(vertx)));
     mainRouter.mountSubRouter(API_PREFIX + "auth",
         new AuthHandler(eventBus).addRouter(Router.router(vertx)));
+    mainRouter.mountSubRouter(API_PREFIX + "tradingstrategy",
+        new TradingStrategyHandler(eventBus).addRouter(Router.router(vertx)));
 //        mainRouter.route(API_PREFIX+"*").handler( new ResponseHandler() );
 
   }

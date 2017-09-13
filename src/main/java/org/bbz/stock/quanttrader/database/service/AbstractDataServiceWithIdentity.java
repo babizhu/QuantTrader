@@ -48,7 +48,7 @@ public class AbstractDataServiceWithIdentity {
   }
 
 
-  public void save(Message<JsonObject> msg) {
+  public void create(Message<JsonObject> msg) {
     final JsonObject object = msg.body();
 
     mongoClient.save(tableName, object, res -> {
