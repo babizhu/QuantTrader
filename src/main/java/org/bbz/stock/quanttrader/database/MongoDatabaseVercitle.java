@@ -75,6 +75,15 @@ public class MongoDatabaseVercitle extends AbstractVerticle {
         case DB_TRADING_STRATEGY_CREATE:
           tradingStrategyService.create(message);
           break;
+        case DB_TRADING_STRATEGY_UPDATE:
+          tradingStrategyService.update(message);
+          break;
+        case DB_TRADING_STRATEGY_QUERY:
+          tradingStrategyService.query(message);
+          break;
+        case DB_TRADING_STRATEGY_DELETE:
+          tradingStrategyService.delete(message);
+          break;
         default:
           message.fail(ErrorCode.BAD_ACTION.toNum(), "Bad action: " + action);
       }

@@ -28,9 +28,12 @@ public enum EventBusCommand{
     DB_USER_QUERY,
 
     /**
-     * 策略
+     * 交易策略
      */
     DB_TRADING_STRATEGY_CREATE,
+    DB_TRADING_STRATEGY_QUERY,
+    DB_TRADING_STRATEGY_DELETE,
+    DB_TRADING_STRATEGY_UPDATE,
 
     /**
      * 权限管理

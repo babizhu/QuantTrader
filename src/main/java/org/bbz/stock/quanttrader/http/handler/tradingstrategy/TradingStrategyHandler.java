@@ -14,7 +14,6 @@ import org.bbz.stock.quanttrader.consts.EventBusCommand;
 import org.bbz.stock.quanttrader.consts.JsonConsts;
 import org.bbz.stock.quanttrader.http.handler.AbstractHandler;
 import org.bbz.stock.quanttrader.http.handler.auth.anno.RequirePermissions;
-import org.bbz.stock.quanttrader.http.utils.CustomHashStrategy;
 
 /**
  * 负责user相关接口 2017-07-24 16:20 author:liulaoye
@@ -56,7 +55,7 @@ public class TradingStrategyHandler extends AbstractHandler {
     }
 
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_USER_QUERY.name());
+        .addHeader("action", EventBusCommand.DB_TRADING_STRATEGY_QUERY.name());
 
     send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
         ctx.response().end(reply.body().toString()));
@@ -66,7 +65,7 @@ public class TradingStrategyHandler extends AbstractHandler {
     JsonObject delJson = ctx.getBodyAsJson();
     checkArgumentsStrict(delJson,JsonConsts.MONGO_DB_ID);
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_USER_DELETE.name());
+        .addHeader("action", EventBusCommand.DB_TRADING_STRATEGY_DELETE.name());
     send(EventBusAddress.DB_ADDR, delJson, options, ctx, reply ->
         ctx.response().end());
   }
@@ -88,9 +87,9 @@ public class TradingStrategyHandler extends AbstractHandler {
 
   private void update(RoutingContext ctx, JsonObject updateJson) {
 
-    checkArguments(updateJson, "email", "phone", JsonConsts.MONGO_DB_ID, "roles");
+    checkArguments(updateJson, "desc", "className", JsonConsts.MONGO_DB_ID, "owner");
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_USER_UPDATE.name());
+        .addHeader("action", EventBusCommand.DB_TRADING_STRATEGY_UPDATE.name());
     send(EventBusAddress.DB_ADDR, updateJson, options, ctx, reply -> {
       final JsonObject result = (JsonObject) reply.body();
       log.info(result.toString());
