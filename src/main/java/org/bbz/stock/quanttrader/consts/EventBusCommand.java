@@ -35,6 +35,10 @@ public enum EventBusCommand{
     DB_TRADING_STRATEGY_DELETE,
     DB_TRADING_STRATEGY_UPDATE,
 
+    DB_TRADE_CREATE,
+    DB_TRADE_QUERY,
+    DB_TRADE_DELETE,
+    DB_TRADE_UPDATE,
     /**
      * 权限管理
      */

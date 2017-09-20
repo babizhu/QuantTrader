@@ -29,9 +29,84 @@ public class TradeHandler extends AbstractHandler{
     @Override
     public Router addRouter( Router restAPI ){
         restAPI.route( "/startTrade" ).handler( this::startTrade );
+        restAPI.route( "/myTrade" ).handler( this::myTrade );
         restAPI.route( "/getTradeInfo" ).handler( this::getTradeInfo );
+        restAPI.route( "/getTradeInfo" ).handler( this::getTradeInfo );
+        restAPI.route("/save").handler(this::save);
+        restAPI.route("/del").handler(this::del);
+        restAPI.route("/query").handler(this::query);
 
         return restAPI;
+    }
+
+    /**
+     * 获取自己的交易记录
+     * @param ctx
+     */
+    private void myTrade(RoutingContext ctx) {
+//        User user = ctx.user();
+        JsonObject condition = new JsonObject();
+//        condition.put("user",user.principal());
+//        condition.put("user",user.principal());
+        DeliveryOptions options = new DeliveryOptions()
+            .addHeader("action", EventBusCommand.DB_TRADE_QUERY.name());
+
+        send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
+            ctx.response().end(reply.body().toString()));
+    }
+
+    private void query(RoutingContext ctx) {
+        JsonObject condition = new JsonObject();
+        DeliveryOptions options = new DeliveryOptions()
+            .addHeader("action", EventBusCommand.DB_TRADE_QUERY.name());
+
+        send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
+            ctx.response().end(reply.body().toString()));
+    }
+
+    private void del(RoutingContext ctx) {
+    }
+
+    /**
+     * 添加或者修改用户信息
+     */
+    private void save(RoutingContext ctx) {
+        JsonObject tradeJson = ctx.getBodyAsJson();
+        String postId = tradeJson.getString(JsonConsts.MONGO_DB_ID);
+
+        boolean isCreate = postId.equals("-1");
+        if (isCreate) {
+            create(ctx, tradeJson);
+        } else {
+            update(ctx, tradeJson);
+        }
+    }
+
+    private void update(RoutingContext ctx, JsonObject updateJson) {
+
+        checkArguments(updateJson, "desc", "className", JsonConsts.MONGO_DB_ID, "owner");
+        DeliveryOptions options = new DeliveryOptions()
+            .addHeader("action", EventBusCommand.DB_TRADING_STRATEGY_UPDATE.name());
+        send(EventBusAddress.DB_ADDR, updateJson, options, ctx, reply -> {
+            final JsonObject result = (JsonObject) reply.body();
+            log.info(result.toString());
+            ctx.response().end();
+        });
+
+    }
+
+    private void create(RoutingContext ctx, JsonObject tradeJson) {
+        checkArgumentsStrict(tradeJson, "", "strategyId","className",
+            JsonConsts.MONGO_DB_ID, "userName");
+
+        tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
+
+        DeliveryOptions options = new DeliveryOptions()
+            .addHeader("action", EventBusCommand.DB_TRADE_CREATE.name());
+        send(EventBusAddress.DB_ADDR, tradeJson, options, ctx, reply -> {
+            final String id = (String) reply.body();
+            ctx.response().end(new JsonObject().put(JsonConsts.MONGO_DB_ID,id).toString());
+        });
     }
 
     /**
