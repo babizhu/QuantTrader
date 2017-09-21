@@ -166,7 +166,7 @@ public class TradeVerticle extends AbstractVerticle{
         final BigDecimal closeCommission = new BigDecimal( ctxJson.getString( "closeCommission", "0.0003" ) );
         final BigDecimal minCommission = new BigDecimal( ctxJson.getString( "minCommission", "5" ) );
         final OrderCost orderCost = new OrderCost( closeTax, openCommission, closeCommission, minCommission );
-        final String initBalance = ctxJson.getString( JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
+        final String initBalance = ctxJson.getString( JsonConsts.INIT_CASH_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
         final QuantTradeContext ctx = new QuantTradeContext( orderCost, initBalance );
         final String stockList = ctxJson.getString( JsonConsts.STOCK_LIST_KEY );
         final HashMap<String, Integer> stocks = new HashMap<>();

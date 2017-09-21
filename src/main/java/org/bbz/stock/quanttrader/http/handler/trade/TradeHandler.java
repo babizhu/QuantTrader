@@ -84,9 +84,10 @@ public class TradeHandler extends AbstractHandler{
 
     private void update(RoutingContext ctx, JsonObject updateJson) {
 
-        checkArguments(updateJson, "desc", "className", JsonConsts.MONGO_DB_ID, "owner");
+        checkArguments(updateJson, "arguments","initCash",
+            "desc", "strategyId", JsonConsts.MONGO_DB_ID, "stocks");
         DeliveryOptions options = new DeliveryOptions()
-            .addHeader("action", EventBusCommand.DB_TRADING_STRATEGY_UPDATE.name());
+            .addHeader("action", EventBusCommand.DB_TRADE_UPDATE.name());
         send(EventBusAddress.DB_ADDR, updateJson, options, ctx, reply -> {
             final JsonObject result = (JsonObject) reply.body();
             log.info(result.toString());
@@ -96,8 +97,8 @@ public class TradeHandler extends AbstractHandler{
     }
 
     private void create(RoutingContext ctx, JsonObject tradeJson) {
-        checkArgumentsStrict(tradeJson, "", "strategyId","className",
-            JsonConsts.MONGO_DB_ID, "userName");
+        checkArgumentsStrict(tradeJson, "name","initCash", "strategyId","stocks",
+            JsonConsts.MONGO_DB_ID, "userName","arguments","desc");
 
         tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
 
@@ -138,7 +139,7 @@ public class TradeHandler extends AbstractHandler{
         String stocks = "600023,600166,600200,600361,600482,600489,600498,600722,600787,601000,601928,601929,000034,000401,002146,002373,002375,002467,002477,002657";
         final JsonObject msg = new JsonObject().put( JsonConsts.CTX_KEY,
                 new JsonObject()
-                        .put( JsonConsts.INIT_BALANCE_KEY, "100000" )
+                        .put( JsonConsts.INIT_CASH_KEY, "100000" )
                         .put( JsonConsts.STOCK_LIST_KEY,stocks ));
         msg.put( JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel" );
         msg.put( "taskId", Integer.parseInt( ctx.request().getParam( "taskId" ) ) );
