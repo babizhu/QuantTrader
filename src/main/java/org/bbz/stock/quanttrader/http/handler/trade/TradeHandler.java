@@ -212,6 +212,14 @@ public class TradeHandler extends AbstractHandler {
             .put(JsonConsts.STOCK_LIST_KEY, "3000322"));
     msg.put(JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel");
     msg.put("taskId", Integer.parseInt(ctx.request().getParam("taskId")));
+
+
+
+
+
+
+
+
 //    System.out.println(msg);
 //
 //    DeliveryOptions options = new DeliveryOptions()

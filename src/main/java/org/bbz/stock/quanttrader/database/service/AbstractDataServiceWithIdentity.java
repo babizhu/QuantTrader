@@ -75,7 +75,7 @@ public class AbstractDataServiceWithIdentity {
   }
 
 
-  private void reportError(Message<JsonObject> message, Throwable cause) {
+  protected void reportError(Message<JsonObject> message, Throwable cause) {
     log.error("Database query error", cause);
     message.fail(ErrorCode.DB_ERROR.toNum(), cause.getMessage());
   }
