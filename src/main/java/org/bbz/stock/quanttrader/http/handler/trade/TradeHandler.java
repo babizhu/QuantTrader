@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -30,7 +31,7 @@ public class TradeHandler extends AbstractHandler {
 
   @Override
   public Router addRouter(Router restAPI) {
-    restAPI.route("/startTrade").handler(this::startTrade);
+    restAPI.route("/start").handler(this::start);
     restAPI.route("/detail").handler(this::detail);
     restAPI.route("/myTrade").handler(this::myTrade);
     restAPI.route("/getTradeInfo").handler(this::getTradeInfo);
@@ -63,7 +64,6 @@ public class TradeHandler extends AbstractHandler {
         ctx.response().end(reply.body().toString()));
 
   }
-
 
 
   /**
@@ -176,20 +176,48 @@ public class TradeHandler extends AbstractHandler {
   /**
    * 开始运行一个策略
    */
-  private void startTrade(RoutingContext ctx) {
-    String stocks = "600023,600166,600200,600361,600482,600489,600498,600722,600787,601000,601928,601929,000034,000401,002146,002373,002375,002467,002477,002657";
+  private void start(RoutingContext ctx) {
+    JsonObject tradeJson = ctx.getBodyAsJson();
+    checkArguments(tradeJson, JsonConsts.MONGO_DB_ID);
+    DeliveryOptions options = new DeliveryOptions()
+        .addHeader("action", EventBusCommand.DB_TRADE_ARGUMENT_QUERY.name());
+
+    send(EventBusAddress.DB_ADDR, tradeJson, options, ctx, reply ->
+        {
+          final JsonArray array = ((JsonArray) reply.body());
+          if (array.isEmpty()) {
+            reportError(ctx, ErrorCode.Trade_NOT_FOUND, tradeJson.getString(JsonConsts.MONGO_DB_ID));
+            return;
+          }
+          final JsonObject msg1 = new JsonObject().put(JsonConsts.CTX_KEY,
+              new JsonObject()
+                  .put(JsonConsts.INIT_BALANCE_KEY, "100000")
+                  .put(JsonConsts.STOCK_LIST_KEY, "3000322"));
+          msg1.put(JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel");
+          msg1.put("taskId", 100000);
+//{"ctx":{"initBalance":"100000","stockList":"3000322"},"modelClass":"WaveTradeModel"}
+          final JsonObject msg = array.getJsonObject(0);
+          DeliveryOptions op = new DeliveryOptions()
+              .addHeader("action", EventBusCommand.TRADE_START.name());
+
+          send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, op, ctx,
+              reply1 -> ctx.response().end(""));
+        }
+    );
+
+//    String stocks = "600023,600166,600200,600361,600482,600489,600498,600722,600787,601000,601928,601929,000034,000401,002146,002373,002375,002467,002477,002657";
     final JsonObject msg = new JsonObject().put(JsonConsts.CTX_KEY,
         new JsonObject()
-            .put(JsonConsts.INIT_CASH_KEY, "100000")
-            .put(JsonConsts.STOCK_LIST_KEY, stocks));
+            .put(JsonConsts.INIT_BALANCE_KEY, "100000")
+            .put(JsonConsts.STOCK_LIST_KEY, "3000322"));
     msg.put(JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel");
     msg.put("taskId", Integer.parseInt(ctx.request().getParam("taskId")));
-    System.out.println(msg);
-
-    DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.TRADE_START.name());
-
-    send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx,
-        reply -> ctx.response().end("startTrade success"));
+//    System.out.println(msg);
+//
+//    DeliveryOptions options = new DeliveryOptions()
+//        .addHeader("action", EventBusCommand.TRADE_START.name());
+//
+//    send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx,
+//        reply -> ctx.response().end("start success"));
   }
 }

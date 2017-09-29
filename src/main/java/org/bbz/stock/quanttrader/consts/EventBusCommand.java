@@ -39,6 +39,11 @@ public enum EventBusCommand{
     DB_TRADE_QUERY,
     DB_TRADE_DELETE,
     DB_TRADE_UPDATE,
+
+    /**
+     * 为运行trade获取相应准备数据
+     */
+    DB_TRADE_ARGUMENT_QUERY,
     /**
      * 权限管理
      */

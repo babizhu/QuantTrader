@@ -1,27 +1,30 @@
 package org.bbz.stock.quanttrader.trade;
 
+import static org.bbz.stock.quanttrader.consts.Consts.TRADE_MODEL_CLASS_PREFIX;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
-import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.*;
-import org.bbz.stock.quanttrader.trade.core.OrderCost;
-import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
-import org.bbz.stock.quanttrader.trade.model.ITradeModel;
-import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
-import org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.bbz.stock.quanttrader.consts.Consts.TRADE_MODEL_CLASS_PREFIX;
+import lombok.extern.slf4j.Slf4j;
+import org.bbz.stock.quanttrader.consts.ErrorCode;
+import org.bbz.stock.quanttrader.consts.ErrorCodeException;
+import org.bbz.stock.quanttrader.consts.EventBusAddress;
+import org.bbz.stock.quanttrader.consts.EventBusCommand;
+import org.bbz.stock.quanttrader.consts.JsonConsts;
+import org.bbz.stock.quanttrader.trade.core.OrderCost;
+import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
+import org.bbz.stock.quanttrader.trade.model.ITradeModel;
+import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
+import org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider;
 
 /**
  * Created by liulaoye on 17-7-17.
@@ -166,7 +169,7 @@ public class TradeVerticle extends AbstractVerticle{
         final BigDecimal closeCommission = new BigDecimal( ctxJson.getString( "closeCommission", "0.0003" ) );
         final BigDecimal minCommission = new BigDecimal( ctxJson.getString( "minCommission", "5" ) );
         final OrderCost orderCost = new OrderCost( closeTax, openCommission, closeCommission, minCommission );
-        final String initBalance = ctxJson.getString( JsonConsts.INIT_CASH_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
+        final String initBalance = ctxJson.getString( JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
         final QuantTradeContext ctx = new QuantTradeContext( orderCost, initBalance );
         final String stockList = ctxJson.getString( JsonConsts.STOCK_LIST_KEY );
         final HashMap<String, Integer> stocks = new HashMap<>();

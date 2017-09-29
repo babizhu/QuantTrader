@@ -8,7 +8,7 @@ public class JsonConsts{
     /**
      * 初始金额
      */
-    public static final String INIT_CASH_KEY = "initBalance";
+    public static final String INIT_BALANCE_KEY = "initBalance";
     /**
      * 初始金额的缺省值
      */

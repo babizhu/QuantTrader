@@ -11,8 +11,8 @@ import org.bbz.stock.quanttrader.consts.JsonConsts;
 @Slf4j
 public class AbstractDataServiceWithIdentity {
 
-  private final MongoClient mongoClient;
-  private final String tableName;
+  protected final MongoClient mongoClient;
+  protected final String tableName;
 
   AbstractDataServiceWithIdentity(MongoClient mongoClient, String tableName) {
     this.mongoClient = mongoClient;
