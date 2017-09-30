@@ -49,11 +49,11 @@ public class WaveTradeModel extends AbstractTradeModel{
 
 
     /**
-     * 小波段中检测加减仓条件<br/>
-     * 上一次交易记录是买，这次才能卖<br/>
-     * 上一次交易记录是卖，这次才能买<br/>
+     * 小波段中检测加减仓条件<p/>
+     * 上一次交易记录是买，这次才能卖<p/>
+     * 上一次交易记录是卖，这次才能买<p/>
      * <p>
-     * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成<br/>
+     * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成<p/>
      */
     private void checkSellOrBuyInLittleWave( String stockId ){
         final JsonObject attachement = attachements.get( stockId );
@@ -87,7 +87,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                         setFirstCleanupPrice( stockId, LocalDate.now() );
                     }
                     System.out.println( result );
-                    addLog(result+"<br/>");
+                    addLog(result+"<p/>");
                 } );
     }
 
@@ -126,7 +126,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 result += res.cause().getMessage();
             }
             System.out.println( result );
-            addLog( result+"<br/>");
+            addLog( result+"<p/>");
         } );
     }
 
@@ -172,7 +172,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 setAttachement( stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY );
             }
             System.out.println( result );
-            addLog( result+"<br/>");
+            addLog( result+"<p/>");
         } );
     }
 
