@@ -68,8 +68,8 @@ public class TradeService extends AbstractDataServiceWithIdentity {
     pipeline.add(unwind);
     JsonObject project = new JsonObject().put("$project", new JsonObject()
         .put(MONGO_DB_ID,1)
-        .put(JsonConsts.STOCK_LIST_KEY,1)
-        .put("strategy.className",1)
+        .put(JsonConsts.STOCKS,1)
+        .put("strategy.modelClass",1)
         .put(INIT_BALANCE_KEY,1));
     pipeline.add(project);
 

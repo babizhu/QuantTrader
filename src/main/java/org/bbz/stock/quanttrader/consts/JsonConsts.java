@@ -30,7 +30,7 @@ public class JsonConsts{
     /**
      * 股票列表
      */
-    public static final String STOCK_LIST_KEY = "stockList";
+    public static final String STOCKS = "stocks";
 
 
     public static final String USER_SALT = "salt";

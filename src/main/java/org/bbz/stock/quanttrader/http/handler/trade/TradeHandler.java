@@ -1,5 +1,7 @@
 package org.bbz.stock.quanttrader.http.handler.trade;
 
+import static org.bbz.stock.quanttrader.consts.JsonConsts.MODEL_CLASS_KEY;
+
 import com.google.common.base.Strings;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
@@ -34,7 +36,7 @@ public class TradeHandler extends AbstractHandler {
     restAPI.route("/start").handler(this::start);
     restAPI.route("/detail").handler(this::detail);
     restAPI.route("/myTrade").handler(this::myTrade);
-    restAPI.route("/getTradeInfo").handler(this::getTradeInfo);
+//    restAPI.route("/getTradeInfo").handler(this::getTradeInfo);
     restAPI.route("/getTradeInfo").handler(this::getTradeInfo);
     restAPI.route("/save").handler(this::save);
     restAPI.route("/del").handler(this::del);
@@ -155,20 +157,22 @@ public class TradeHandler extends AbstractHandler {
   @RequirePermissions("sys:trade:query")
   @RequireRoles("user")
   private void getTradeInfo(RoutingContext ctx) {
+
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.TRADE_GET_INFO.name());
-    final int taskId = Integer.parseInt(ctx.request().getParam("taskId"));
-    final JsonObject msg = new JsonObject().put("taskId", taskId);
+    final String  id = ctx.request().getParam(JsonConsts.MONGO_DB_ID);
+    final JsonObject msg = new JsonObject().put(JsonConsts.MONGO_DB_ID, id);
     send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx, reply -> {
 
       final JsonObject body = (JsonObject) reply.body();
-      String res = "<meta http-equiv=\"refresh\" content=\"10\">" + body.getString("res")
-          + "<br/><br/><br/><br/><br/><br/><br/>";
-      res += "<h3>L-L(ver 1.0)必发财炒股鸡</h3>";
-//
-      ctx.response().setStatusCode(200)
-          .putHeader("content-type", "text/html; charset=utf-8").end(res);
-      log.info(res);
+//      String res = "<meta http-equiv=\"refresh\" content=\"10\">" + body.getString("res")
+//          + "<br/><br/><br/><br/><br/><br/><br/>";
+//      res += "<h3>L-L(ver 1.0)必发财炒股鸡</h3>";
+////
+//      ctx.response().setStatusCode(200)
+//          .putHeader("content-type", "text/html; charset=utf-8").end(res);
+      ctx.response().end(body.toString());
+      log.info(body.toString());
 
     });
   }
@@ -189,14 +193,15 @@ public class TradeHandler extends AbstractHandler {
             reportError(ctx, ErrorCode.Trade_NOT_FOUND, tradeJson.getString(JsonConsts.MONGO_DB_ID));
             return;
           }
-          final JsonObject msg1 = new JsonObject().put(JsonConsts.CTX_KEY,
+          final JsonObject res = array.getJsonObject(0);
+          final JsonObject msg = new JsonObject().put(JsonConsts.CTX_KEY,
               new JsonObject()
-                  .put(JsonConsts.INIT_BALANCE_KEY, "100000")
-                  .put(JsonConsts.STOCK_LIST_KEY, "3000322"));
-          msg1.put(JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel");
-          msg1.put("taskId", 100000);
+                  .put(JsonConsts.INIT_BALANCE_KEY, res.getInteger(JsonConsts.INIT_BALANCE_KEY) + "")
+                  .put(JsonConsts.STOCKS, res.getString(JsonConsts.STOCKS)));
+          msg.put(MODEL_CLASS_KEY, res.getJsonObject("strategy").getString(MODEL_CLASS_KEY));
+          msg.put(JsonConsts.MONGO_DB_ID, tradeJson.getString(JsonConsts.MONGO_DB_ID));
 //{"ctx":{"initBalance":"100000","stockList":"3000322"},"modelClass":"WaveTradeModel"}
-          final JsonObject msg = array.getJsonObject(0);
+
           DeliveryOptions op = new DeliveryOptions()
               .addHeader("action", EventBusCommand.TRADE_START.name());
 
@@ -204,28 +209,5 @@ public class TradeHandler extends AbstractHandler {
               reply1 -> ctx.response().end(""));
         }
     );
-
-//    String stocks = "600023,600166,600200,600361,600482,600489,600498,600722,600787,601000,601928,601929,000034,000401,002146,002373,002375,002467,002477,002657";
-    final JsonObject msg = new JsonObject().put(JsonConsts.CTX_KEY,
-        new JsonObject()
-            .put(JsonConsts.INIT_BALANCE_KEY, "100000")
-            .put(JsonConsts.STOCK_LIST_KEY, "3000322"));
-    msg.put(JsonConsts.MODEL_CLASS_KEY, "WaveTradeModel");
-    msg.put("taskId", Integer.parseInt(ctx.request().getParam("taskId")));
-
-
-
-
-
-
-
-
-//    System.out.println(msg);
-//
-//    DeliveryOptions options = new DeliveryOptions()
-//        .addHeader("action", EventBusCommand.TRADE_START.name());
-//
-//    send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx,
-//        reply -> ctx.response().end("start success"));
   }
 }

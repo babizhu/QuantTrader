@@ -2,6 +2,11 @@ package org.bbz.stock.quanttrader.trade.model.impl.wavetrade;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.KLineType;
 import org.bbz.stock.quanttrader.trade.core.Portfolio;
@@ -11,12 +16,6 @@ import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
 import org.bbz.stock.quanttrader.util.DateUtil;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by liulaoye on 17-7-6.
@@ -32,13 +31,10 @@ public class WaveTradeModel extends AbstractTradeModel{
         this.dataProvider = dataProvider;
     }
 
-    void getInfo(){
-
-    }
     @Override
     public void run( Long aLong ){
         log.info( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now() ) );
-        lastRunInfo = "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now()  ) + "</br>";
+        addLog( "开始执行策略: " + DateUtil.formatDateTime( LocalDateTime.now()  ) + "</br>");
         final Portfolio portfolio = ctx.getPortfolio();
         for( Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet() ) {
             cleanUp( stock.getKey() );
@@ -49,6 +45,8 @@ public class WaveTradeModel extends AbstractTradeModel{
             }
         }
     }
+
+
 
     /**
      * 小波段中检测加减仓条件<br/>
@@ -89,14 +87,14 @@ public class WaveTradeModel extends AbstractTradeModel{
                         setFirstCleanupPrice( stockId, LocalDate.now() );
                     }
                     System.out.println( result );
-                    lastRunInfo += result+"<br/>";
+                    addLog(result+"<br/>");
                 } );
     }
 
     /**
      * 设置第一个清仓点
      *
-     * @param date
+     * @param date  date
      */
     private void setFirstCleanupPrice( String stockId, LocalDate date ){
         dataProvider.getSimpleKBar( stockId, KLineType.DAY, 100, date.plusDays( -1 ), date, res -> {
@@ -128,7 +126,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 result += res.cause().getMessage();
             }
             System.out.println( result );
-            lastRunInfo += result+"<br/>";
+            addLog( result+"<br/>");
         } );
     }
 
@@ -174,7 +172,7 @@ public class WaveTradeModel extends AbstractTradeModel{
                 setAttachement( stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY );
             }
             System.out.println( result );
-            lastRunInfo += result+"<br/>";
+            addLog( result+"<br/>");
         } );
     }
 
@@ -251,7 +249,7 @@ public class WaveTradeModel extends AbstractTradeModel{
      *
      * @param stockId stockId
      */
-    void calcCleanPriceInBigWave( String stockId ){
+    private void calcCleanPriceInBigWave(String stockId){
         dataProvider.getSimpleKBar( stockId, KLineType.DAY, 100, res -> {
             if( res.succeeded() ) {
                 List<SimpleKBar> result = res.result();

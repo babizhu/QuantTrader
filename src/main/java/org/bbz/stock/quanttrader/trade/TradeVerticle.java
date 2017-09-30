@@ -42,7 +42,7 @@ public class TradeVerticle extends AbstractVerticle{
     /**
      * 正在运行的策略任务
      */
-    private Map<Integer, ITradeModel> tradeModelTaskMap = new HashMap<>();
+    private Map<String, ITradeModel> tradeModelTaskMap = new HashMap<>();
 
     public void start( Future<Void> startFuture ) throws Exception{
         final EventBus eventBus = vertx.eventBus();
@@ -65,7 +65,7 @@ public class TradeVerticle extends AbstractVerticle{
         try {
             switch( EventBusCommand.valueOf( action ) ) {
                 case TRADE_START:
-                    startTrade( arguments );
+                    start( arguments );
                     break;
                 case TRADE_GET_INFO:
                     result = getTradeInfo( arguments );
@@ -91,11 +91,11 @@ public class TradeVerticle extends AbstractVerticle{
     }
 
     private JsonObject getTradeInfo( JsonObject arguments ){
-        final Integer taskId = arguments.getInteger( "taskId" );
-        final ITradeModel tradeModel = tradeModelTaskMap.get( taskId );
+        final String  id = arguments.getString( JsonConsts.MONGO_DB_ID );
+        final ITradeModel tradeModel = tradeModelTaskMap.get( id );
 
         if( tradeModel == null ) {
-            throw new ErrorCodeException( ErrorCode.PARAMETER_ERROR, taskId+"" );
+            throw new ErrorCodeException( ErrorCode.PARAMETER_ERROR, id );
         }
         String lastInfo = tradeModel.getTradeInfo();
         return new JsonObject().put( "res", lastInfo );
@@ -115,11 +115,11 @@ public class TradeVerticle extends AbstractVerticle{
      *
      * @param argument 配置参数
      */
-    private void startTrade( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
+    private void start( JsonObject argument ) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException{
 
-        final Integer taskId = argument.getInteger( "taskId" );
+        final String  id = argument.getString( JsonConsts.MONGO_DB_ID );
         final ITradeModel tradeModel = createTradeModel( argument );
-        tradeModelTaskMap.put( taskId, tradeModel );
+        tradeModelTaskMap.put( id, tradeModel );
         vertx.setPeriodic( 30000, tradeModel::run );
     }
 
@@ -152,7 +152,10 @@ public class TradeVerticle extends AbstractVerticle{
 
     private IStockDataProvider createDataProvider( JsonObject dataProvider ){
         final HttpClientOptions httpClientOptions = new HttpClientOptions();
-        String host = dataProvider.getString( "host", "localhost" );
+        String host = "localhost";
+        if( dataProvider != null ){
+            host = dataProvider.getString( "host", "localhost" );
+        }
         httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( host ).setConnectTimeout( 4000 ).setKeepAlive( true );
         return TuShareDataProvider.createShare( null, vertx.createHttpClient( httpClientOptions ) );
     }
@@ -171,7 +174,7 @@ public class TradeVerticle extends AbstractVerticle{
         final OrderCost orderCost = new OrderCost( closeTax, openCommission, closeCommission, minCommission );
         final String initBalance = ctxJson.getString( JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE );
         final QuantTradeContext ctx = new QuantTradeContext( orderCost, initBalance );
-        final String stockList = ctxJson.getString( JsonConsts.STOCK_LIST_KEY );
+        final String stockList = ctxJson.getString( JsonConsts.STOCKS);
         final HashMap<String, Integer> stocks = new HashMap<>();
 
 //        final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();

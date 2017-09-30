@@ -2,7 +2,9 @@ package org.bbz.stock.quanttrader.trade.model;
 
 import io.vertx.core.json.JsonObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,7 +13,10 @@ import java.util.Map;
  */
 public abstract class AbstractTradeModel implements ITradeModel{
     protected final Map<String, JsonObject> attachements = new HashMap<>();
-    protected String lastRunInfo;
+//    protected String lastRunInfo;
+private List<String> logs = new ArrayList<>();
+
+
     /**
      * 设置一些额外的参数，方便操作
      *
@@ -29,7 +34,7 @@ public abstract class AbstractTradeModel implements ITradeModel{
 
     @Override
     public String getTradeInfo(){
-        return lastRunInfo;
+        return logs.toString() ;
     }
     @Override
     public void initialize(){
@@ -40,7 +45,7 @@ public abstract class AbstractTradeModel implements ITradeModel{
      * @param stockId       stockId
      * @param key           key
      */
-    public Double getDoubleFromAttachements( String stockId, String key ){
+    protected Double getDoubleFromAttachements(String stockId, String key){
         final JsonObject jsonObject = attachements.get( stockId );
         if( jsonObject == null ) {
             return null;
@@ -51,5 +56,12 @@ public abstract class AbstractTradeModel implements ITradeModel{
     @Override
     public void refreshTradeRecords( ){
 
+    }
+
+    protected void addLog(String log){
+        if( logs.size() > 100 ){
+            logs.remove(0);
+        }
+        logs.add(log);
     }
 }
