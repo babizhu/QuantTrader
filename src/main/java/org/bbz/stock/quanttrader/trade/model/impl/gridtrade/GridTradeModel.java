@@ -30,7 +30,7 @@ public class GridTradeModel extends AbstractTradeModel{
     }
 
     @Override
-    public void run( Long aLong ){
+    public void run( ){
 
     }
 

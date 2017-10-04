@@ -1,5 +1,7 @@
 package org.bbz.stock.quanttrader.trade.model;
 
+import com.google.common.collect.Lists;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -34,7 +36,11 @@ private List<String> logs = new ArrayList<>();
 
     @Override
     public String getTradeInfo(){
-        return logs.toString() ;
+        String ret = "";
+        for (String s : Lists.reverse(logs)) {
+            ret += s;
+        }
+        return ret;
     }
     @Override
     public void initialize(){

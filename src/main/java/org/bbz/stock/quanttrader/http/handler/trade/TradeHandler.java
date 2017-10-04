@@ -125,8 +125,8 @@ public class TradeHandler extends AbstractHandler {
 
   private void update(RoutingContext ctx, JsonObject updateJson) {
 
-    checkArguments(updateJson, "arguments", "initCash",
-        "desc", "strategyId", JsonConsts.MONGO_DB_ID, "stocks");
+    checkArguments(updateJson, "arguments", JsonConsts.STOCKS,
+        "desc", "strategyId", JsonConsts.MONGO_DB_ID, JsonConsts.INIT_BALANCE_KEY);
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.DB_TRADE_UPDATE.name());
     send(EventBusAddress.DB_ADDR, updateJson, options, ctx, reply -> {
@@ -140,6 +140,8 @@ public class TradeHandler extends AbstractHandler {
   private void create(RoutingContext ctx, JsonObject tradeJson) {
     checkArgumentsStrict(tradeJson, "name", "initCash", "strategyId", "stocks",
         JsonConsts.MONGO_DB_ID, "userName", "arguments", "desc");
+
+    tradeJson.put("status",0);//增加状态指令
 
     tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
 
@@ -196,7 +198,7 @@ public class TradeHandler extends AbstractHandler {
           final JsonObject res = array.getJsonObject(0);
           final JsonObject msg = new JsonObject().put(JsonConsts.CTX_KEY,
               new JsonObject()
-                  .put(JsonConsts.INIT_BALANCE_KEY, res.getInteger(JsonConsts.INIT_BALANCE_KEY) + "")
+                  .put(JsonConsts.INIT_BALANCE_KEY, res.getString(JsonConsts.INIT_BALANCE_KEY))
                   .put(JsonConsts.STOCKS, res.getString(JsonConsts.STOCKS)));
           msg.put(MODEL_CLASS_KEY, res.getJsonObject("strategy").getString(MODEL_CLASS_KEY));
           msg.put(JsonConsts.MONGO_DB_ID, tradeJson.getString(JsonConsts.MONGO_DB_ID));

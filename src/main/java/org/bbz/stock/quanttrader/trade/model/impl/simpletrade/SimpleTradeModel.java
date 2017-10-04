@@ -24,7 +24,7 @@ public class SimpleTradeModel extends AbstractTradeModel{
 
     @Override
     @SuppressWarnings("unused")
-    public void run( Long aLong ){
+    public void run(){
         Portfolio portfolio = ctx.getPortfolio();
         if( portfolio.getStockCountById( stockId ) == 0 ) {
             ctx.order( stockId, 1000,null );

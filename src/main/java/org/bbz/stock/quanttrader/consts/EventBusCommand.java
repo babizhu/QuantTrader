@@ -18,6 +18,9 @@ public enum EventBusCommand{
      */
     TRADE_GET_INFO,
 
+    TRADE_PAUSE,
+    TRADE_STOP,
+
     /**
      * 用户
      */
@@ -47,7 +50,7 @@ public enum EventBusCommand{
     /**
      * 权限管理
      */
-    DB_ROLE_QUERY, DB_ROLE_SAVE,;
+    DB_ROLE_QUERY, DB_ROLE_SAVE;
 
 }
 

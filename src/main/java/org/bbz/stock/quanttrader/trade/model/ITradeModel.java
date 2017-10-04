@@ -14,9 +14,8 @@ public interface ITradeModel{
 
     /**
      * vertx会定时回调此函数,通常用于实战模拟
-     * @param aLong         暂时我也不知道有什么用
      */
-    void run( Long aLong );
+    void run();
 
 
     /**
