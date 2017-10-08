@@ -23,7 +23,7 @@ public class TradeService extends AbstractDataServiceWithIdentity {
    *
    * @param msg id
    */
-  public void queryArgument(Message<JsonObject> msg) {
+  public void queryTradeArgument(Message<JsonObject> msg) {
 //    我们最终的聚合查询匹配的评论，按照顺序排序，限制最新的二十条信息，连接用户的数据，扁平用户数组，最后只返回我们需要的必须数据，总的命令如下：
 //
 //    复制代码
@@ -70,6 +70,7 @@ public class TradeService extends AbstractDataServiceWithIdentity {
         .put(MONGO_DB_ID,1)
         .put(JsonConsts.STOCKS,1)
         .put("strategy.modelClass",1)
+        .put("status",1)
         .put(INIT_BALANCE_KEY,1));
     pipeline.add(project);
 

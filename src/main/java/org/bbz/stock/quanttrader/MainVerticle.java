@@ -46,7 +46,6 @@ public class MainVerticle extends AbstractVerticle{
             DeploymentOptions options = new DeploymentOptions().setInstances( 1 ).setConfig( config().getJsonObject( "server" ) );
             vertx.deployVerticle(
                     "org.bbz.stock.quanttrader.trade.TradeVerticle",
-//                    new HttpServerVerticle(),
                     options,
                     tradeVerticleDeployment.completer() );
             return tradeVerticleDeployment;

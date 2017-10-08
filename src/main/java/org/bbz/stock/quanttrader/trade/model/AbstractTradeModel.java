@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.bbz.stock.quanttrader.trade.core.Portfolio;
+import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 
 /**
  * Created by liukun on 2017/7/13.
@@ -15,8 +17,13 @@ import java.util.Map;
  */
 public abstract class AbstractTradeModel implements ITradeModel{
     protected final Map<String, JsonObject> attachements = new HashMap<>();
+    protected final QuantTradeContext ctx;
 //    protected String lastRunInfo;
 private List<String> logs = new ArrayList<>();
+
+    public AbstractTradeModel(QuantTradeContext ctx) {
+        this.ctx = ctx;
+    }
 
 
     /**
@@ -62,6 +69,11 @@ private List<String> logs = new ArrayList<>();
     @Override
     public void refreshTradeRecords( ){
 
+    }
+
+    @Override
+    public QuantTradeContext getQuantTradeContext() {
+        return ctx;
     }
 
     protected void addLog(String log){

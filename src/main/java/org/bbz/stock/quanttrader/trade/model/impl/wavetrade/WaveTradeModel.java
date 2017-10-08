@@ -24,11 +24,11 @@ import org.bbz.stock.quanttrader.util.DateUtil;
 @Slf4j
 public class WaveTradeModel extends AbstractTradeModel {
 
-  private final QuantTradeContext ctx;
+
   private final IStockDataProvider dataProvider;
 
   public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider) {
-    this.ctx = ctx;
+    super(ctx);
     this.dataProvider = dataProvider;
   }
 

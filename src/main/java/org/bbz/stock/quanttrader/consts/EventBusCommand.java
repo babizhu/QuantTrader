@@ -20,6 +20,10 @@ public enum EventBusCommand{
 
     TRADE_PAUSE,
     TRADE_STOP,
+    /**
+     * 根据ID获取某个交易的运行的详细情况
+     */
+    TRADE_RUNTIME_DETAIL,
 
     /**
      * 用户

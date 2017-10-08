@@ -66,7 +66,7 @@ public abstract class AbstractHandler {
         ReplyException e = (ReplyException) reply.cause();
 //                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
 //                ctx.response().setStatusCode( 500 ).end( e.toString() );
-        reportError(ctx, e.failureCode(), e.toString());
+        reportError(ctx, e.failureCode(), e.getMessage());
 //                reply.cause().printStackTrace();
       }
     });

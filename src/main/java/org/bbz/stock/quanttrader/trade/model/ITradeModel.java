@@ -1,5 +1,8 @@
 package org.bbz.stock.quanttrader.trade.model;
 
+import org.bbz.stock.quanttrader.trade.core.Portfolio;
+import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
+
 /**
  * Created by liukun on 2017/6/17.
  * ITradeModel
@@ -39,4 +42,6 @@ public interface ITradeModel{
     String getTradeInfo();
 
     void refreshTradeRecords();
+
+    QuantTradeContext getQuantTradeContext();
 }

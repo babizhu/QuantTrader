@@ -26,6 +26,8 @@ import org.bbz.stock.quanttrader.http.handler.auth.anno.RequireRoles;
 @Slf4j
 public class TradeHandler extends AbstractHandler {
 
+  public static final int TRADE_MODEL_COUNT = 1;
+
   public TradeHandler(EventBus eventBus) {
     super(eventBus);
 
@@ -45,32 +47,33 @@ public class TradeHandler extends AbstractHandler {
     return restAPI;
   }
 
+  private String calcTradeModelAddress(String id) {
+    return EventBusAddress.TRADE_MODEL_ADDR + (id.hashCode() % TRADE_MODEL_COUNT);
+  }
+
   /**
    * 某个交易的详情，通过id进行查询
    */
   private void detail(RoutingContext ctx) {
     final HttpServerRequest request = ctx.request();
-    JsonObject condition = new JsonObject();
 
     String id = request.getParam("id");
     if (Strings.isNullOrEmpty(id)) {
       throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR, id + " is null");
-    } else {
-      condition.put(JsonConsts.MONGO_DB_ID, id);
     }
+    JsonObject condition = new JsonObject().put(JsonConsts.MONGO_DB_ID, id);
 
     DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_TRADE_QUERY.name());
+        .addHeader("action", EventBusCommand.TRADE_RUNTIME_DETAIL.name());
 
-    send(EventBusAddress.DB_ADDR, condition, options, ctx, reply ->
-        ctx.response().end(reply.body().toString()));
-
+    send(calcTradeModelAddress(id), condition, options, ctx,
+        reply -> ctx.response().end(reply.body().toString()));
   }
-
 
   /**
    * 获取自己的交易记录
    */
+
   private void myTrade(RoutingContext ctx) {
 //        final HttpServerRequest request = ctx.request();
     JsonObject condition = new JsonObject();
@@ -106,6 +109,7 @@ public class TradeHandler extends AbstractHandler {
   }
 
   private void del(RoutingContext ctx) {
+
   }
 
   /**
@@ -138,10 +142,10 @@ public class TradeHandler extends AbstractHandler {
   }
 
   private void create(RoutingContext ctx, JsonObject tradeJson) {
-    checkArgumentsStrict(tradeJson, "name", "initCash", "strategyId", "stocks",
+    checkArgumentsStrict(tradeJson, "name", "initBalance", "strategyId", "stocks",
         JsonConsts.MONGO_DB_ID, "userName", "arguments", "desc");
 
-    tradeJson.put("status",0);//增加状态指令
+    tradeJson.put("status", 0);//增加状态指令
 
     tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
 
@@ -162,7 +166,7 @@ public class TradeHandler extends AbstractHandler {
 
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.TRADE_GET_INFO.name());
-    final String  id = ctx.request().getParam(JsonConsts.MONGO_DB_ID);
+    final String id = ctx.request().getParam(JsonConsts.MONGO_DB_ID);
     final JsonObject msg = new JsonObject().put(JsonConsts.MONGO_DB_ID, id);
     send(EventBusAddress.TRADE_MODEL_ADDR + "0", msg, options, ctx, reply -> {
 

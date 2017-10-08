@@ -104,18 +104,8 @@ public enum ErrorCode{
      * 玩家指定交易没有找到
      */
     Trade_NOT_FOUND( 5000 ),
-    /**
-     * 相同模板的飞机已经存在了
-     */
-    PLANE_TEMPLET_DUPLICATE( 5001 ),
-    /**
-     * 飞机模板没找到
-     */
-    PLANE_TEMPLET_NOT_FOUND( 5002 ),
-    /**
-     * 飞机已经升到最大等级
-     */
-    PLANE_REACH_MAX_LEVEL( 5003 ),
+    Trade_NOT_START( 5001 ),
+
 
 
     ////////////////////////////////////////////////奖励错误/////////////////////////////////////////

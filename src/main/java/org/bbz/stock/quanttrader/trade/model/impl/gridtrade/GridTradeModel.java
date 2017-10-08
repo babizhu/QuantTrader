@@ -15,12 +15,11 @@ import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 @Slf4j
 public class GridTradeModel extends AbstractTradeModel{
 
-    private final QuantTradeContext ctx;
     private final String stockId;
 //    private final GridTradeCfg cfg = new GridTradeCfg(  );
 
     public GridTradeModel( QuantTradeContext ctx, String stockId ){
-        this.ctx = ctx;
+        super(ctx);
         this.stockId = stockId;
     }
 

@@ -9,11 +9,10 @@ import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
  * 最简单的交易模型例子
  */
 public class SimpleTradeModel extends AbstractTradeModel{
-    private final QuantTradeContext ctx;
     private final String stockId;
 
     public SimpleTradeModel( QuantTradeContext ctx, String stockId ){
-        this.ctx = ctx;
+        super(ctx);
         this.stockId = stockId;
     }
 

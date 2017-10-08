@@ -94,7 +94,7 @@ public class MongoDatabaseVercitle extends AbstractVerticle {
           tradeService.query(message);
           break;
         case DB_TRADE_ARGUMENT_QUERY:
-          tradeService.queryArgument(message);
+          tradeService.queryTradeArgument(message);
           break;
         case DB_TRADE_DELETE:
           tradeService.delete(message);
