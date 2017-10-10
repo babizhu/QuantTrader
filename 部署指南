@@ -1,0 +1,27 @@
+1、安装python3
+  在centos7下，执行如下命令
+  sudo yum install epel-release
+  sudo yum install python34
+  安装pip3
+  yum install python34-setuptools
+  easy_install-3.4 pip
+
+2、安装mongodb
+  wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.9.tgz
+  tar zxvf mongodb-linux-x86_64-rhel70-3.4.9.tgz
+  cd mongodb-linux-x86_64-rhel70-3.4.9
+  mkdir data/db
+  执行：
+  ./mongod --dbpath ../data/db
+  进入客户端执行
+  use quant_trader
+  db.createCollection('user');
+  db.user.insert({'username':'admin','salt':'C428A0BACCFC909EE7F3FB88CE77DED2FDFC103975BAADBC75EDB32F09C39AF5','email':'185938@qq.com','phone':'18698787878','password':'3102D2665788795D2590557669C37924E3378DCAC1B49E8D98F80C817DC98418772EEFAE6B2CB7E4886EB08EA06C5E1020952A7029D72478EA551947F6A02BDA'});
+  db.tradingstrategy.insert({'name':'卢哥大法','desc':'通过波浪理论赚大钱','modelClass':'WaveTradeModel','owner':'sys'})
+
+
+
+3、安装tushare
+  pip3 install tushare
+  pip3 install ......
+  pip3 install tornado

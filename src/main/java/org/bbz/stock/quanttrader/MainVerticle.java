@@ -13,6 +13,10 @@ import java.nio.file.Paths;
 /**
  * Created by liu_k on 2017/6/20.
  * 启动类，细节有待斟酌
+ *
+ * db.user.insert({'username':'admin','salt':'C428A0BACCFC909EE7F3FB88CE77DED2FDFC103975BAADBC75EDB32F09C39AF5','email':'185938@qq.com','phone':'18698787878','password':'3102D2665788795D2590557669C37924E3378DCAC1B49E8D98F80C817DC98418772EEFAE6B2CB7E4886EB08EA06C5E1020952A7029D72478EA551947F6A02BDA'});
+ * db.tradingstrategy.insert({'name':'卢哥大法','desc':'通过波浪理论赚大钱','modelClass':'WaveTradeModel','owner':'sys'})
+ * db.employee.update({username:'jim'},{$set:{age:22}},false,true);
  */
 @Slf4j
 public class MainVerticle extends AbstractVerticle{
