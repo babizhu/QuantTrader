@@ -1,13 +1,9 @@
 package org.bbz.stock.quanttrader.database.service;
 
-import static org.bbz.stock.quanttrader.consts.JsonConsts.INIT_BALANCE_KEY;
-import static org.bbz.stock.quanttrader.consts.JsonConsts.MONGO_DB_ID;
-
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
-import org.bbz.stock.quanttrader.consts.JsonConsts;
 
 public class TradeService extends AbstractDataServiceWithIdentity {
 
@@ -66,13 +62,13 @@ public class TradeService extends AbstractDataServiceWithIdentity {
 
     JsonObject unwind = new JsonObject().put("$unwind", "$strategy");
     pipeline.add(unwind);
-    JsonObject project = new JsonObject().put("$project", new JsonObject()
-        .put(MONGO_DB_ID,1)
-        .put(JsonConsts.STOCKS,1)
-        .put("strategy.modelClass",1)
-        .put("status",1)
-        .put(INIT_BALANCE_KEY,1));
-    pipeline.add(project);
+//    JsonObject project = new JsonObject().put("$project", new JsonObject()
+//        .put(MONGO_DB_ID,1)
+//        .put(JsonConsts.STOCKS,1)
+//        .put("strategy.modelClass",1)
+//        .put("status",1)
+//        .put(INIT_BALANCE_KEY,1));
+//    pipeline.add(project);
 
     JsonObject match = new JsonObject().put("$match", condition);
     pipeline.add(match);

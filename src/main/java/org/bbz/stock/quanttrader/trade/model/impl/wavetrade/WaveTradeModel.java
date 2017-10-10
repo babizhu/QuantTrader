@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.bbz.stock.quanttrader.consts.KLineType;
@@ -27,24 +28,34 @@ public class WaveTradeModel extends AbstractTradeModel {
 
   private final IStockDataProvider dataProvider;
 
-  public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider) {
-    super(ctx);
+  public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider, String name,
+      String id, String desc, int status, Set<String> stockPool) {
+    super(ctx, name, id, desc, status, stockPool);
     this.dataProvider = dataProvider;
   }
 
   @Override
   public void run() {
-    log.info("开始执行策略: " + DateUtil.formatDateTime(LocalDateTime.now()));
+    log.info("开始执行策略: " + DateUtil.formatDate(LocalDateTime.now()));
     final Portfolio portfolio = ctx.getPortfolio();
-    for (Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet()) {
-      cleanUp(stock.getKey());
-      if (stock.getValue() == 0) {
-        checkFirstBuy(stock.getKey());
-      } else {
-        checkSellOrBuyInLittleWave(stock.getKey());//在小波浪中考虑加减仓
+    for (String stock : getStockPool()) {
+      if(portfolio.getStocks().containsKey(stock)){//此股票在库存中
+        tryCleanUp(stock);
+        checkSellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
+      }else{
+        checkFirstBuy(stock);
       }
     }
-    addLog(DateUtil.formatDateTime(LocalDateTime.now()) + "\r\n");//倒序之后反而到前面去了
+//
+//    for (Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet()) {
+//      tryCleanUp(stock.getKey());
+//      if (stock.getValue() == 0) {
+//        checkFirstBuy(stock.getKey());
+//      } else {
+//        checkSellOrBuyInLittleWave(stock.getKey());//在小波浪中考虑加减仓
+//      }
+//    }
+    addLog(DateUtil.formatDate(LocalDateTime.now()) + "\r\n");//倒序之后反而到前面去了
 
   }
 
@@ -233,7 +244,7 @@ public class WaveTradeModel extends AbstractTradeModel {
 
   @Override
   public void afterClose() {
-    log.info("开始执行盘后策略: " + DateUtil.formatDateTime(LocalDateTime.now()));
+    log.info("开始执行盘后策略: " + DateUtil.formatDate(LocalDateTime.now()));
     final Portfolio portfolio = ctx.getPortfolio();
     for (Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet()) {
       if (stock.getValue() != 0) {
@@ -402,11 +413,11 @@ public class WaveTradeModel extends AbstractTradeModel {
   }
 
   /**
-   * 当前股价低于清仓价 执行清仓
+   * 当前股价低于清仓价 尝试清仓
    *
    * @param stockId stockId
    */
-  private void cleanUp(String stockId) {
+  private void tryCleanUp(String stockId) {
     Double cleanupPrice = getDoubleFromAttachements(stockId, Consts.CLEAN_UP_PRICE_KEY);
     if (cleanupPrice == null) {
       return;

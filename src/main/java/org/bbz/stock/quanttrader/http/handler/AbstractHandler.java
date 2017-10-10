@@ -106,7 +106,7 @@ public abstract class AbstractHandler {
     ctx.response().end(buildResponseMsg(ErrorCode.SUCCESS, msg));
   }
 //    protected void reportMsg(RoutingContext ctx, ErrorCode errorCode, String msg ){
-//        if( errorCode.isSuccess() ) {
+//        if( errorCode.status() ) {
 //            reportSuccessMsg( ctx );
 //        }else {
 //            reportError( ctx,errorCode,msg );

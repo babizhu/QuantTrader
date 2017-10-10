@@ -36,7 +36,7 @@
 ////        when( provider.getCurrentKbar( "600090",null ) );
 ////
 //        final Vertx vertx = Vertx.vertx();
-//        final RedisClient redisClient = RedisClient.create( vertx );
+//        final RedisClient redisClient = RedisClient.MapperFromDB( vertx );
 //        final HttpClientOptions httpClientOptions = new HttpClientOptions();
 //        httpClientOptions.setDefaultPort( 8888 ).setDefaultHost( "localhost" ).setConnectTimeout( 4000 ).setKeepAlive( true );
 ////        provider = TuShareDataProvider.createShare( redisClient, vertx.createHttpClient( httpClientOptions ) );

@@ -28,7 +28,7 @@ public class AuthHandler extends AbstractHandler{
 
     @Override
     public Router addRouter( Router restAPI ){
-        restAPI.route( "/create" ).handler( this::saveRole );
+        restAPI.route( "/MapperFromDB" ).handler( this::saveRole );
         restAPI.route( "/del" ).handler( this::delUser );
         restAPI.route( "/query" ).handler( this::query );
 
@@ -63,7 +63,7 @@ public class AuthHandler extends AbstractHandler{
     private void saveRole( RoutingContext ctx ){
         DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_ROLE_SAVE.name() );
         final JsonObject msg = new JsonObject().put( "role","system").
-                put(  "permissions","sys/user/create,sys/user/del,sys/user/query" );
+                put(  "permissions","sys/user/MapperFromDB,sys/user/del,sys/user/query" );
         send( EventBusAddress.DB_ADDR, msg, options, ctx, reply -> ctx.response().end( reply.body().toString() ) );
     }
 

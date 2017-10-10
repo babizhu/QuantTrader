@@ -27,6 +27,11 @@ public class JsonConsts{
      * 2、直接包名为类名全小写并去掉model
      */
     public static final String MODEL_CLASS_KEY = "modelClass";
+    public static final String MODEL_STATUS_KEY = "status";
+    public static final String MODEL_DESC_KEY = "desc";
+    public static final String MODEL_NAME_KEY = "name";
+
+
     /**
      * 股票列表
      */

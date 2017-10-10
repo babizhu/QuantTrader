@@ -1,6 +1,7 @@
 package org.bbz.stock.quanttrader.trade.model;
 
-import org.bbz.stock.quanttrader.trade.core.Portfolio;
+import io.vertx.core.json.JsonObject;
+import java.time.LocalDateTime;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 
 /**
@@ -44,4 +45,17 @@ public interface ITradeModel{
     void refreshTradeRecords();
 
     QuantTradeContext getQuantTradeContext();
+
+    String getName();
+    LocalDateTime getStartTime();
+//    String getInitBalance();
+    String getId();
+    String getDesc();
+    int getStatus();
+
+    JsonObject toJson();
+//    int getStatus();
+
+
+
 }

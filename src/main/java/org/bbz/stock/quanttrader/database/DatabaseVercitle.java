@@ -37,11 +37,11 @@ public class DatabaseVercitle extends AbstractVerticle {
 //                startFuture.fail( ar.cause() );
 //            } else {
 //                SQLConnection connection = ar.result();
-//                connection.execute( "select * from trade_model", create -> {
+//                connection.execute( "select * from trade_model", MapperFromDB -> {
 //                    connection.close();
-//                    if( create.failed() ) {
-//                        log.error( "Database preparation error", create.cause() );
-//                        startFuture.fail( create.cause() );
+//                    if( MapperFromDB.failed() ) {
+//                        log.error( "Database preparation error", MapperFromDB.cause() );
+//                        startFuture.fail( MapperFromDB.cause() );
 //                    } else {
 //                        log.info( "database init success!" );
 //                        vertx.eventBus().consumer( CONFIG_DB_QUEUE, this::onMessage );

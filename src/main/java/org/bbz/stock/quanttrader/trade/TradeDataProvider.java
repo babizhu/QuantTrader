@@ -9,11 +9,11 @@ import io.vertx.core.json.JsonObject;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.EventBusCommand;
 
-public class DBHandler {
+public class TradeDataProvider {
 
   private final EventBus eventBus;
 
-  public DBHandler(EventBus eventBus) {
+  public TradeDataProvider(EventBus eventBus) {
     this.eventBus = eventBus;
   }
 

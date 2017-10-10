@@ -65,14 +65,14 @@ public class HttpServerVerticle extends AbstractVerticle {
 //
 //        MongoClient mongoClient = MongoClient.createShared( vertx, mongoconfig );
 //        JsonObject authProperties = new JsonObject();
-//        authProvider = MongoAuth.create( mongoClient, authProperties );
+//        authProvider = MongoAuth.MapperFromDB( mongoClient, authProperties );
 //    }
 
 
   private void initHandler(Router router) {
-//        router.route().handler( CookieHandler.create());
-//        router.route().handler( SessionHandler.create( LocalSessionStore.create(vertx)));
-//        router.route().handler(UserSessionHandler.create(auth));  (1)
+//        router.route().handler( CookieHandler.MapperFromDB());
+//        router.route().handler( SessionHandler.MapperFromDB( LocalSessionStore.MapperFromDB(vertx)));
+//        router.route().handler(UserSessionHandler.MapperFromDB(auth));  (1)
     router.route().handler(BodyHandler.create());
     JsonObject jwtConfig = new JsonObject().put("permissionsClaimKey", "roles")
         .put("keyStore", new JsonObject()
@@ -93,7 +93,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   }
 
   private void dispatcher(Router mainRouter) {
-//        mainRouter.route().handler(CorsHandler.create("vertx\\.io").allowedMethod(HttpMethod.));
+//        mainRouter.route().handler(CorsHandler.MapperFromDB("vertx\\.io").allowedMethod(HttpMethod.));
 
     final CorsHandler corsHandler = CorsHandler.create("*")
         .maxAgeSeconds(17280000)

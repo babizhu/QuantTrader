@@ -26,7 +26,7 @@
 //        final Vertx vertx = Vertx.vertx();
 //
 //        RedisOptions config = new RedisOptions().setHost( "127.0.0.1" );
-//        redis = RedisClient.create( vertx, config );
+//        redis = RedisClient.MapperFromDB( vertx, config );
 //    }
 //
 //    @Test

@@ -15,7 +15,7 @@ public class DateUtil{
 //        dt.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) ) );
     }
 
-    public static String formatDateTime( LocalDateTime dt ){
+    public static String formatDate( LocalDateTime dt ){
 //        return dt.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd" ) );
        return dt.format( DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" ) );
     }
