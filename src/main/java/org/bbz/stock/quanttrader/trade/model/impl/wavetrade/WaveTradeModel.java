@@ -39,10 +39,10 @@ public class WaveTradeModel extends AbstractTradeModel {
     log.info("开始执行策略: " + DateUtil.formatDate(LocalDateTime.now()));
     final Portfolio portfolio = ctx.getPortfolio();
     for (String stock : getStockPool()) {
-      if(portfolio.getStocks().containsKey(stock)){//此股票在库存中
+      if (portfolio.getStocks().containsKey(stock)) {//此股票在库存中
         tryCleanUp(stock);
         checkSellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
-      }else{
+      } else {
         checkFirstBuy(stock);
       }
     }
@@ -81,25 +81,27 @@ public class WaveTradeModel extends AbstractTradeModel {
    * @param stockId stockId
    */
   private void checkFirstBuy(String stockId) {
-    checkWeekUp(stockId)
-        .compose(res -> check60(stockId, true))
-        .setHandler(res -> {
-          String result = stockId + " : ";
-          if (res.failed()) {
-            result += res.cause().getMessage();
-          } else {
-            result += "买入";
-            ctx.order(stockId, 200);
-            KLineType kLineType = res.result().getkLineType();
-            setAttachement(stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr());
-            setAttachement(stockId, Consts.FIRST_BUY_DATE_KEY,
-                DateUtil.formatDate(ctx.getCurrentDate()));
-            setFirstCleanupPrice(stockId, LocalDate.now());
-          }
-          System.out.println(result);
-          addLog(result + "\r\n");
-        });
+//    checkWeekUp(stockId)
+//        .compose(res -> check60(stockId, true))根据卢哥要求，暂时去掉
+    check60(stockId, true).setHandler(res -> {
+      String result = stockId + " : ";
+      if (res.failed()) {
+        result += res.cause().getMessage();
+      } else {
+        result += "<font color=red>买入</font>";
+        ctx.order(stockId, 200);
+        KLineType kLineType = res.result().getkLineType();
+        setAttachement(stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr());
+//        setAttachement(stockId, Consts.FIRST_BUY_DATE_KEY,
+//            DateUtil.formatDate(ctx.getCurrentDate()));
+        setFirstCleanupPrice(stockId, LocalDate.now());
+      }
+      System.out.println(result);
+      addLog(result + "\r\n");
+    });
   }
+
+  order
 
   /**
    * 设置第一个清仓点
@@ -141,7 +143,7 @@ public class WaveTradeModel extends AbstractTradeModel {
   }
 
   /**
-   * 判断周线是否上摆
+   * 判断周线是否上摆(根据卢哥要求，暂时去掉)
    *
    * @param stockId 股票id
    * @return Future<Boolean>
@@ -238,8 +240,7 @@ public class WaveTradeModel extends AbstractTradeModel {
 
   @Override
   public void beforeOpen() {
-    System.out
-        .println("WaveTradeModel.beforeOpen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    System.out.println("WaveTradeModel.beforeOpen!!!!!!!!!!!!!!!!");
   }
 
   @Override

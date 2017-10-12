@@ -1,0 +1,3 @@
+http://www.cnblogs.com/qingtianyu2015/p/5968400.html
+sudo mongodump -h 192.168.17.129:27017 -d quant_trader -o /home/mongodump/
+mongorestore -h localhost:27017 -d quant_trader --dir /home/lly/trade/db

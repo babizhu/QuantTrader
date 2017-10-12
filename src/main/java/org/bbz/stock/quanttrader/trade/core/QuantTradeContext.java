@@ -48,10 +48,11 @@ public class QuantTradeContext {
   /**
    * 用当前价格购买或者卖出股票 count>0      买入股票 count<0      卖出股票
    */
-  public void order(String stockId, int count) {
+  public void order(String stockId, int count, float price ) {
 //    BigDecimal price = BigDecimal.valueOf(3.45);
-    float price = 3.45f;
+
     trade(StockTradeRecord.create(stockId, count, price, new JsonObject()));
+
   }
 
   /**
