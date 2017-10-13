@@ -89,7 +89,7 @@ public class WaveTradeModel extends AbstractTradeModel {
         result += res.cause().getMessage();
       } else {
         result += "<font color=red>买入</font>";
-        ctx.order(stockId, 200);
+        order(stockId, 200);
         KLineType kLineType = res.result().getkLineType();
         setAttachement(stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr());
 //        setAttachement(stockId, Consts.FIRST_BUY_DATE_KEY,
@@ -101,7 +101,6 @@ public class WaveTradeModel extends AbstractTradeModel {
     });
   }
 
-  order
 
   /**
    * 设置第一个清仓点
@@ -126,7 +125,7 @@ public class WaveTradeModel extends AbstractTradeModel {
         if (KValueGreaterThan(kBars, 80)) {//K值 > 80
           if (checkDown(kBars.subList(kBars.size() - 2, kBars.size()))) {
             result += "卖出";
-            ctx.order(stockId, -200);
+//            ctx.order(stockId, -200);xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             setAttachement(stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.SELL);
           } else {
             result += kLineType + "线未形成下摆,不能卖出";
@@ -161,27 +160,36 @@ public class WaveTradeModel extends AbstractTradeModel {
     });
   }
 
+
+  private void order( String stock, int count ){
+//    Future.<SimpleKBar>future(
+//        f -> dataProvider.getCurrentKbar(stock,f)
+//    ).setHandler(bar->{
+//
+//    });
+  }
+
   /**
    * 判断小波段的股票加仓的条件 外层确保此股票的当前数量为0
    *
-   * @param stockId stock id
+   * @param stock stock id
    * @param kLineType 操作的K线周期
    */
-  private void checkBuyInLittleWave(String stockId, KLineType kLineType) {
+  private void checkBuyInLittleWave(String stock, KLineType kLineType) {
     final Future<CheckResult> future;
     if (kLineType == KLineType.MIN60) {
-      future = check60(stockId, false);
+      future = check60(stock, false);
     } else {
-      future = check30(stockId);
+      future = check30(stock);
     }
     future.setHandler(res -> {
-      String result = stockId + " : ";
+      String result = stock + " : ";
       if (res.failed()) {
         result += res.cause().getMessage();
       } else {
         result += "买入";
-        ctx.order(stockId, 200);
-        setAttachement(stockId, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY);
+        order(stock, 200);
+        setAttachement(stock, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY);
       }
       System.out.println(result);
       addLog(result + "\r\n");

@@ -148,4 +148,7 @@ public class QuantTradeContext {
     order(stockId, -stockNum);
     return stockNum;
   }
+
+  private void order(String stock, int count) {
+  }
 }
