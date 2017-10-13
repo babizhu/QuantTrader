@@ -2,6 +2,7 @@ package org.bbz.stock.quanttrader.trade.stockdata.impl;
 
 import static org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider.createShare;
 
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.ext.unit.Async;
@@ -43,9 +44,9 @@ public class TuShareDataProviderTest {
       Async async = context.async();
 
       createDataProvider().getSimpleKBarEx("600740", KLineType.DAY, 100, null, null, res -> {
-        if(res.succeeded() ){
+        if (res.succeeded()) {
           System.out.println(res.result());
-        }else {
+        } else {
           res.cause().printStackTrace();
         }
         async.complete();
@@ -62,7 +63,19 @@ public class TuShareDataProviderTest {
 
   @Test
   public void getCurrentKbar() throws Exception {
-
+    Future.<Integer>future(f -> {
+      f.complete(1);
+    }).compose(res ->
+        Future.<Integer>future(f -> {
+          final int i = res + 1;
+          f.complete(i);
+        })
+    ).compose(res->{
+      return Future.<Integer>future(f->{
+        final int i = res * res;
+        f.complete(i);
+      });
+    }).setHandler(res -> System.out.println(res));
   }
 
 }

@@ -113,6 +113,9 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
    * @return future   future
    */
   private <R> Future<R> sendRequest(String uri, Function<Buffer, R> mapper) {
+
+
+
     final Future<R> future = Future.future();
     final HttpClientRequest request = httpClient.get(uri, response -> {
       response.exceptionHandler(future::fail);
