@@ -89,7 +89,7 @@ public class WaveTradeModel extends AbstractTradeModel {
         result += res.cause().getMessage();
       } else {
         result += "<font color=red>买入</font>";
-        order(stockId, 200);
+        order(stockId);
         KLineType kLineType = res.result().getkLineType();
         setAttachement(stockId, Consts.KLINE_TYPE_KEY, kLineType.toStr());
 //        setAttachement(stockId, Consts.FIRST_BUY_DATE_KEY,
@@ -161,12 +161,14 @@ public class WaveTradeModel extends AbstractTradeModel {
   }
 
 
-  private void order( String stock, int count ){
-//    Future.<SimpleKBar>future(
-//        f -> dataProvider.getCurrentKbar(stock,f)
-//    ).setHandler(bar->{
-//
-//    });
+  private void order(String stockId) {
+    dataProvider.getCurrentKbar(stockId, bar -> {
+      final float price = (float) bar.getClose();
+      final Portfolio portfolio = ctx.getPortfolio();
+      //第一次购买的股票数量=本金/股票池中的个数/价格
+      int share = (int) (portfolio.getInitBalance().intValue() / getStockPool().size() / price);
+      ctx.order(stockId, share, price);
+    });
   }
 
   /**
@@ -188,7 +190,7 @@ public class WaveTradeModel extends AbstractTradeModel {
         result += res.cause().getMessage();
       } else {
         result += "买入";
-        order(stock, 200);
+        order(stock);
         setAttachement(stock, Consts.LAST_OP_IN_LITTLE_WAVE_KEY, Consts.BUY);
       }
       System.out.println(result);

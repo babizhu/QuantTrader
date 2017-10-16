@@ -45,13 +45,18 @@ public class QuantTradeContext {
     return portfolio;
   }
 
+
   /**
-   * 用当前价格购买或者卖出股票 count>0      买入股票 count<0      卖出股票
+   * 用当前价格购买或者卖出股票 share>0      买入股票 share<0      卖出股票
+   *
+   * @param stockId     stockId
+   * @param share       要交易的股票的股数
+   * @param price       价格
    */
-  public void order(String stockId, int count, float price ) {
+  public void order(String stockId, int share, float price ) {
 //    BigDecimal price = BigDecimal.valueOf(3.45);
 
-    trade(StockTradeRecord.create(stockId, count, price, new JsonObject()));
+    trade(StockTradeRecord.create(stockId, share, price, new JsonObject()));
 
   }
 
@@ -150,5 +155,6 @@ public class QuantTradeContext {
   }
 
   private void order(String stock, int count) {
+
   }
 }

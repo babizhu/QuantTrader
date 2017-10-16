@@ -129,7 +129,6 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
       });
     });
     request.exceptionHandler(exception->{
-      System.out.println("ddddddddddddddddddddddddddddd");
       future.fail(exception);
     }).end();
     return future;

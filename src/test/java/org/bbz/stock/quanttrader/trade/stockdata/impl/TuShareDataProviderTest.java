@@ -2,13 +2,17 @@ package org.bbz.stock.quanttrader.trade.stockdata.impl;
 
 import static org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider.createShare;
 
-import io.vertx.core.Future;
+import com.google.common.collect.Lists;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestOptions;
 import io.vertx.ext.unit.TestSuite;
 import io.vertx.ext.unit.report.ReportOptions;
+import java.util.ArrayList;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.bbz.stock.quanttrader.consts.KLineType;
 import org.junit.After;
 import org.junit.Before;
@@ -63,19 +67,44 @@ public class TuShareDataProviderTest {
 
   @Test
   public void getCurrentKbar() throws Exception {
-    Future.<Integer>future(f -> {
-      f.complete(1);
-    }).compose(res ->
-        Future.<Integer>future(f -> {
-          final int i = res + 1;
-          f.complete(i);
-        })
-    ).compose(res->{
-      return Future.<Integer>future(f->{
-        final int i = res * res;
-        f.complete(i);
-      });
-    }).setHandler(res -> System.out.println(res));
+    final TuShareDataProvider dataProvider = createDataProvider();
+    dataProvider.getCurrentKbar("600740", System.out::println);
+
+
+
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
+
+  @Test
+  public void testFunction() {
+    Function<String, JsonObject> f1 = s -> new JsonObject().put("arg", s);
+    final Function<String, ArrayList<String>> arg = f1.andThen(json -> json.getString("arg"))
+        .andThen(s -> s.split(","))
+        .andThen(arr -> Lists.newArrayList(arr));
+
+    final ArrayList<String> apply = arg.apply("a,b,c,d");
+    System.out.println(apply);
+
+
+    Function<String, JsonObject> f2 = s -> new JsonObject().put("arg", s);
+    final JsonObject apply1 = f2.compose(str -> str.getClass().getName()).apply("a.b.b.");
+    System.out.println(apply1);
+
+    Function<String, String > f3 = s ->  s.getClass().getName();
+    final String arg1 = f3.andThen(s -> new JsonObject().put("arg", s))
+        .andThen(json -> json.toString()).apply("a,b,cds");
+    System.out.println(arg1);
+
+    BiFunction<String,Integer,Double> bf1 = (s, integer) -> s.length() * integer + 343.01d;
+    final Double abcd = bf1.apply("abcd", 2);
+    Function<Double,String > f4 = s-> s.toString()+"abcd";
+
+    System.out.println(f4.apply(bf1.apply("abcd",10)));
+  }
+
 
 }
