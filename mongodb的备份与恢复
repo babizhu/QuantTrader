@@ -1,3 +1,13 @@
 http://www.cnblogs.com/qingtianyu2015/p/5968400.html
 sudo mongodump -h 192.168.17.129:27017 -d quant_trader -o /home/mongodump/
 mongorestore -h localhost:27017 -d quant_trader --dir /home/lly/trade/db
+
+docker
+
+cd  /opt/quant-trade/
+/usr/bin/nohup ./mongodb-linux-x86_64-ubuntu1604-3.4.9/bin/mongod --dbpath ./mongodb-linux-x86_64-ubuntu1604-3.4.9/data/db/ &
+
+./mongodb-linux-x86_64-ubuntu1604-3.4.9/bin/mongorestore -h localhost:27017 -d quant_trader --dir ./db_quant_trader/
+
+ /usr/bin/nohup python3 ./python/stock/web_server.py &
+ java -jar quant_trader.jar  > log.file 2>&1 &

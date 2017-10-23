@@ -34,7 +34,7 @@ public class StockInfo{
 
 //    public void trade( StockTradeRecord traderRecord ){
 //        if( traderRecord.isBuy() ){
-//            count += traderRecord.getCount();
+//            share += traderRecord.getShare();
 //
 //        }
 //    }

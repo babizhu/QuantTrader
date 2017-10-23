@@ -3,7 +3,6 @@ package org.bbz.stock.quanttrader.trade.stock;
 import io.vertx.core.json.JsonObject;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.UUID;
 import lombok.Data;
 
 /**
@@ -18,7 +17,7 @@ public class StockTradeRecord {
    * @return true:买入
    */
   public boolean isBuy() {
-    return count > 0;
+    return share > 0;
   }
 
   /**
@@ -29,9 +28,9 @@ public class StockTradeRecord {
   private String stockId;
 
   /**
-   * 正数买进，负数卖出
+   * 交易的股票的数量（股数）。正数买进，负数卖出
    */
-  private int count;
+  private int share;
 
   private float price;
   /**
@@ -43,15 +42,15 @@ public class StockTradeRecord {
    */
   private JsonObject attachement;
 
-  private final UUID id;
+  private final String id;
 
   /**
    *
    */
-  StockTradeRecord(UUID id, String stockId, int count, float price, boolean isPending,
+  StockTradeRecord(String  id, String stockId, int count, float price, boolean isPending,
       LocalDateTime time, JsonObject attachement) {
     this.stockId = stockId;
-    this.count = count;
+    this.share = count;
     this.price = price;
     this.attachement = attachement == null ? new JsonObject() : attachement;
     this.isPending = true;
@@ -62,12 +61,12 @@ public class StockTradeRecord {
 
   public static StockTradeRecord create(String stockId, int count, float price,
       JsonObject attachement) {
-    final UUID id = UUID.randomUUID();
-    return new StockTradeRecord(id, stockId, count, price, true, LocalDateTime.now(), attachement);
+
+    return new StockTradeRecord(null, stockId, count, price, true, LocalDateTime.now(), attachement);
   }
 
-  public static StockTradeRecord MapperFromDB(UUID id, String stockId, int count, float price,
-      boolean isPending, int tradeTime) {
+  public static StockTradeRecord MapperFromDB(String  id, String stockId, int count, float price,
+      boolean isPending,int tradeTime) {
 
     LocalDateTime time = LocalDateTime.ofEpochSecond(tradeTime, 0, ZoneOffset.ofHours(8));
 

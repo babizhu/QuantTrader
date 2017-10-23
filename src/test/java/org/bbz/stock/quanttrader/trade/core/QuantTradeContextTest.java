@@ -57,19 +57,19 @@ public class QuantTradeContextTest{
         Map<String, BigDecimal> currentPrice = buildCurrentStockPriceMap();
         BigDecimal amount = new BigDecimal( 0 );
         for( StockTradeRecord traderRecord : traderRecords ) {
-            BigDecimal v = new BigDecimal(traderRecord.getPrice()*traderRecord.getCount( ));
+            BigDecimal v = new BigDecimal(traderRecord.getPrice()*traderRecord.getShare( ));
             amount = amount.subtract( v );
             amount = amount.subtract( tradeContext.getPortfolio().calcOrderCost( v ) );
         }
 
-        int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTradeRecord::getShare).sum();
         amount = amount.add( currentPrice.get( STOCK_ID1 ).multiply( new BigDecimal( stockCount ) ) );
 
-        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTradeRecord::getShare).sum();
         amount = amount.add( currentPrice.get( STOCK_ID2 ).multiply( new BigDecimal( stockCount ) ) );
 
 
-        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTradeRecord::getShare).sum();
         amount = amount.add( currentPrice.get( STOCK_ID3 ).multiply( new BigDecimal( stockCount ) ) );
 
 
@@ -100,13 +100,13 @@ public class QuantTradeContextTest{
 
         final Portfolio portfolio = tradeContext.getPortfolio();
         //交易完毕之后剩余股票数量
-        int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        int stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID1 ) ).mapToInt( StockTradeRecord::getShare).sum();
         assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID1 ) );
 
-        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID2 ) ).mapToInt( StockTradeRecord::getShare).sum();
         assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID2 ) );
 
-        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTradeRecord::getCount ).sum();
+        stockCount = traderRecords.stream().filter( v -> v.getStockId().equals( STOCK_ID3 ) ).mapToInt( StockTradeRecord::getShare).sum();
         assertEquals( stockCount, portfolio.getStockCountById( STOCK_ID3 ) );
 
         assertEquals( traderRecords.size(), tradeContext.getTradeRecords().size() );

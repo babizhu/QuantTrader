@@ -61,7 +61,7 @@ public class QuantTradeContext {
   }
 
   /**
-   * 用当前价格购买或者卖出股票 count>0      买入股票 count<0      卖出股票
+   * 用当前价格购买或者卖出股票 share>0      买入股票 share<0      卖出股票
    */
   public void order(String stockId, int count, JsonObject attachement) {
 
@@ -74,11 +74,11 @@ public class QuantTradeContext {
 
 
   /**
-   * 尝试购买股票到指定仓位，如果仓位已到，则不做任何操作 对于买入来说，当前仓位大于要购买的仓位，则不做任何操作 对于卖出来说，当前仓位小于要购买的仓位，则不做任何操作 count>0
-   * 买入股票 count<0      卖出股票
+   * 尝试购买股票到指定仓位，如果仓位已到，则不做任何操作 对于买入来说，当前仓位大于要购买的仓位，则不做任何操作 对于卖出来说，当前仓位小于要购买的仓位，则不做任何操作 share>0
+   * 买入股票 share<0      卖出股票
    *
    * @param stockId stockId
-   * @param count count
+   * @param count share
    * @param postion 要达到的仓位如0.1,0.5
    */
   public void tryOrder(String stockId, int count, float postion, JsonObject attachement) {
@@ -97,7 +97,7 @@ public class QuantTradeContext {
       throw new RuntimeException("交易记录不能为空");
 
     }
-    if (traderRecord.getCount() == 0) {
+    if (traderRecord.getShare() == 0) {
       throw new RuntimeException("交易数量不能为0");
 
     }
@@ -123,7 +123,7 @@ public class QuantTradeContext {
   public int getCanSellStockCount(String stockId) {
     final List<StockTradeRecord> stocks = getTradeRecordsByStockId(stockId);
     return stocks.stream().filter(v -> !v.getTime().toLocalDate().equals(LocalDate.now()))
-        .mapToInt(v -> v.getCount()).sum();
+        .mapToInt(v -> v.getShare()).sum();
 
   }
 

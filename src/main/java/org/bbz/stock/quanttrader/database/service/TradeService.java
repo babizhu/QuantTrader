@@ -44,31 +44,23 @@ public class TradeService extends AbstractDataServiceWithIdentity {
 //    复制代码
     JsonObject condition = msg.body();
 //    db.trade.aggregate([{$lookup:{from: "tradingstrategy",localField:    "strategyId",foreignField: "_id", as: "stuffFromRight" }}])
-//    mongoClient.find(tableName, condition, res -> {
-//      if (res.succeeded()) {
-//        msg.reply(new JsonArray(res.result()));
-////        log.info("记录条数：" + String.valueOf(res.result().size()));
-//      } else {
-//        reportError(msg, res.cause());
-//      }
-//    });
-//    mongoClient.
+//    db.trade.aggregate([{$lookup:{from: "tradingstrategy",localField:"strategyId",foreignField: "_id", as: "tradingstrategy" }},{$lookup:{from: "trade_records",localField:"_id",foreignField: "tradeId", as: "tradeRecords" }}])
+
 
     JsonArray pipeline = new JsonArray();
     JsonObject arg = new JsonObject().put("$lookup",
         new JsonObject().put("from", "tradingstrategy").put("localField", "strategyId")
             .put("foreignField", "_id").put("as", "strategy"));
     pipeline.add(arg);
+//    {$lookup:{from: "trade_records",localField:"_id",foreignField: "tradeId", as: "tradeRecords" }}])
+
+      arg = new JsonObject().put("$lookup",
+          new JsonObject().put("from", "trade_records").put("localField", "_id")
+              .put("foreignField", "tradeId").put("as", "tradeRecords"));
+      pipeline.add(arg);
 
     JsonObject unwind = new JsonObject().put("$unwind", "$strategy");
     pipeline.add(unwind);
-//    JsonObject project = new JsonObject().put("$project", new JsonObject()
-//        .put(MONGO_DB_ID,1)
-//        .put(JsonConsts.STOCKS,1)
-//        .put("strategy.modelClass",1)
-//        .put("status",1)
-//        .put(INIT_BALANCE_KEY,1));
-//    pipeline.add(project);
 
     JsonObject match = new JsonObject().put("$match", condition);
     pipeline.add(match);

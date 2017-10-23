@@ -35,9 +35,9 @@
 //    @Test
 //    public void getSimpleKBarExtTest() throws InterruptedException{
 //
-//        int count = 2;
+//        int share = 2;
 //        Future.<List<SimpleKBar>>future( f ->
-//                getSimpleKBarExt( "002769", "W", count, f )
+//                getSimpleKBarExt( "002769", "W", share, f )
 //        ).compose( res -> {
 //
 //            if( weekUp( res ) ) {
@@ -82,11 +82,11 @@
 //        return true;
 //    }
 //
-//    private void getSimpleKBarExt( String code, String kType, int count, Handler<AsyncResult<List<SimpleKBar>>> resultHandler ){
+//    private void getSimpleKBarExt( String code, String kType, int share, Handler<AsyncResult<List<SimpleKBar>>> resultHandler ){
 ////        Future.<Message<String>>future( f ->
 ////                vertx.eventBus().send("address1", "message", f)
 ////        )
-//        String uri = "/?code=" + code + "&&ktype=" + kType + "&&count=" + count;
+//        String uri = "/?code=" + code + "&&ktype=" + kType + "&&share=" + share;
 //        final HttpClientRequest request = httpClient.get( uri, resp -> {
 //            resp.exceptionHandler( exception -> {
 //                Future<List<SimpleKBar>> failResult = Future.failedFuture( exception );
@@ -117,8 +117,8 @@
 //     * retry_count：当网络异常后重试次数，默认为3
 //     * pause:重试时停顿秒数，默认为0
 //     */
-//    private void getSimpleKBar( String code, String kType, int count, Handler<JsonArray> resultHandler ){
-//        String uri = "/?code=" + code + "&&ktype=" + kType + "&&count=" + count;
+//    private void getSimpleKBar( String code, String kType, int share, Handler<JsonArray> resultHandler ){
+//        String uri = "/?code=" + code + "&&ktype=" + kType + "&&share=" + share;
 //        final HttpClientRequest request = httpClient.get( uri, resp -> resp.bodyHandler( body -> {
 //            final JsonArray result = body.toJsonArray();
 //
@@ -139,8 +139,8 @@
 //     */
 //    @Test
 //    public void calcKDJwithHour() throws InterruptedException{
-//        int count = 100;
-//        getSimpleKBar( "600077", "60", count, result -> {
+//        int share = 100;
+//        getSimpleKBar( "600077", "60", share, result -> {
 //
 //                    List<SimpleKBar> data = new ArrayList<>();
 //                    for( Object o : result ) {

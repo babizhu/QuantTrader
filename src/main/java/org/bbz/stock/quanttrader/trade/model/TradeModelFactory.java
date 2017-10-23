@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import org.bbz.stock.quanttrader.consts.JsonConsts;
 import org.bbz.stock.quanttrader.trade.core.OrderCost;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
@@ -109,10 +108,10 @@ public class TradeModelFactory {
 //      UUID id = UUID.fromString(o.getKey());
 //      final JsonObject tradeRecordJson = (JsonObject) o.getValue();
       final StockTradeRecord stockTradeRecord = StockTradeRecord
-          .MapperFromDB(UUID.fromString(tradeRecordJson.getString("id")),
-              tradeRecordJson.getString("stock"), tradeRecordJson.getInteger("count")
+          .MapperFromDB(tradeRecordJson.getString(JsonConsts.MONGO_DB_ID),
+              tradeRecordJson.getString("stock"), tradeRecordJson.getInteger("share")
               , tradeRecordJson.getFloat("price"), tradeRecordJson.getBoolean("isPending"),
-              tradeRecordJson.getInteger("time")
+              tradeRecordJson.getInteger("tm")
           );
 
       tradeRecords.add(stockTradeRecord);

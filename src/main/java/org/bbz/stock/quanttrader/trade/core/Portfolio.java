@@ -18,7 +18,7 @@ public class Portfolio {
 
 
   /**
-   * 持有的股票 String       stock ID Integer      stock count
+   * 持有的股票 String       stock ID Integer      stock share
    */
   private Map<String, Integer> stocks = new HashMap<>();
 
@@ -122,7 +122,7 @@ public class Portfolio {
    */
   private void changeStockCount(StockTradeRecord traderRecord) {
     String stockId = traderRecord.getStockId();
-    int changeCount = traderRecord.getCount();
+    int changeCount = traderRecord.getShare();
 
     Integer oldCount = stocks.getOrDefault(stockId, 0);
 
@@ -140,7 +140,7 @@ public class Portfolio {
    */
   void trade(StockTradeRecord traderRecord) {
 
-    BigDecimal amount = new BigDecimal(traderRecord.getPrice() * traderRecord.getCount());
+    BigDecimal amount = new BigDecimal(traderRecord.getPrice() * traderRecord.getShare());
 
     changeStockCount(traderRecord);
     currentBalance = currentBalance.subtract(amount);//减去交易金额

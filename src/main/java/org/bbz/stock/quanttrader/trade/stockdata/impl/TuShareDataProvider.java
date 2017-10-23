@@ -55,7 +55,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
   @Override
   public void getSimpleKBar(String stockId, KLineType kLineType, int count,
       Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
-//        String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+//        String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + share;
     getSimpleKBar(stockId, kLineType, count, null, null, resultHandler);
   }
 
@@ -75,7 +75,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
       LocalDate start,
       LocalDate end,
       Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
-    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + count;
     if (start != null && end != null) {
       uri += "&&start=" + DateUtil.formatDate(start) + "&&end=" + DateUtil.formatDate(end);
     }
@@ -134,12 +134,12 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
     return future;
   }
 
-//  public void getSimpleKBarEx(String stockId, KLineType kLineType, int count,
+//  public void getSimpleKBarEx(String stockId, KLineType kLineType, int share,
 //      LocalDate start,
 //      LocalDate end,
 //      Handler<List<SimpleKBar>> resultHandler) {
 //
-//    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+//    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + share;
 //    if (start != null && end != null) {
 //      uri += "&&start=" + DateUtil.formatDate(start) + "&&end=" + DateUtil.formatDate(end);
 //    }
@@ -158,7 +158,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
       LocalDate end,
       Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
 
-    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&count=" + count;
+    String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + count;
     if (start != null && end != null) {
       uri += "&&start=" + DateUtil.formatDate(start) + "&&end=" + DateUtil.formatDate(end);
     }

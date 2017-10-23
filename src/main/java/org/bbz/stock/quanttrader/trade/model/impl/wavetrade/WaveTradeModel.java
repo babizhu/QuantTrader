@@ -24,8 +24,7 @@ import org.bbz.stock.quanttrader.util.DateUtil;
 @SuppressWarnings("unused")
 @Slf4j
 public class WaveTradeModel extends AbstractTradeModel {
-
-
+  
   private final IStockDataProvider dataProvider;
 
   public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider, String name,
@@ -41,29 +40,21 @@ public class WaveTradeModel extends AbstractTradeModel {
     for (String stock : getStockPool()) {
       if (portfolio.getStocks().containsKey(stock)) {//此股票在库存中
         tryCleanUp(stock);
-        checkSellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
+        sellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
       } else {
         checkFirstBuy(stock);
       }
     }
-//
-//    for (Map.Entry<String, Integer> stock : portfolio.getStocks().entrySet()) {
-//      tryCleanUp(stock.getKey());
-//      if (stock.getValue() == 0) {
-//        checkFirstBuy(stock.getKey());
-//      } else {
-//        checkSellOrBuyInLittleWave(stock.getKey());//在小波浪中考虑加减仓
-//      }
-//    }
     addLog(DateUtil.formatDate(LocalDateTime.now()) + "\r\n");//倒序之后反而到前面去了
-
   }
 
-
   /**
-   * 小波段中检测加减仓条件\r\n 上一次交易记录是买，这次才能卖\r\n 上一次交易记录是卖，这次才能买\r\n <p> 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成\r\n
+   * 小波段中检测加减仓条件\r\n
+   * 上一次交易记录是买，这次才能卖\r\n
+   * 上一次交易记录是卖，这次才能买\r\n <p>
+   * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成\r\n
    */
-  private void checkSellOrBuyInLittleWave(String stockId) {
+  private void sellOrBuyInLittleWave(String stockId) {
     final JsonObject attachement = attachements.get(stockId);
     final int lastOp = attachement
         .getInteger(Consts.LAST_OP_IN_LITTLE_WAVE_KEY, 1);//这里有bug 1是绕开bug，暂时没空调整
@@ -96,7 +87,6 @@ public class WaveTradeModel extends AbstractTradeModel {
 //            DateUtil.formatDate(ctx.getCurrentDate()));
         setFirstCleanupPrice(stockId, LocalDate.now());
       }
-      System.out.println(result);
       addLog(result + "\r\n");
     });
   }
@@ -264,7 +254,6 @@ public class WaveTradeModel extends AbstractTradeModel {
     }
   }
 
-
   /**
    * 判断大波段的股票加仓和清仓价格
    *
@@ -314,52 +303,6 @@ public class WaveTradeModel extends AbstractTradeModel {
       }
 
     });
-//        double[][] data = {{18.55, 17.39}, {19.17, 18.50}, {19.10, 18.65},
-//                {19.45, 19.00}, {19.64, 19.22}, {19.40, 18.74}, {19.05, 18.68},
-//                {20.14, 18.62}, {20.37, 19.57}, {21.80, 19.75}, {23.07, 21.50},
-//                {22.30, 21.57}, {21.99, 21.46}, {21.86, 21.22}, {21.50, 20.91},
-//                {22.20, 20.53}, {22.59, 21.66}, {23.49, 22.11}, {23.36, 22.34},
-//                {24.65, 22.88}, {24.77, 23.48}, {24.50, 23.60}, {23.60, 22.68},
-//                {25.00, 22.80}, {25.73, 24.32}, {26.76, 24.14}};
-//        //                      0       买       孕      外      上       下      下      上
-////        double[][] data = {{10,20},{20,30},{22,28},{19,31},{22,32},{21,30},{19,29},{21,30}};
-//        double[] current = data[0];
-////        double lowPrice = current[0];
-//        double lowPrice = 1000000;
-//        double highPrice = current[1];
-//
-//        boolean xb = false;
-//        for( int i = 1; i < data.length; i++ ) {
-//
-//            if( current[0] > data[i][0] && current[1] > data[i][1] ) {//下摆
-////                System.out.println(data[i][0] + ":" + data[i][1]);
-//                if( !xb ) {
-//                    System.out.println( "高点 ：" + highPrice );
-//                }
-//                xb = true;
-//                lowPrice = Math.min( lowPrice, data[i][1] );//记录下摆中的最低点
-//                highPrice = 0;
-//                current = data[i];
-//            } else if( current[0] < data[i][0] && current[1] < data[i][1] ) {//上摆
-//                if( xb ) {
-//                    System.out.println( "低点 ：" + lowPrice );
-//                }
-//                xb = false;
-//                highPrice = Math.max( highPrice, data[i][0] );//记录下摆中的最低点
-//                lowPrice = 100000;
-//                current = data[i];
-//            } else {
-//                if( xb ) {
-//                    lowPrice = Math.min( lowPrice, data[i][1] );//记录下摆中的最低点
-//
-//                } else {
-//                    highPrice = Math.max( highPrice, data[i][0] );//记录下摆中的最低点
-//
-//                }
-//            }
-//
-//        }
-//        return null;
   }
 
   /**

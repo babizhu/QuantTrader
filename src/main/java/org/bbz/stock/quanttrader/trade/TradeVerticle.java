@@ -104,7 +104,7 @@ public class TradeVerticle extends AbstractVerticle {
   }
 
   /**
-   * 获取指定ID的交易的各种运行时信息
+   * 获取指定ID的交易的各种运行时信息，包括交易id等其他信息
    */
   private void getTradeRuntimeDetail(Message<JsonObject> msg) {
     JsonObject arguments = msg.body();
@@ -117,6 +117,7 @@ public class TradeVerticle extends AbstractVerticle {
     }
     msg.reply(tradeModel.toJson());
   }
+
 
   private void getTradeInfo(Message<JsonObject> msg) {
     JsonObject arguments = msg.body();

@@ -25,7 +25,7 @@ public class TestVerticle extends AbstractVerticle {
   public void start() throws Exception {
     super.start();
 
-//    System.out.println(count);
+//    System.out.println(share);
 //    System.out.println(uuid);
     System.out.println(this+"TestVerticle.start");
   }

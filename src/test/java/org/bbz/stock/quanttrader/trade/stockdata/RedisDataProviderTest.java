@@ -61,12 +61,12 @@
 //     */
 //    @Test
 //    public void rwBin() throws InterruptedException{
-//        int count = 1000000;
+//        int share = 1000000;
 //
-//        CountDownLatch latch = new CountDownLatch( count );
+//        CountDownLatch latch = new CountDownLatch( share );
 //        long begin = System.nanoTime();
 //        final Buffer buffer = Buffer.buffer();
-//        for( int i = 0; i < count; i++ ) {
+//        for( int i = 0; i < share; i++ ) {
 //            redis.setBinary( "name", buffer.setInt(0, 10000000 ), res -> {
 //
 //                if(res.succeeded()){
@@ -91,10 +91,10 @@
 //    public void benchmark() throws InterruptedException{
 //
 //
-//        int count = 1000000;
-//        CountDownLatch latch = new CountDownLatch( count );
+//        int share = 1000000;
+//        CountDownLatch latch = new CountDownLatch( share );
 //        long begin = System.nanoTime();
-//        for( int i = 0; i < count; i++ ) {
+//        for( int i = 0; i < share; i++ ) {
 //            redis.set( "name", "10000000", res -> {
 //                if( res.succeeded() ) {
 //                    latch.countDown();
@@ -105,8 +105,8 @@
 //        }
 //        latch.await();
 //        System.out.println( "操作耗时：" + (System.nanoTime() - begin) / 1000000000f + "秒" );
-//        CountDownLatch latch1 = new CountDownLatch( count );
-//        for( int i = 0; i < count; i++ ) {
+//        CountDownLatch latch1 = new CountDownLatch( share );
+//        for( int i = 0; i < share; i++ ) {
 //            redis.get( "name", res -> {
 //                if( res.succeeded() ) {
 //                    latch1.countDown();
