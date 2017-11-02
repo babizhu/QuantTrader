@@ -4,7 +4,7 @@ import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 
-
+//https://github.com/vert-x3/vertx-examples/blob/master/kotlin-examples/coroutines/src/main/kotlin/movierating/App.kt
 class KotlinApp : CoroutineVerticle() {
 
     private lateinit var client: HttpClient
