@@ -9,14 +9,15 @@ import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 import org.bbz.stock.quanttrader.consts.KLineType;
 import org.bbz.stock.quanttrader.trade.stockdata.AbstractStockDataProvider;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
 import org.bbz.stock.quanttrader.util.DateUtil;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by liulaoye on 17-7-6. tushare数据提供者的实现 单例
@@ -47,14 +48,14 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
   /**
    * 获取从当日起往前count个数量的k线数据
    *
-   * @param stockId 股票ID
-   * @param kLineType K线类型
-   * @param count 数量
+   * @param stockId       股票ID
+   * @param kLineType     K线类型
+   * @param count         数量
    * @param resultHandler 回调地狱
    */
   @Override
   public void getSimpleKBar(String stockId, KLineType kLineType, int count,
-      Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
+                            Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
 //        String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + share;
     getSimpleKBar(stockId, kLineType, count, null, null, resultHandler);
   }
@@ -63,18 +64,18 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
    * tushare本身有个问题，当指定了start或者end之后，即使指定的end日期远大于当天日期，返回的kbar仍然不含当天的k线数据
    * 这里必须处理这种情况，为简便起见，这里不允许获取当日数据
    *
-   * @param stockId stockId
-   * @param kLineType K线类型
-   * @param count 数量
-   * @param start 开始日期
-   * @param end 结束日期
+   * @param stockId       stockId
+   * @param kLineType     K线类型
+   * @param count         数量
+   * @param start         开始日期
+   * @param end           结束日期
    * @param resultHandler 回调
    */
   @Override
   public void getSimpleKBar(String stockId, KLineType kLineType, int count,
-      LocalDate start,
-      LocalDate end,
-      Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
+                            LocalDate start,
+                            LocalDate end,
+                            Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
     String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + count;
     if (start != null && end != null) {
       uri += "&&start=" + DateUtil.formatDate(start) + "&&end=" + DateUtil.formatDate(end);
@@ -115,7 +116,6 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
   private <R> Future<R> sendRequest(String uri, Function<Buffer, R> mapper) {
 
 
-
     final Future<R> future = Future.future();
     final HttpClientRequest request = httpClient.get(uri, response -> {
       response.exceptionHandler(future::fail);
@@ -128,7 +128,7 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
         }
       });
     });
-    request.exceptionHandler(exception->{
+    request.exceptionHandler(exception -> {
       future.fail(exception);
     }).end();
     return future;
@@ -154,9 +154,9 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
 //  }
 
   public void getSimpleKBarEx(String stockId, KLineType kLineType, int count,
-      LocalDate start,
-      LocalDate end,
-      Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
+                              LocalDate start,
+                              LocalDate end,
+                              Handler<AsyncResult<List<SimpleKBar>>> resultHandler) {
 
     String uri = "/?code=" + stockId + "&&ktype=" + kLineType.toStr() + "&&share=" + count;
     if (start != null && end != null) {
@@ -197,7 +197,6 @@ public class TuShareDataProvider extends AbstractStockDataProvider {
           , 100));
     }
     return data;
-
   }
 
   /**

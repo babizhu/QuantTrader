@@ -1,6 +1,8 @@
 package org.bbz.stock.quanttrader.http.handler.auth;
 
 import com.google.common.reflect.ClassPath;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpHeaders;
@@ -195,7 +197,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
         } );
     }
 
-    @Override
+//    @Override
     protected void authorise( User user, RoutingContext ctx ){
         log.debug( "检测权限,用户的权限：" + user.principal().getJsonArray( "roles" ) );
         final String uri = ctx.request().uri();
@@ -246,5 +248,10 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
             log.info( rolesPermissionsMap.toString() );
         } );
 //
+    }
+
+    @Override
+    public void parseCredentials(RoutingContext routingContext, Handler<AsyncResult<JsonObject>> handler) {
+
     }
 }
