@@ -36,6 +36,7 @@ class KotlinApp : CoroutineVerticle() {
 //            })
 //        }].end()
         t1()
+        println("test")
 
 
 

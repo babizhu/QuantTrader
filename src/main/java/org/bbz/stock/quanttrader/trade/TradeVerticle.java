@@ -8,18 +8,15 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
-import org.bbz.stock.quanttrader.consts.ErrorCode;
-import org.bbz.stock.quanttrader.consts.ErrorCodeException;
-import org.bbz.stock.quanttrader.consts.EventBusAddress;
-import org.bbz.stock.quanttrader.consts.EventBusCommand;
-import org.bbz.stock.quanttrader.consts.JsonConsts;
+import org.bbz.stock.quanttrader.consts.*;
 import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
 import org.bbz.stock.quanttrader.trade.model.ITradeModel;
 import org.bbz.stock.quanttrader.trade.model.TradeModelFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by liulaoye on 17-7-17. TradeVerticle
@@ -37,7 +34,7 @@ public class TradeVerticle extends AbstractVerticle {
    * 正在运行的策略任务
    */
   private Map<String, ITradeModel> tradeModelTaskMap = new HashMap<>();
-  private TradeDataProvider db;
+  private TradeDataProvider dataProvider;
 
   public void start(Future<Void> startFuture) throws Exception {
     EventBus eventBus = vertx.eventBus();
@@ -53,7 +50,7 @@ public class TradeVerticle extends AbstractVerticle {
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
-    db = new TradeDataProvider(vertx.eventBus());
+    dataProvider = new TradeDataProvider(vertx.eventBus());
 
 
   }
@@ -199,7 +196,7 @@ public class TradeVerticle extends AbstractVerticle {
    * 从数据库读取所有的交易信息到内存，并根据状态进行相应的操作
    */
   private void getAllTradesAndStart() {
-    db.getAllStartedTrades(msg -> {
+    dataProvider.getAllStartedTrades(msg -> {
 
       JsonArray body = (JsonArray) msg.body();
       for (Object o : body) {

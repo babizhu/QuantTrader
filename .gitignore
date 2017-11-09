@@ -31,3 +31,10 @@ hs_err_pid*
 将删除 .idea/modules.xml
 将删除 .idea/vcs.xml
 将删除 .idea/workspace.xml
+将删除 .idea/dataSources.local.xml
+将删除 .idea/dictionaries/liulaoye.xml
+将删除 .vertx/
+将删除 target/classes/META-INF/
+将删除 target/classes/logback.xml
+将删除 target/generated-sources/
+将删除 target/generated-test-sources/

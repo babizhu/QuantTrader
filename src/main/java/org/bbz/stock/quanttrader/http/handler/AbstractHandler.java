@@ -4,7 +4,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -33,26 +32,19 @@ public abstract class AbstractHandler {
 //        return this.buildResponseJson( errId, "" );
 //    }
 
-  /**
-   * 统一处理错误情况
-   *
-   * @param errId 错误ｉｄ
-   * @param msg 错误的相关参数
-   * @return json
-   */
-  private JsonObject buildResponseJson(ErrorCode errId, String msg) {
-    return new JsonObject().put("result", errId.toNum()).put("msg", msg);
-  }
+  //  private JsonObject buildResponseJson(ErrorCode errId, String msg) {
+//    return new JsonObject().put("result", errId.toNum()).put("msg", msg);
+//  }
 
   /**
    * 在没有返回值的情况下，统一返回{"success":true}
    *
    * @return json
    */
-  private JsonObject buildSuccessResponse(JsonObject msg) {
-
-    return this.buildResponseJson(ErrorCode.SUCCESS, msg.toString());
-  }
+//  private JsonObject buildSuccessResponse(JsonObject msg) {
+//
+//    return this.buildResponseJson(ErrorCode.SUCCESS, msg.toString());
+//  }
 
   abstract protected Router addRouter(io.vertx.ext.web.Router restAPI);
 
@@ -63,11 +55,7 @@ public abstract class AbstractHandler {
       if (reply.succeeded()) {
         replyHandler.handle(reply.result());
       } else {
-        ReplyException e = (ReplyException) reply.cause();
-//                ctx.response().setStatusCode( 500 ).end( e.failureCode() + "" );
-//                ctx.response().setStatusCode( 500 ).end( e.toString() );
-        reportError(ctx, e.failureCode(), e.getMessage());
-//                reply.cause().printStackTrace();
+        ctx.fail(reply.cause());
       }
     });
 
@@ -118,14 +106,13 @@ public abstract class AbstractHandler {
    *
    * @param keys 需要的key
    * @param arguments 客户上传的json
-   * @return null 成功 返回
    */
   protected void checkArgumentsStrict(JsonObject arguments, String... keys) {
     System.out.println();
     if (arguments.size() != keys.length) {
       throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR);
     }
-    checkArguments(arguments,keys);
+    checkArguments(arguments, keys);
   }
 
   /**
@@ -133,13 +120,11 @@ public abstract class AbstractHandler {
    *
    * @param keys 需要的key
    * @param arguments 客户上传的json
-   * @return null 成功 返回
    */
   protected void checkArguments(JsonObject arguments, String... keys) {
 
     for (String key : keys) {
       if (!arguments.containsKey(key)) {
-
         throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR, key + " is null");
       }
     }

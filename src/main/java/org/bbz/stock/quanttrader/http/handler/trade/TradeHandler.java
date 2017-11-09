@@ -26,7 +26,7 @@ import org.bbz.stock.quanttrader.http.handler.auth.anno.RequireRoles;
 @Slf4j
 public class TradeHandler extends AbstractHandler {
 
-  public static final int TRADE_MODEL_COUNT = 1;
+  private static final int TRADE_MODEL_COUNT = 1;
 
   public TradeHandler(EventBus eventBus) {
     super(eventBus);
@@ -61,6 +61,7 @@ public class TradeHandler extends AbstractHandler {
     if (Strings.isNullOrEmpty(id)) {
       throw new ErrorCodeException(ErrorCode.PARAMETER_ERROR, id + " is null");
     }
+
     JsonObject condition = new JsonObject().put(JsonConsts.MONGO_DB_ID, id);
 
     DeliveryOptions options = new DeliveryOptions()

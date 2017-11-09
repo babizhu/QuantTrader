@@ -61,9 +61,9 @@
             <optional>true</optional>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.zaxxer</groupId>-->
-            <!--<artifactId>HikariCP</artifactId>-->
-            <!--<version>2.6.1</version>-->
+        <!--<groupId>com.zaxxer</groupId>-->
+        <!--<artifactId>HikariCP</artifactId>-->
+        <!--<version>2.6.1</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>io.vertx</groupId>
@@ -120,9 +120,9 @@
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
 
         <!--<dependency>-->
-            <!--<groupId>org.mock-server</groupId>-->
-            <!--<artifactId>mockserver-netty</artifactId>-->
-            <!--<version>3.10.8</version>-->
+        <!--<groupId>org.mock-server</groupId>-->
+        <!--<artifactId>mockserver-netty</artifactId>-->
+        <!--<version>3.10.8</version>-->
         <!--</dependency>-->
 
     </dependencies>
@@ -131,31 +131,31 @@
         <finalName>quant_trader</finalName>
         <plugins>
             <!--<plugin>-->
-                <!--<groupId>org.mock-server</groupId>-->
-                <!--<artifactId>mockserver-maven-plugin</artifactId>-->
-                <!--<version>3.10.8</version>-->
-                <!--<configuration>-->
-                    <!--<serverPort>8888</serverPort>-->
-                    <!--<proxyPort>1090</proxyPort>-->
-                    <!--<logLevel>DEBUG</logLevel>-->
-                    <!--<initializationClass>org.bbz.stock.quanttrader.mock.MockServer</initializationClass>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>process-test-classes</id>-->
-                        <!--<phase>process-test-classes</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>start</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>verify</id>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>stop</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.mock-server</groupId>-->
+            <!--<artifactId>mockserver-maven-plugin</artifactId>-->
+            <!--<version>3.10.8</version>-->
+            <!--<configuration>-->
+            <!--<serverPort>8888</serverPort>-->
+            <!--<proxyPort>1090</proxyPort>-->
+            <!--<logLevel>DEBUG</logLevel>-->
+            <!--<initializationClass>org.bbz.stock.quanttrader.mock.MockServer</initializationClass>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>process-test-classes</id>-->
+            <!--<phase>process-test-classes</phase>-->
+            <!--<goals>-->
+            <!--<goal>start</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--<execution>-->
+            <!--<id>verify</id>-->
+            <!--<phase>verify</phase>-->
+            <!--<goals>-->
+            <!--<goal>stop</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
             <!--生成包的文件名-->
 

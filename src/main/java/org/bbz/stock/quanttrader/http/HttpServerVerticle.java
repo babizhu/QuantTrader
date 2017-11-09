@@ -5,8 +5,11 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -74,36 +77,55 @@ public class HttpServerVerticle extends AbstractVerticle {
 //        router.route().handler( SessionHandler.MapperFromDB( LocalSessionStore.MapperFromDB(vertx)));
 //        router.route().handler(UserSessionHandler.MapperFromDB(auth));  (1)
     router.route().handler(BodyHandler.create());
-    JsonObject jwtConfig = new JsonObject().put("permissionsClaimKey", "roles")
-        .put("keyStore", new JsonObject()
-            .put("path", "./resources/keystore.jceks")
-            .put("type", "jceks")
-            .put("password", "secret"));
-
-    jwtAuthProvider = JWTAuth.create(vertx, jwtConfig);
-
-//        router.route( API_PREFIX+"*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );//暂时只能屏蔽
-    dispatcher(router);
-
-    router.route().handler(StaticHandler.create());//必须放在最后
-
-//        router.route( "/login" ).handler( this::login );
-//        router.route( "/s/isLogin" ).handler( this::isLogin );
-//        router.route( "/createUser" ).handler( this::createUser );
+    JWTAuthOptions jwtAuthOptions = new JWTAuthOptions()
+        .setKeyStore(new KeyStoreOptions()
+            .setPath("./resources/keystore.jceks")
+            .setType("jceks")
+            .setPassword("secret"));
+    jwtAuthProvider = JWTAuth.create(vertx, jwtAuthOptions);
+    //router.route( API_PREFIX+"*" ).handler( new CustomJWTAuthHandlerImpl(eventBus, jwtAuthProvider ) );//暂时只能屏蔽
+    adapterCorsHandler(router);
+    adapterFailureHandler(router);
+    dispatcherHandler(router);
+    adapterReactHandler(router);
+    router.route().handler(StaticHandler.create());//静态文件处理，必须放在最后
   }
 
-  private void dispatcher(Router mainRouter) {
-//        mainRouter.route().handler(CorsHandler.MapperFromDB("vertx\\.io").allowedMethod(HttpMethod.));
+  /**
+   * 适配react客户端的路由模式，访问任何页面都重定向到index.html中
+   *
+   * @param mainRouter mainRouter
+   */
+  private void adapterReactHandler(Router mainRouter) {
+    mainRouter.route("/*").handler(ctx -> {
+      if (!ctx.request().uri().contains(".")) {
+        ctx.reroute("/index.html");
+      } else {
+        ctx.next();
+      }
+    });
+  }
 
+  /**
+   * 适配跨欲模式
+   * @param mainRouter mainRouter
+   */
+  private void adapterCorsHandler(Router mainRouter) {
     final CorsHandler corsHandler = CorsHandler.create("*")
         .maxAgeSeconds(17280000)
         .allowedMethod(HttpMethod.GET)
         .allowedMethod(HttpMethod.POST)
         .allowedHeader("Content-Type");
+    mainRouter.route(API_PREFIX + "*").handler(corsHandler);
+  }
 
-    mainRouter.route(API_PREFIX + "*").handler(corsHandler)
+  private void adapterFailureHandler(Router mainRouter) {
+    mainRouter.route(API_PREFIX + "*")
         .failureHandler(ctx -> {
-          if( ctx.statusCode() == 404){
+          HttpServerRequest request = ctx.request();
+          log.debug("request=" + request.absoluteURI());
+          log.debug("response=" + ctx.failure());
+          if (ctx.statusCode() == 404) {
             JsonObject errorResponse = new JsonObject()
                 .put("eid", 404)
                 .put("msg", "Not Found");
@@ -111,21 +133,20 @@ public class HttpServerVerticle extends AbstractVerticle {
             return;
           }
           int errId = ErrorCode.SYSTEM_ERROR.toNum();
-//      if (ctx.failure() instanceof ReplyException) {
-//        errId = ((ReplyException) ctx.failure()).failureCode();
-//      }//以上代码不太确定是否有必要存在，
           if (ctx.failure() instanceof ErrorCodeException) {
             errId = ((ErrorCodeException) ctx.failure()).getErrorCode();
-
           }
           JsonObject errorResponse = new JsonObject()
               .put("eid", errId)
               .put("msg", ctx.failure().getMessage());
           ctx.response().setStatusCode(500).end(errorResponse.toString());
         });
+  }
+
+  private void dispatcherHandler(Router mainRouter) {
+//        mainRouter.route().handler(CorsHandler.MapperFromDB("vertx\\.io").allowedMethod(HttpMethod.));
     mainRouter.mountSubRouter(API_PREFIX,
         new LoginHandler(eventBus, jwtAuthProvider).addRouter(Router.router(vertx)));
-
     mainRouter.mountSubRouter(API_PREFIX + "trade",
         new TradeHandler(eventBus).addRouter(Router.router(vertx)));
     mainRouter.mountSubRouter(API_PREFIX + "user",
@@ -134,7 +155,5 @@ public class HttpServerVerticle extends AbstractVerticle {
         new AuthHandler(eventBus).addRouter(Router.router(vertx)));
     mainRouter.mountSubRouter(API_PREFIX + "tradingstrategy",
         new TradingStrategyHandler(eventBus).addRouter(Router.router(vertx)));
-//        mainRouter.route(API_PREFIX+"*").handler( new ResponseHandler() );
-
   }
 }

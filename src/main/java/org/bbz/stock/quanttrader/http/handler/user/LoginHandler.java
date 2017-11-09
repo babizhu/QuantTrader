@@ -63,17 +63,12 @@ public class LoginHandler extends AbstractHandler {
 //            reportError( ctx, ErrorCode.PARAMETER_ERROR, "password is null" );
 //            return;
 //        }
+
         JsonObject userJson = ctx.getBodyAsJson();
+        checkArgumentsStrict(userJson,JsonConsts.USER_NAME,JsonConsts.USER_PASSWORD);
         String username = userJson.getString(JsonConsts.USER_NAME);
-        if (username == null) {
-            reportError(ctx, ErrorCode.PARAMETER_ERROR, "username is null");
-            return;
-        }
         String password = userJson.getString(JsonConsts.USER_PASSWORD);
-        if (password == null) {
-            reportError(ctx, ErrorCode.PARAMETER_ERROR, "password is null");
-            return;
-        }
+
         String p = decodeRsaPassword(password);
         JsonObject usernameJson = new JsonObject().put(JsonConsts.USER_NAME, username);
         DeliveryOptions options = new DeliveryOptions().addHeader("action", EventBusCommand.DB_USER_QUERY.name());

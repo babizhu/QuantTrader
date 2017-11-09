@@ -17,10 +17,8 @@ public class TradeDataProvider {
     this.eventBus = eventBus;
   }
 
-  protected void send(JsonObject msg, EventBusCommand cmd,
-      Handler<Message<Object>> replyHandler) {
-    DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", cmd.name());
+  protected void send(JsonObject msg, EventBusCommand cmd, Handler<Message<Object>> replyHandler) {
+    DeliveryOptions options = new DeliveryOptions().addHeader("action", cmd.name());
     eventBus.send(EventBusAddress.DB_ADDR, msg, options, reply -> {
       if (reply.succeeded()) {
         replyHandler.handle(reply.result());
@@ -41,12 +39,12 @@ public class TradeDataProvider {
 
   /**
    * 获取所有正在运行或者暂停的trade
-   * @param replyHandler
    *
+   * @param replyHandler
    */
   public void getAllStartedTrades(Handler<Message<Object>> replyHandler) {
 
     JsonObject condition = new JsonObject().put("status", 1);
-    send(condition,EventBusCommand.DB_TRADE_ARGUMENT_QUERY, replyHandler);
+    send(condition, EventBusCommand.DB_TRADE_ARGUMENT_QUERY, replyHandler);
   }
 }

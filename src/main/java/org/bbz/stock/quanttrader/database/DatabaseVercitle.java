@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Created by liulaoye on 17-7-10. 数据库 vercitle
  */
+@SuppressWarnings("unused")
 @Slf4j
 public class DatabaseVercitle extends AbstractVerticle {
 

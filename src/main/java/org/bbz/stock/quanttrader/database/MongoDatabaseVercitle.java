@@ -44,14 +44,16 @@ public class MongoDatabaseVercitle extends AbstractVerticle {
     tradeService = new TradeService(mongoClient);
     tradingStrategyService = new TradingStrategyService(mongoClient);
     vertx.eventBus().consumer(EventBusAddress.DB_ADDR, this::onMessage);
+    log.debug("MongoDatabaseVercitle start() 执行完毕！");
     startFuture.complete();
   }
 
   private void onMessage(Message<JsonObject> message) {
-    if (!message.headers().contains("action")) {
+
+    String action = message.headers().get("action");
+    if (action == null) {
       message.fail(ErrorCode.NOT_IMPLENMENT.toNum(), "No action header specified");
     }
-    String action = message.headers().get("action");
     try {
       switch (EventBusCommand.valueOf(action)) {
         case DB_USER_CREATE:
@@ -107,10 +109,4 @@ public class MongoDatabaseVercitle extends AbstractVerticle {
       e.printStackTrace();
     }
   }
-//
-//
-//    private void reportError( Message<JsonObject> message, Throwable cause ){
-//        log.error( "Database query error", cause );
-//        message.fail( ErrorCode.DB_ERROR.ordinal(), cause.getMessage() );
-//    }
 }
