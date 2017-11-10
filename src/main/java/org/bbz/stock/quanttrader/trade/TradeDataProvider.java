@@ -9,15 +9,15 @@ import io.vertx.core.json.JsonObject;
 import org.bbz.stock.quanttrader.consts.EventBusAddress;
 import org.bbz.stock.quanttrader.consts.EventBusCommand;
 
-public class TradeDataProvider {
+class TradeDataProvider {
 
   private final EventBus eventBus;
 
-  public TradeDataProvider(EventBus eventBus) {
+  TradeDataProvider(EventBus eventBus) {
     this.eventBus = eventBus;
   }
 
-  protected void send(JsonObject msg, EventBusCommand cmd, Handler<Message<Object>> replyHandler) {
+  private void send(JsonObject msg, EventBusCommand cmd, Handler<Message<Object>> replyHandler) {
     DeliveryOptions options = new DeliveryOptions().addHeader("action", cmd.name());
     eventBus.send(EventBusAddress.DB_ADDR, msg, options, reply -> {
       if (reply.succeeded()) {
@@ -29,20 +29,20 @@ public class TradeDataProvider {
     });
 
   }
-
-  private JsonObject reportError(int errorCode, String msg) {
-    JsonObject resp = new JsonObject()
-        .put("eid", errorCode)
-        .put("msg", msg);
-    return resp;
-  }
+//
+//  private JsonObject reportError(int errorCode, String msg) {
+//    JsonObject resp = new JsonObject()
+//        .put("eid", errorCode)
+//        .put("msg", msg);
+//    return resp;
+//  }
 
   /**
    * 获取所有正在运行或者暂停的trade
    *
-   * @param replyHandler
+   * @param replyHandler      replyHandler
    */
-  public void getAllStartedTrades(Handler<Message<Object>> replyHandler) {
+  void getAllStartedTrades(Handler<Message<Object>> replyHandler) {
 
     JsonObject condition = new JsonObject().put("status", 1);
     send(condition, EventBusCommand.DB_TRADE_ARGUMENT_QUERY, replyHandler);
