@@ -67,7 +67,7 @@
 //        long begin = System.nanoTime();
 //        final Buffer buffer = Buffer.buffer();
 //        for( int i = 0; i < share; i++ ) {
-//            redis.setBinary( "name", buffer.setInt(0, 10000000 ), res -> {
+//            redis.setBinary( "modelName", buffer.setInt(0, 10000000 ), res -> {
 //
 //                if(res.succeeded()){
 //                    latch.countDown();
@@ -95,19 +95,19 @@
 //        CountDownLatch latch = new CountDownLatch( share );
 //        long begin = System.nanoTime();
 //        for( int i = 0; i < share; i++ ) {
-//            redis.set( "name", "10000000", res -> {
+//            redis.set( "modelName", "10000000", res -> {
 //                if( res.succeeded() ) {
 //                    latch.countDown();
 //                }
 //            } );
-////            redis.set( "name", "liulaoye" + i, null );
+////            redis.set( "modelName", "liulaoye" + i, null );
 //
 //        }
 //        latch.await();
 //        System.out.println( "操作耗时：" + (System.nanoTime() - begin) / 1000000000f + "秒" );
 //        CountDownLatch latch1 = new CountDownLatch( share );
 //        for( int i = 0; i < share; i++ ) {
-//            redis.get( "name", res -> {
+//            redis.get( "modelName", res -> {
 //                if( res.succeeded() ) {
 //                    latch1.countDown();
 //                }
@@ -116,7 +116,7 @@
 //        latch1.await();
 //        System.out.println( "操作耗时：" + (System.nanoTime() - begin) / 1000000000f + "秒" );
 //
-//        redis.get( "name", res ->
+//        redis.get( "modelName", res ->
 //
 //        {
 //            if( res.succeeded() ) {

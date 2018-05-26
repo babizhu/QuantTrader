@@ -97,7 +97,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
      * 转换为小写
      *
      * @param clazz class
-     * @return class name
+     * @return class modelName
      */
     private static String getClassName( Class<?> clazz ){
         String canonicalName = clazz.getCanonicalName();

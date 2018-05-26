@@ -14,6 +14,7 @@ import org.bbz.stock.quanttrader.trade.core.Portfolio;
 import org.bbz.stock.quanttrader.trade.core.QuantTradeContext;
 import org.bbz.stock.quanttrader.trade.financeindicators.FinanceIndicators;
 import org.bbz.stock.quanttrader.trade.model.AbstractTradeModel;
+import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.tradehistory.SimpleKBar;
 import org.bbz.stock.quanttrader.util.DateUtil;
@@ -24,42 +25,41 @@ import org.bbz.stock.quanttrader.util.DateUtil;
 @SuppressWarnings("unused")
 @Slf4j
 public class WaveTradeModel extends AbstractTradeModel {
-  
+
   private final IStockDataProvider dataProvider;
 
-  public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider, String name,
+  public WaveTradeModel(QuantTradeContext ctx, IStockDataProvider dataProvider, String modelName,
       String id, String desc, int status, Set<String> stockPool) {
-    super(ctx, name, id, desc, status, stockPool);
+    super(ctx, modelName, id, desc, status, stockPool);
     this.dataProvider = dataProvider;
   }
 
   @Override
   public void run() {
-    log.info("开始执行策略: " + DateUtil.formatDate(LocalDateTime.now()));
+//    log.info("开始执行策略: " + DateUtil.formatDate(LocalDateTime.now()));
     final Portfolio portfolio = ctx.getPortfolio();
     for (String stock : getStockPool()) {
       if (portfolio.getStocks().containsKey(stock)) {//此股票在库存中
-        tryCleanUp(stock);
-        sellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
+        tryCleanUp(stock).setHandler(res -> {
+          if (!res.result()) {
+            sellOrBuyInLittleWave(stock);//在小波浪中考虑加减仓
+          }
+        });
       } else {
         checkFirstBuy(stock);
       }
     }
-    addLog(DateUtil.formatDate(LocalDateTime.now()) + "\r\n");//倒序之后反而到前面去了
+    addLog(DateUtil.formatDate(LocalDateTime.now()) + "\r\n");
   }
 
   /**
-   * 小波段中检测加减仓条件\r\n
-   * 上一次交易记录是买，这次才能卖\r\n
-   * 上一次交易记录是卖，这次才能买\r\n <p>
-   * 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成\r\n
+   * 小波段中检测加减仓条件\r\n 上一次交易记录是买，这次才能卖\r\n 上一次交易记录是卖，这次才能买\r\n <p> 首次在哪个k线周期买入，以后所有的小波段操作都应该在这个k线周期完成\r\n
    */
   private void sellOrBuyInLittleWave(String stockId) {
     final JsonObject attachement = attachements.get(stockId);
-    final int lastOp = attachement
-        .getInteger(Consts.LAST_OP_IN_LITTLE_WAVE_KEY, 1);//这里有bug 1是绕开bug，暂时没空调整
+    StockTradeRecord lastTradeRecord = ctx.getLastTradeRecord(stockId);
     KLineType kLineType = KLineType.fromString(attachement.getString(Consts.KLINE_TYPE_KEY));
-    if (lastOp == Consts.BUY) {//小波段减仓
+    if (lastTradeRecord.isBuy()) {//最后一次操作是买入，所以本次操作应该是小波段减仓
       checkSellInLittleWave(stockId, kLineType);
     } else {//小波段加仓
       checkBuyInLittleWave(stockId, kLineType);
@@ -112,7 +112,7 @@ public class WaveTradeModel extends AbstractTradeModel {
       String result = stockId + " : ";
       if (res.succeeded()) {
         final List<SimpleKBar> kBars = res.result();
-        if (KValueGreaterThan(kBars, 80)) {//K值 > 80
+        if (KValueGreatThan(kBars, 80)) {//K值 > 80
           if (checkDown(kBars.subList(kBars.size() - 2, kBars.size()))) {
             result += "卖出";
 //            ctx.order(stockId, -200);xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -327,7 +327,7 @@ public class WaveTradeModel extends AbstractTradeModel {
    * @return true:   大于参数v          false:  小于参数v
    */
   @SuppressWarnings("SameParameterValue")
-  private boolean KValueGreaterThan(List<SimpleKBar> data, double v) {
+  private boolean KValueGreatThan(List<SimpleKBar> data, double v) {
     double[][] doubles = FinanceIndicators.INSTANCE.calcKDJ(data, 8, 3, 2);
     int len = data.size() - 1;
 //        System.out.println( "k:" + doubles[0][len] );
@@ -366,21 +366,38 @@ public class WaveTradeModel extends AbstractTradeModel {
         && oldSimpleKBar.getHigh() > newSimpleKBar.getHigh();
   }
 
-  /**
-   * 当前股价低于清仓价 尝试清仓
-   *
-   * @param stockId stockId
-   */
-  private void tryCleanUp(String stockId) {
+//  /**
+//   * 当前股价低于清仓价 尝试清仓
+//   *
+//   * @param stockId stockId
+//   */
+//  private void tryCleanUp1(String stockId) {
+//    Double cleanupPrice = getDoubleFromAttachements(stockId, Consts.CLEAN_UP_PRICE_KEY);
+//    if (cleanupPrice == null) {
+//      return;
+//    }
+//    dataProvider.getCurrentKbar(stockId, res -> {
+//      if (cleanupPrice > res.getClose()) {
+//        System.out.println("当前价(" + res + ")低于清仓点：" + cleanupPrice + "。清仓卖出！！！");
+//        ctx.cleanUp(stockId);
+//      }
+//    });
+//  }
+
+  private Future<Boolean> tryCleanUp(String stockId) {
     Double cleanupPrice = getDoubleFromAttachements(stockId, Consts.CLEAN_UP_PRICE_KEY);
     if (cleanupPrice == null) {
-      return;
+      return Future.succeededFuture(false);
     }
+    Future<Boolean> future = Future.future();
     dataProvider.getCurrentKbar(stockId, res -> {
       if (cleanupPrice > res.getClose()) {
         System.out.println("当前价(" + res + ")低于清仓点：" + cleanupPrice + "。清仓卖出！！！");
         ctx.cleanUp(stockId);
+        future.complete();
       }
     });
+    return Future.future();
   }
+
 }

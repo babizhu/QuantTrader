@@ -33,8 +33,7 @@ public class QuantTradeContext {
 
 //  private Set<String> stocks;
 
-  public QuantTradeContext(OrderCost orderCost, String initBalance,
-      List<StockTradeRecord> tradeRecords) {
+  public QuantTradeContext(OrderCost orderCost, String initBalance, List<StockTradeRecord> tradeRecords) {
     this.orderCost = orderCost;
     this.tradeRecords = tradeRecords;
     runType = RunType.REAL_TRADE;
@@ -54,21 +53,25 @@ public class QuantTradeContext {
    * @param price       价格
    */
   public void order(String stockId, int share, float price ) {
-//    BigDecimal price = BigDecimal.valueOf(3.45);
-
     trade(StockTradeRecord.create(stockId, share, price, new JsonObject()));
 
+  }
+
+  public StockTradeRecord getLastTradeRecord(String stockId) {
+    List<StockTradeRecord> collect = tradeRecords.stream()
+        .filter(record -> record.getStockId().equals(stockId) && !record.isPending()).collect(Collectors.toList());
+    return collect.get(collect.size() - 1);
   }
 
   /**
    * 用当前价格购买或者卖出股票 share>0      买入股票 share<0      卖出股票
    */
-  public void order(String stockId, int count, JsonObject attachement) {
+  public void order(String stockId, int share, JsonObject attachement) {
 
 //    BigDecimal price = BigDecimal.valueOf(3.45);
     float price = 3.45f;
 
-    trade(StockTradeRecord.create(stockId, count, price, attachement));
+    trade(StockTradeRecord.create(stockId, share, price, attachement));
 
   }
 

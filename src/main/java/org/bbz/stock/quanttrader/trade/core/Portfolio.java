@@ -31,7 +31,7 @@ public class Portfolio {
   /**
    * 为整个模型准备的初始资金，永远不会被改变
    */
-  private BigDecimal initBalance;
+  private final BigDecimal initBalance;
 
   /**
    * 当前的可用资金

@@ -26,16 +26,16 @@ public abstract class AbstractTradeModel implements ITradeModel {
   protected final String id;
   protected List<String> logs = new ArrayList<>();
   protected final String desc;
-  protected final String name;
+  protected final String modelName;
   protected int status;
   protected LocalDateTime startTime;
   private final Set<String> stockPool;
 
 
-  public AbstractTradeModel(QuantTradeContext ctx, String name, String id, String desc,
+  public AbstractTradeModel(QuantTradeContext ctx, String modelName, String id, String desc,
       int status, Set<String> stockPool) {
     this.ctx = ctx;
-    this.name = name;
+    this.modelName = modelName;
     this.id = id;
     this.status = status;
     this.desc = desc;
@@ -52,8 +52,8 @@ public abstract class AbstractTradeModel implements ITradeModel {
     if (!attachements.containsKey(stockId)) {
       attachements.put(stockId, new JsonObject().put(key, value));
     } else {
-      final JsonObject entries = attachements.get(stockId);
-      entries.put(key, value);
+      final JsonObject attachement = attachements.get(stockId);
+      attachement.put(key, value);
     }
     return this;
   }
@@ -115,7 +115,7 @@ public abstract class AbstractTradeModel implements ITradeModel {
         .put("tradeDetail",
             new JsonObject()
                 .put(JsonConsts.TRADE_RECORDS, tradeRecord)
-                .put(JsonConsts.MODEL_NAME_KEY, getName())
+                .put(JsonConsts.MODEL_NAME_KEY, this.getModelName())
                 .put(JsonConsts.MONGO_DB_ID, getId())
                 .put(JsonConsts.MODEL_DESC_KEY, getDesc())
                 .put(JsonConsts.MODEL_STATUS_KEY, getStatus()));

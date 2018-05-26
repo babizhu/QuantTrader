@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 /**
  * Created by liu_k on 2017/6/20.
- * 日k线？哈哈哈
+ * k线图
  *
  */
 @Data

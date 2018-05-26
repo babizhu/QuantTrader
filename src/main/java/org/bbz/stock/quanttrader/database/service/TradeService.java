@@ -37,7 +37,7 @@ public class TradeService extends AbstractDataServiceWithIdentity {
 //    { "$project": {
 //      "text": 1,
 //          "date": 1,
-//          "userinfo.name": 1,
+//          "userinfo.modelName": 1,
 //          "userinfo.country": 1
 //    } }
 //]);

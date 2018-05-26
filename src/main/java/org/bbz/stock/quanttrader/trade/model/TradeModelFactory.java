@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,9 @@ import org.bbz.stock.quanttrader.trade.stock.StockTradeRecord;
 import org.bbz.stock.quanttrader.trade.stockdata.IStockDataProvider;
 import org.bbz.stock.quanttrader.trade.stockdata.impl.TuShareDataProvider;
 
+/**
+ * 构建工厂
+ */
 public class TradeModelFactory {
 
   public static AbstractTradeModel createByJson(JsonObject json, Vertx vertx) {
@@ -30,7 +34,6 @@ public class TradeModelFactory {
       e.printStackTrace();
     }
     return null;
-
   }
 
 
@@ -44,7 +47,7 @@ public class TradeModelFactory {
     String tradeModelClassName = getClassName(strategyJson.getString(JsonConsts.MODEL_CLASS_KEY));
     Class<?> clazz = Class.forName(tradeModelClassName);
     Constructor c = clazz.getConstructor(QuantTradeContext.class,
-        IStockDataProvider.class, String.class, String.class, String.class, int.class,Set.class);
+        IStockDataProvider.class, String.class, String.class, String.class, int.class, Set.class);
     final String id = json.getString(JsonConsts.MONGO_DB_ID);
     final String desc = json.getString(JsonConsts.MODEL_DESC_KEY);
     final String name = json.getString(JsonConsts.MODEL_NAME_KEY);
@@ -52,13 +55,10 @@ public class TradeModelFactory {
 
     final String stockList = json.getString(JsonConsts.STOCKS);
     Set<String> stockPool = new HashSet<>();
-    for (String stock : stockList.split(",")) {
-      stockPool.add(stock);
-    }
-    final AbstractTradeModel trade = (AbstractTradeModel) c
-        .newInstance(ctx, dataProvider, name, id, desc, status,stockPool);
+    stockPool.addAll(Arrays.asList(stockList.split(",")));
 
-    return trade;
+    return (AbstractTradeModel) c
+        .newInstance(ctx, dataProvider, name, id, desc, status, stockPool);
   }
 
   private IStockDataProvider createDataProvider(JsonObject dataProvider, Vertx vertx) {
@@ -84,23 +84,20 @@ public class TradeModelFactory {
     final String initBalance = json
         .getString(JsonConsts.INIT_BALANCE_KEY, JsonConsts.DEFAULT_INIT_BALANCE_VALUE);
 
-    final List<StockTradeRecord> tradeRecords = createStockTradeRecords(
+    final List<StockTradeRecord> tradeRecords = createStockTradeRecordsByJson(
         json.getJsonArray("tradeRecords"));
 
-    final QuantTradeContext ctx = new QuantTradeContext(orderCost, initBalance, tradeRecords);
-
-//    final HashMap<String, Integer> stocks = new HashMap<>();
+    //    final HashMap<String, Integer> stocks = new HashMap<>();
 
 //        final Map<String, String> allStocks = AllStocks.INSTANCE.getAllStocks();
 //        for( String s : allStocks.keySet() ) {
 //            stocks.put( s, 0 );, 0 );
 //        }
 
-
-    return ctx;
+    return new QuantTradeContext(orderCost, initBalance, tradeRecords);
   }
 
-  private List<StockTradeRecord> createStockTradeRecords(JsonArray tradeRecordsJson) {
+  private List<StockTradeRecord> createStockTradeRecordsByJson(JsonArray tradeRecordsJson) {
     List<StockTradeRecord> tradeRecords = new ArrayList<>();
     for (Object o : tradeRecordsJson) {
 

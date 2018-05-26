@@ -29,7 +29,7 @@ public class JsonConsts{
     public static final String MODEL_CLASS_KEY = "modelClass";
     public static final String MODEL_STATUS_KEY = "status";
     public static final String MODEL_DESC_KEY = "desc";
-    public static final String MODEL_NAME_KEY = "name";
+    public static final String MODEL_NAME_KEY = "modelName";
 
 
     /**

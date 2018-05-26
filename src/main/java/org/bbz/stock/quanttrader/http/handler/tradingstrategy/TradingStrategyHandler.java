@@ -99,7 +99,7 @@ public class TradingStrategyHandler extends AbstractHandler {
   }
 
   private void create(RoutingContext ctx, JsonObject userJson) {
-    checkArgumentsStrict(userJson, "name", "desc",JsonConsts.MODEL_CLASS_KEY,
+    checkArgumentsStrict(userJson, "modelName", "desc",JsonConsts.MODEL_CLASS_KEY,
         JsonConsts.MONGO_DB_ID, "owner");
 
     userJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成

@@ -46,7 +46,7 @@ public interface ITradeModel{
 
     QuantTradeContext getQuantTradeContext();
 
-    String getName();
+    String getModelName();
     LocalDateTime getStartTime();
 //    String getInitBalance();
     String getId();

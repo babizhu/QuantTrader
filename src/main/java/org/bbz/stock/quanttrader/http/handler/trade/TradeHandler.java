@@ -47,6 +47,11 @@ public class TradeHandler extends AbstractHandler {
     return restAPI;
   }
 
+  /**
+   * 根据id计算应该把请求发送到那个Verticle的实例上
+   * @param id  id
+   * @return  Verticle的实例名字
+   */
   private String calcTradeModelAddress(String id) {
     return EventBusAddress.TRADE_MODEL_ADDR + (id.hashCode() % TRADE_MODEL_COUNT);
   }
@@ -126,14 +131,14 @@ public class TradeHandler extends AbstractHandler {
     } else {
       update(ctx, tradeJson);
     }
+
   }
 
   private void update(RoutingContext ctx, JsonObject updateJson) {
 
     checkArguments(updateJson, "arguments", JsonConsts.STOCKS,
         "desc", "strategyId", JsonConsts.MONGO_DB_ID, JsonConsts.INIT_BALANCE_KEY);
-    DeliveryOptions options = new DeliveryOptions()
-        .addHeader("action", EventBusCommand.DB_TRADE_UPDATE.name());
+    DeliveryOptions options = new DeliveryOptions().addHeader("action", EventBusCommand.DB_TRADE_UPDATE.name());
     send(EventBusAddress.DB_ADDR, updateJson, options, ctx, reply -> {
       final JsonObject result = (JsonObject) reply.body();
       log.info(result.toString());
@@ -143,12 +148,12 @@ public class TradeHandler extends AbstractHandler {
   }
 
   private void create(RoutingContext ctx, JsonObject tradeJson) {
-    checkArgumentsStrict(tradeJson, "name", "initBalance", "strategyId", "stocks",
+    checkArgumentsStrict(tradeJson, "modelName", "initBalance", "strategyId", "stocks",
         JsonConsts.MONGO_DB_ID, "userName", "arguments", "desc");
 
     tradeJson.put("status", 0);//增加状态指令
 
-    tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id，以便让mongodb自动生成
+    tradeJson.remove(JsonConsts.MONGO_DB_ID);//去掉_id字段，以便让mongodb自动生成
 
     DeliveryOptions options = new DeliveryOptions()
         .addHeader("action", EventBusCommand.DB_TRADE_CREATE.name());
